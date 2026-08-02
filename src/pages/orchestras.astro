@@ -1,0 +1,81 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const ensembles = (await getCollection('ensembles', ({ data }) => !data.draft))
+  .sort((a, b) => a.data.order - b.data.order);
+
+const rendered = await Promise.all(
+  ensembles.map(async (e) => ({ ...e, Content: (await e.render()).Content }))
+);
+---
+
+<Base
+  title="Our Orchestras"
+  description="Five leveled ensembles at Alpharetta High School — Concert, Silver, Philharmonia, Sinfonia, and Symphony — with placement requirements for each."
+>
+  <section class="section">
+    <div class="wrap">
+      <p class="eyebrow">The orchestras</p>
+      <h1>Five ensembles</h1>
+      <p class="lede">
+        Every student is placed by audition into the group that fits where
+        they are now — and moves up as they grow. All five rehearse during
+        the school day, so orchestra fits alongside sports and clubs.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div class="wrap">
+      {rendered.map(({ data, slug, Content }) => (
+        <article class="ens" id={slug}>
+          <div class="ens__head">
+            <h2>{data.name}</h2>
+            <dl class="ens__facts">
+              {data.grades && <div><dt>Grades</dt><dd>{data.grades}</dd></div>}
+              {data.period && <div><dt>Period</dt><dd>{data.period}</dd></div>}
+              {data.gmeaLevel && <div><dt>GMEA level</dt><dd>{data.gmeaLevel}</dd></div>}
+            </dl>
+          </div>
+          <div class="ens__body">
+            <Content />
+            {data.requirements && (
+              <p class="req"><strong>Placement requirements:</strong> {data.requirements}</p>
+            )}
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .ens {
+    display: grid; grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+    gap: 2.5rem;
+    padding-block: 3rem;
+    border-top: 1px solid var(--rule);
+    scroll-margin-top: 100px;
+  }
+  .ens:first-child { border-top: 0; padding-top: 0; }
+  .ens__head h2 { font-size: var(--step-2); margin-bottom: 1.25rem; }
+
+  .ens__facts { margin: 0; display: grid; gap: 0.9rem; }
+  .ens__facts div { margin: 0; }
+  .ens__facts dt {
+    font-size: 0.68rem; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--maroon);
+  }
+  .ens__facts dd { margin: 0; font-size: 0.95rem; }
+
+  .req {
+    font-size: 0.925rem; color: var(--ink-soft);
+    background: var(--paper-alt); padding: 1rem 1.25rem;
+    border-radius: var(--radius); border-left: 3px solid var(--maroon);
+  }
+
+  @media (max-width: 800px) {
+    .ens { grid-template-columns: 1fr; gap: 1.5rem; }
+  }
+</style>

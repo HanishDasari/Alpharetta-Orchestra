@@ -1,0 +1,78 @@
+---
+import Base from '../layouts/Base.astro';
+import EventCard from '../components/EventCard.astro';
+import { upcomingEvents, pastEvents } from '../lib/events';
+
+const upcoming = await upcomingEvents();
+const past = await pastEvents(12);
+---
+
+<Base
+  title="Calendar"
+  description="Concerts, festivals, and events for the Alpharetta High School Orchestras. Subscribe to add them to your own calendar."
+>
+  <section class="section">
+    <div class="wrap">
+      <p class="eyebrow">Calendar</p>
+      <h1>Concerts &amp; events</h1>
+      <p class="lede">
+        Everything on one page. Subscribe once and new concerts show up in
+        your phone's calendar automatically.
+      </p>
+      <a href="/events.ics" class="btn btn--primary" style="margin-top:1.5rem">
+        Subscribe to calendar
+      </a>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div class="wrap">
+      <h2 class="sub">Upcoming</h2>
+      {upcoming.length > 0 ? (
+        <div class="grid">
+          {upcoming.map((e) => (
+            <EventCard
+              title={e.data.title}
+              start={e.data.start}
+              location={e.data.location}
+              ensembles={e.data.ensembles}
+              summary={e.data.summary}
+              href={`/events/${e.slug}`}
+            />
+          ))}
+        </div>
+      ) : (
+        <p class="empty">Nothing scheduled at the moment. Check back soon.</p>
+      )}
+    </div>
+  </section>
+
+  {past.length > 0 && (
+    <section class="section section--alt">
+      <div class="wrap">
+        <h2 class="sub">Past events</h2>
+        <p class="note">Events move here on their own once the date passes.</p>
+        <div class="grid">
+          {past.map((e) => (
+            <EventCard
+              title={e.data.title}
+              start={e.data.start}
+              location={e.data.location}
+              ensembles={e.data.ensembles}
+              summary={e.data.summary}
+              href={`/events/${e.slug}`}
+              past
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+</Base>
+
+<style>
+  .sub { font-size: var(--step-2); margin-bottom: 1.5rem; }
+  .grid { display: grid; gap: 1rem; }
+  .empty, .note { color: var(--ink-soft); font-size: 0.925rem; }
+  .note { margin-top: -1rem; margin-bottom: 1.75rem; }
+</style>

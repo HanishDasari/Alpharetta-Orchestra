@@ -1,0 +1,161 @@
+---
+import Base from '../layouts/Base.astro';
+import EventCard from '../components/EventCard.astro';
+import { getCollection } from 'astro:content';
+import { upcomingEvents } from '../lib/events';
+
+const next = await upcomingEvents(3);
+const ensembles = (await getCollection('ensembles', ({ data }) => !data.draft))
+  .sort((a, b) => a.data.order - b.data.order);
+---
+
+<Base title="home">
+  <!-- Hero -------------------------------------------------------->
+  <section class="hero">
+    <div class="wrap hero__inner">
+      <p class="eyebrow">Alpharetta, Georgia · Est. 2004</p>
+      <h1>Where 130 students<br />become one orchestra.</h1>
+      <p class="lede">
+        Five ensembles. Daily instruction. A program that has played
+        Carnegie Hall, the Midwest Clinic, and Chicago Symphony Hall —
+        and rehearses down the hall from your first-period class.
+      </p>
+      <div class="hero__actions">
+        <a href="/orchestras" class="btn btn--primary">Meet the orchestras</a>
+        <a href="/calendar" class="btn btn--ghost">Upcoming concerts</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- At a glance ------------------------------------------------->
+  <section class="section section--alt">
+    <div class="wrap">
+      <ul class="stats">
+        <li><strong>130+</strong><span>Student musicians</span></li>
+        <li><strong>5</strong><span>Leveled ensembles</span></li>
+        <li><strong>2004</strong><span>Program founded</span></li>
+        <li><strong>Superior</strong><span>LGPE ratings</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Next up ----------------------------------------------------->
+  <section class="section">
+    <div class="wrap">
+      <div class="head">
+        <div>
+          <p class="eyebrow">Next up</p>
+          <h2>Come hear us play</h2>
+        </div>
+        <a href="/calendar" class="head__link">Full calendar &rarr;</a>
+      </div>
+
+      {next.length > 0 ? (
+        <div class="grid">
+          {next.map((e) => (
+            <EventCard
+              title={e.data.title}
+              start={e.data.start}
+              location={e.data.location}
+              ensembles={e.data.ensembles}
+              summary={e.data.summary}
+              href={`/events/${e.slug}`}
+            />
+          ))}
+        </div>
+      ) : (
+        <p class="empty">
+          No concerts on the calendar right now — check back soon, or
+          <a href="/events.ics">subscribe to our calendar</a> to get them automatically.
+        </p>
+      )}
+    </div>
+  </section>
+
+  <!-- Ensembles --------------------------------------------------->
+  <section class="section section--alt">
+    <div class="wrap">
+      <p class="eyebrow">The orchestras</p>
+      <h2>Five ensembles, one program</h2>
+      <p class="lede" style="margin-bottom:2.5rem">
+        Students are placed by audition and grow through the program year by year.
+      </p>
+
+      <div class="ens">
+        {ensembles.map((e) => (
+          <a href={`/orchestras#${e.slug}`} class="ens__item">
+            <h3>{e.data.name}</h3>
+            {e.data.gmeaLevel && <p class="ens__level">GMEA Level {e.data.gmeaLevel}</p>}
+            {e.data.summary && <p class="ens__sum">{e.data.summary}</p>}
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Quote ------------------------------------------------------->
+  <section class="section quote">
+    <div class="wrap">
+      <blockquote>
+        <p>&ldquo;With an orchestra, you are building citizens, better citizens for the community.&rdquo;</p>
+        <cite>Gustavo Dudamel</cite>
+      </blockquote>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero { padding-block: clamp(4rem, 11vw, 8.5rem) clamp(3rem, 7vw, 5rem); }
+  .hero__inner { max-width: 900px; }
+  .hero h1 { margin-bottom: 1.25rem; }
+  .hero .lede { max-width: 58ch; }
+  .hero__actions { display: flex; flex-wrap: wrap; gap: 0.85rem; margin-top: 2.25rem; }
+
+  .stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 2rem; list-style: none; padding: 0; margin: 0; text-align: center;
+  }
+  .stats li { display: flex; flex-direction: column; gap: 0.35rem; }
+  .stats strong { font-size: var(--step-3); font-weight: 600; letter-spacing: -0.03em; }
+  .stats span {
+    font-size: 0.78rem; font-weight: 500; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-soft);
+  }
+
+  .head {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 1.5rem; margin-bottom: 2.5rem; flex-wrap: wrap;
+  }
+  .head h2 { margin: 0; }
+  .head__link { font-size: 0.925rem; font-weight: 500; text-decoration: none; white-space: nowrap; }
+  .head__link:hover { text-decoration: underline; }
+
+  .grid { display: grid; gap: 1rem; }
+  .empty { color: var(--ink-soft); }
+
+  .ens { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; }
+  .ens__item {
+    display: block; padding: 1.6rem 1.4rem;
+    background: var(--paper); border: 1px solid var(--rule);
+    border-radius: var(--radius); text-decoration: none; color: var(--ink);
+    transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+  }
+  .ens__item:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+  .ens__item h3 { margin-bottom: 0.3rem; }
+  .ens__level {
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--maroon); margin-bottom: 0.7rem;
+  }
+  .ens__sum { font-size: 0.9rem; color: var(--ink-soft); margin: 0; }
+
+  .quote { text-align: center; }
+  .quote blockquote { margin: 0; max-width: 46ch; margin-inline: auto; }
+  .quote p {
+    font-size: var(--step-2); font-weight: 300; line-height: 1.4;
+    letter-spacing: -0.02em; margin-bottom: 1.25rem; max-width: none;
+  }
+  .quote cite {
+    font-style: normal; font-size: 0.78rem; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft);
+  }
+</style>

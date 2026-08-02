@@ -1,0 +1,93 @@
+---
+import Base from '../../layouts/Base.astro';
+import { allEvents } from '../../lib/events';
+
+export async function getStaticPaths() {
+  const events = await allEvents();
+  return events.map((entry) => ({ params: { slug: entry.slug }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+const { title, start, end, location, address, ensembles, summary, link, gallery } = entry.data;
+
+const dateLong = start.toLocaleDateString('en-US', {
+  weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
+  timeZone: 'America/New_York',
+});
+const timeStr = start.toLocaleTimeString('en-US', {
+  hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York',
+});
+const isPast = (end ?? start).getTime() < Date.now();
+---
+
+<Base title={title} description={summary}>
+  <article class="section">
+    <div class="wrap narrow">
+      <a href="/calendar" class="back">&larr; All events</a>
+
+      {isPast && <p class="badge">Past event</p>}
+      <h1>{title}</h1>
+
+      <dl class="facts">
+        <div><dt>Date</dt><dd><time datetime={start.toISOString()}>{dateLong}</time></dd></div>
+        <div><dt>Time</dt><dd>{timeStr}</dd></div>
+        {location && <div><dt>Location</dt><dd>{location}{address && <><br />{address}</>}</dd></div>}
+        {ensembles.length > 0 && <div><dt>Performing</dt><dd>{ensembles.join(', ')}</dd></div>}
+      </dl>
+
+      {link && <a href={link.url} class="btn btn--primary">{link.label}</a>}
+
+      <div class="prose"><Content /></div>
+
+      {gallery.length > 0 && (
+        <section class="gallery">
+          <h2>Photos</h2>
+          <div class="gallery__grid">
+            {gallery.map((img) => <img src={img.src} alt="" loading="lazy" width={img.width} height={img.height} />)}
+          </div>
+        </section>
+      )}
+    </div>
+  </article>
+</Base>
+
+<style>
+  .narrow { max-width: 760px; }
+  .back {
+    display: inline-block; font-size: 0.875rem; font-weight: 500;
+    text-decoration: none; margin-bottom: 2rem; color: var(--ink-soft);
+  }
+  .back:hover { color: var(--maroon); }
+
+  .badge {
+    display: inline-block; font-size: 0.7rem; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-soft); background: var(--paper-alt);
+    padding: 0.3rem 0.7rem; border-radius: 999px; margin-bottom: 1rem;
+  }
+
+  .facts {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.5rem; margin: 2rem 0;
+    padding: 1.75rem 0;
+    border-block: 1px solid var(--rule);
+  }
+  .facts div { margin: 0; }
+  .facts dt {
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--maroon); margin-bottom: 0.35rem;
+  }
+  .facts dd { margin: 0; font-size: 0.95rem; }
+
+  .prose { margin-top: 2.5rem; }
+  .prose :global(h2) { font-size: var(--step-1); margin-top: 2rem; }
+
+  .gallery { margin-top: 3.5rem; }
+  .gallery h2 { font-size: var(--step-1); }
+  .gallery__grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
+  }
+  .gallery__grid img { border-radius: var(--radius); object-fit: cover; aspect-ratio: 4 / 3; }
+</style>

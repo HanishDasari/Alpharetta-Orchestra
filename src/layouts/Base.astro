@@ -1,0 +1,55 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const {
+  title,
+  description = 'The Alpharetta High School Orchestras — five ensembles, 130+ student musicians, and a nationally recognized string program in Alpharetta, Georgia.',
+} = Astro.props;
+
+const fullTitle = title === 'home' ? 'Alpharetta High School Orchestras' : `${title} — Alpharetta High School Orchestras`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <!-- Open Graph: this is what makes links look right when shared,
+         which matters for the "reach people outside our school" goal. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="alternate" type="text/calendar" href="/events.ics" title="AHS Orchestra Events" />
+  </head>
+
+  <body>
+    <Header />
+    <main id="main"><slot /></main>
+    <Footer />
+  </body>
+</html>
+
+<style is:global>
+  body { display: flex; flex-direction: column; min-height: 100vh; }
+  main { flex: 1; }
+</style>

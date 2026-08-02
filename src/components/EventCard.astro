@@ -1,0 +1,100 @@
+---
+interface Props {
+  title: string;
+  start: Date;
+  location?: string;
+  ensembles?: string[];
+  summary?: string;
+  href: string;
+  past?: boolean;
+}
+
+const { title, start, location, ensembles = [], summary, href, past = false } = Astro.props;
+
+const month = start.toLocaleDateString('en-US', { month: 'short', timeZone: 'America/New_York' });
+const day = start.toLocaleDateString('en-US', { day: 'numeric', timeZone: 'America/New_York' });
+const time = start.toLocaleTimeString('en-US', {
+  hour: 'numeric',
+  minute: '2-digit',
+  timeZone: 'America/New_York',
+});
+const year = start.getFullYear();
+---
+
+<article class:list={['card', past && 'card--past']}>
+  <div class="card__date" aria-hidden="true">
+    <span class="card__month">{month}</span>
+    <span class="card__day">{day}</span>
+    {past && <span class="card__year">{year}</span>}
+  </div>
+
+  <div class="card__body">
+    <h3 class="card__title">
+      <a href={href}>{title}</a>
+    </h3>
+
+    <p class="card__meta">
+      <time datetime={start.toISOString()}>
+        <span class="visually-hidden">{month} {day}, {year} — </span>{time}
+      </time>
+      {location && <> · {location}</>}
+    </p>
+
+    {summary && <p class="card__summary">{summary}</p>}
+
+    {ensembles.length > 0 && (
+      <ul class="tags">
+        {ensembles.map((e) => <li class="tag">{e}</li>)}
+      </ul>
+    )}
+  </div>
+</article>
+
+<style>
+  .card {
+    display: flex; gap: 1.5rem;
+    padding: 1.5rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    background: var(--paper);
+    transition: box-shadow 0.2s var(--ease), transform 0.2s var(--ease), border-color 0.2s var(--ease);
+  }
+  .card:hover { box-shadow: var(--shadow); transform: translateY(-2px); border-color: transparent; }
+  .card--past { opacity: 0.92; }
+
+  .card__date {
+    flex: 0 0 64px; text-align: center;
+    border-right: 1px solid var(--rule);
+    padding-right: 1.25rem;
+  }
+  .card__month {
+    display: block; font-size: 0.7rem; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--maroon);
+  }
+  .card__day { display: block; font-size: 1.9rem; font-weight: 600; line-height: 1.1; }
+  .card__year { display: block; font-size: 0.72rem; color: var(--ink-faint); }
+
+  .card__body { min-width: 0; }
+  .card__title { font-size: var(--step-1); margin-bottom: 0.3rem; }
+  .card__title a { color: var(--ink); text-decoration: none; }
+  .card__title a:hover { color: var(--maroon); }
+  /* Makes the whole card clickable without nesting interactive elements */
+  .card__title a::after { content: ''; position: absolute; inset: 0; }
+  .card { position: relative; }
+
+  .card__meta { font-size: 0.875rem; color: var(--ink-soft); margin-bottom: 0.6rem; }
+  .card__summary { font-size: 0.925rem; color: var(--ink-soft); margin-bottom: 0.75rem; }
+
+  .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; list-style: none; padding: 0; margin: 0; }
+  .tag {
+    font-size: 0.72rem; font-weight: 500; letter-spacing: 0.04em;
+    padding: 0.22rem 0.6rem;
+    border: 1px solid var(--rule); border-radius: 999px;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 520px) {
+    .card { gap: 1rem; padding: 1.25rem; }
+    .card__date { flex-basis: 52px; padding-right: 1rem; }
+  }
+</style>

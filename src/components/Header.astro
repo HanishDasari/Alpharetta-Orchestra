@@ -1,0 +1,111 @@
+---
+const nav = [
+  { label: 'About', href: '/about' },
+  { label: 'Orchestras', href: '/orchestras' },
+  { label: 'Calendar', href: '/calendar' },
+  { label: 'For Students', href: '/students' },
+  { label: 'Support Us', href: '/support' },
+];
+const { pathname } = Astro.url;
+---
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="/">
+      <span class="brand__name">Alpharetta High School</span>
+      <span class="brand__sub">Orchestras</span>
+    </a>
+
+    <input type="checkbox" id="nav-toggle" class="visually-hidden" />
+    <label for="nav-toggle" class="burger" aria-label="Menu"><span></span></label>
+
+    <nav class="nav" aria-label="Main">
+      {nav.map((item) => (
+        <a
+          href={item.href}
+          class="nav__link"
+          aria-current={pathname.startsWith(item.href) ? 'page' : undefined}
+        >{item.label}</a>
+      ))}
+      <a href="/support#donate" class="btn btn--primary nav__cta">Donate</a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .skip {
+    position: absolute; left: -9999px;
+    background: var(--ink); color: #fff;
+    padding: 0.75rem 1.25rem; z-index: 100;
+  }
+  .skip:focus { left: 1rem; top: 1rem; }
+
+  .site-header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .bar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 2rem; min-height: 72px;
+  }
+
+  .brand { text-decoration: none; color: var(--ink); line-height: 1.15; }
+  .brand__name {
+    display: block; font-size: 0.7rem; font-weight: 600;
+    letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-soft);
+  }
+  .brand__sub { display: block; font-size: 1.35rem; font-weight: 600; letter-spacing: -0.02em; }
+
+  .nav { display: flex; align-items: center; gap: 1.75rem; }
+  .nav__link {
+    text-decoration: none; color: var(--ink);
+    font-size: 0.925rem; font-weight: 500;
+    padding-block: 0.25rem;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.18s var(--ease), color 0.18s var(--ease);
+  }
+  .nav__link:hover { border-bottom-color: var(--silver); }
+  .nav__link[aria-current='page'] { border-bottom-color: var(--maroon); color: var(--maroon); }
+  .nav__cta { margin-left: 0.5rem; }
+
+  .burger { display: none; }
+
+  @media (max-width: 900px) {
+    .burger {
+      display: block; width: 30px; height: 22px;
+      position: relative; cursor: pointer;
+    }
+    .burger span,
+    .burger::before,
+    .burger::after {
+      content: ''; position: absolute; left: 0;
+      width: 100%; height: 2px; background: var(--ink);
+      transition: transform 0.22s var(--ease), opacity 0.22s var(--ease);
+    }
+    .burger::before { top: 0; }
+    .burger span { top: 10px; }
+    .burger::after { bottom: 0; }
+
+    .nav {
+      position: absolute; inset: 72px 0 auto;
+      flex-direction: column; align-items: flex-start;
+      gap: 0; padding: 0 var(--gutter);
+      background: var(--paper);
+      border-bottom: 1px solid var(--rule);
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.28s var(--ease), padding 0.28s var(--ease);
+    }
+    .nav__link { width: 100%; padding-block: 1rem; border-bottom: 1px solid var(--rule); }
+    .nav__cta { margin: 1.25rem 0 1.75rem; }
+
+    #nav-toggle:checked ~ .nav { max-height: 26rem; }
+    #nav-toggle:checked ~ .burger span { opacity: 0; }
+    #nav-toggle:checked ~ .burger::before { top: 10px; transform: rotate(45deg); }
+    #nav-toggle:checked ~ .burger::after { bottom: 10px; transform: rotate(-45deg); }
+    #nav-toggle:focus-visible ~ .burger { outline: 2px solid var(--maroon); outline-offset: 4px; }
+  }
+</style>

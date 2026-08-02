@@ -1,0 +1,128 @@
+---
+import Base from '../layouts/Base.astro';
+import Prose from '../components/Prose.astro';
+import { getEntry } from 'astro:content';
+
+const instruments = await getEntry('pages', 'instruments');
+const { Content: Instruments } = await instruments.render();
+
+// TODO: replace the "#" hrefs with the real handbook / Classroom links.
+const resources = [
+  {
+    title: 'Student Handbook',
+    body: 'Grading, attendance, concert expectations, and program policies.',
+    href: '#',
+  },
+  {
+    title: 'Audition Materials',
+    body: 'Scales and excerpts for placement auditions, posted each spring.',
+    href: '#',
+  },
+  {
+    title: 'Concert Uniforms',
+    body: 'Dress and tuxedo options, sizing, and ordering through SEP Apparel.',
+    href: '#',
+  },
+  {
+    title: 'Instrument Dealers & Repair',
+    body: 'Local shops we trust for rentals, repairs, and setup.',
+    href: '#',
+  },
+];
+
+const summer = [
+  {
+    name: 'Summer Music Intensive — Kennesaw State University',
+    detail: 'Taught by faculty from the Atlanta Symphony Orchestra.',
+  },
+  {
+    name: 'UGA Summer Music Camp',
+    detail: 'Five-day residential camp with masterclasses. Rising 9th graders and up, placement audition required.',
+  },
+  {
+    name: 'Atlanta Chamber Music Festival — Emory University',
+    detail: 'Seven-day residential chamber music program, grades 6–12. Applications due May 1.',
+  },
+  {
+    name: 'FSU String Orchestra Camp',
+    detail: 'Week-long intensive with sectionals, masterclasses, chamber ensembles, and theory.',
+  },
+];
+---
+
+<Base
+  title="Student Resources"
+  description="Handbook, audition materials, uniforms, instrument guidance, and summer programs for Alpharetta High School orchestra students."
+>
+  <section class="section">
+    <div class="wrap">
+      <p class="eyebrow">For students &amp; families</p>
+      <h1>Resources</h1>
+      <p class="lede">
+        Everything you need for the year, in one place.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div class="wrap">
+      <div class="cards">
+        {resources.map((r) => (
+          <a href={r.href} class="card">
+            <h2>{r.title}</h2>
+            <p>{r.body}</p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="wrap">
+      <p class="eyebrow">Instruments</p>
+      <h2>{instruments.data.title}</h2>
+      <Prose><Instruments /></Prose>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <p class="eyebrow">Going further</p>
+      <h2>Summer programs</h2>
+      <p class="lede" style="margin-bottom:2.5rem">
+        Students who want to keep playing over the summer have good options
+        close to home.
+      </p>
+      <ul class="list">
+        {summer.map((s) => (
+          <li>
+            <strong>{s.name}</strong>
+            <span>{s.detail}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
+  .card {
+    display: block; padding: 1.6rem 1.4rem;
+    border: 1px solid var(--rule); border-radius: var(--radius);
+    text-decoration: none; color: var(--ink);
+    transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+  }
+  .card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+  .card h2 { font-size: var(--step-0); font-weight: 600; margin-bottom: 0.4rem; }
+  .card p { font-size: 0.9rem; color: var(--ink-soft); margin: 0; }
+
+  .list { list-style: none; padding: 0; margin: 0; display: grid; gap: 1.25rem; }
+  .list li {
+    display: grid; gap: 0.3rem;
+    padding-bottom: 1.25rem; border-bottom: 1px solid var(--rule);
+  }
+  .list li:last-child { border-bottom: 0; padding-bottom: 0; }
+  .list strong { font-weight: 600; }
+  .list span { font-size: 0.925rem; color: var(--ink-soft); }
+</style>

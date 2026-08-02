@@ -90,18 +90,26 @@ Set `draft: true` to keep something unpublished.
 
 ## Things to confirm before launch
 
-- [ ] **Two pages of the current site contradict each other** on whether
-      Concert/Silver require prior playing experience. "Orchestra 101" says
-      no experience needed; "About the Orchestras" lists scale requirements.
-      This scaffold uses the second version. **Ask Mr. Hood which is right.**
-- [ ] **Is Chamber Orchestra still running?** The current site lists it on
-      one page and not others. Not included here — add it back if it exists.
-- [ ] **Who owns the domain** `alpharettaorchestra.com` — the school, the
-      director, or the boosters? Needed before DNS can be pointed.
+- [x] **Prior playing experience is required** for Concert and Silver.
+      (The old site's "Orchestra 101" page said otherwise — that copy was
+      wrong and should not be carried over.)
+- [x] **Chamber Orchestra is still running.** Included as the sixth
+      ensemble. Still to confirm: current roster size, and whether Chamber
+      members also play in Symphony.
 - [ ] **Contact email.** The current site has no email address anywhere.
-      Get one to publish.
-- [ ] `alpharettaorchestra.org` (the old booster site) is a dead domain but
-      still appears in Google results. Worth a redirect or a takedown.
+      Get one to publish — this is the biggest gap for people outside the
+      school trying to reach the program.
+- [ ] Replace the placeholder social links in `src/components/Footer.astro`
+      with the real Instagram and YouTube URLs.
+- [ ] Sample events in `src/content/events/` are placeholders. Swap in the
+      real season calendar.
+
+### Deferred until the site is done
+
+- **Domain.** Who owns `alpharettaorchestra.com` — school, director, or
+  boosters? Only needed at launch.
+- `alpharettaorchestra.org` (the old booster site) is a dead domain that
+  still appears in Google results. Worth a redirect or takedown eventually.
 
 ---
 

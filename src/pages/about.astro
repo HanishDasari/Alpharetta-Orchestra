@@ -1,0 +1,32 @@
+---
+import Base from '../layouts/Base.astro';
+import Prose from '../components/Prose.astro';
+import { getEntry } from 'astro:content';
+
+const about = await getEntry('pages', 'about');
+const director = await getEntry('pages', 'director');
+
+const { Content: About } = await about.render();
+const { Content: Director } = await director.render();
+---
+
+<Base
+  title="About"
+  description="The Alpharetta High School Orchestra program — founded in 2004, six ensembles, and a history that includes Carnegie Hall and the Midwest Clinic."
+>
+  <section class="section">
+    <div class="wrap">
+      <p class="eyebrow">About</p>
+      <h1>{about.data.title}</h1>
+      <Prose><About /></Prose>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="wrap">
+      <p class="eyebrow">Leadership</p>
+      <h2>{director.data.title}</h2>
+      <Prose><Director /></Prose>
+    </div>
+  </section>
+</Base>

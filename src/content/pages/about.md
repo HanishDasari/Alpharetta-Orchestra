@@ -5,7 +5,7 @@ order: 1
 ---
 
 The Alpharetta High School Orchestra program was founded in 2004, when the
-school first opened its doors. Today roughly 130 students play in five
+school first opened its doors. Today roughly 130 students play in six
 leveled ensembles, each meeting daily as a regular class.
 
 ## A short history

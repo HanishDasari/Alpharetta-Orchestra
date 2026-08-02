@@ -1,0 +1,101 @@
+---
+import Base from '../layouts/Base.astro';
+
+/* Payments intentionally stay on the existing Squarespace store for now.
+   These link out rather than processing anything here — see README. */
+const STORE = 'https://www.alpharettaorchestra.com/store';
+
+const ways = [
+  {
+    title: 'Student Participation Fee',
+    amount: '$195',
+    body: 'The program’s primary source of funding. Covers concert uniforms, participation dues, graduation honor cords, Spring Honors Banquet tickets, and field trips.',
+    cta: 'Pay dues',
+    href: `${STORE}`,
+  },
+  {
+    title: 'Patron Program',
+    amount: 'From $50',
+    body: 'Support the program directly and have your name listed in the concert program book. Open to families, alumni, and anyone in the community who wants to help.',
+    cta: 'Become a patron',
+    href: `${STORE}/patron-program`,
+  },
+  {
+    title: 'Program Book Advertising',
+    amount: 'Varies',
+    body: 'Place a personal message or a business ad in the program handed out at every concert. A good fit for local businesses looking to reach orchestra families.',
+    cta: 'Buy an ad',
+    href: `${STORE}/program-book`,
+  },
+];
+---
+
+<Base
+  title="Support Us"
+  description="Support the Alpharetta High School Orchestras through participation fees, the patron program, or program book advertising. AHSOA is a 501(c)(3) non-profit."
+>
+  <section class="section">
+    <div class="wrap">
+      <p class="eyebrow">Support us</p>
+      <h1>Help keep the music going</h1>
+      <p class="lede">
+        The Alpharetta High School Orchestra Association is a 501(c)(3)
+        non-profit run entirely by parent volunteers. It funds what the
+        school budget doesn&rsquo;t &mdash; sheet music, guest clinicians,
+        instrument maintenance, and travel.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0" id="donate">
+    <div class="wrap">
+      <div class="ways">
+        {ways.map((w) => (
+          <article class="way">
+            <p class="way__amount">{w.amount}</p>
+            <h2>{w.title}</h2>
+            <p class="way__body">{w.body}</p>
+            <a href={w.href} class="btn btn--ghost">{w.cta}</a>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="wrap narrow">
+      <p class="eyebrow">Questions</p>
+      <h2>Getting in touch</h2>
+      <p>
+        For questions about payments, payment plans, or anything else
+        financial, contact the Orchestra Booster Treasurer at
+        <a href="mailto:treasurerahsorchestra@gmail.com">treasurerahsorchestra@gmail.com</a>.
+      </p>
+      <p class="fine">
+        The AHS Orchestra Association is a member of the Alpharetta High
+        School Athletic Association and is classified as a 501(c)(3)
+        non-profit organization. Donations may be tax deductible &mdash;
+        consult your tax advisor.
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .ways { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 1.25rem; }
+  .way {
+    display: flex; flex-direction: column; align-items: flex-start;
+    padding: 1.9rem 1.6rem;
+    border: 1px solid var(--rule); border-radius: var(--radius);
+  }
+  .way__amount {
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--maroon); margin-bottom: 0.5rem;
+  }
+  .way h2 { font-size: var(--step-1); margin-bottom: 0.6rem; }
+  .way__body { font-size: 0.925rem; color: var(--ink-soft); flex: 1; }
+  .way .btn { margin-top: 0.5rem; }
+
+  .narrow { max-width: 680px; }
+  .fine { font-size: 0.85rem; color: var(--ink-soft); margin-top: 1.5rem; }
+</style>

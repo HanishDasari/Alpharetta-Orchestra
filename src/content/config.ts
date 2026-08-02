@@ -13,6 +13,7 @@ const ENSEMBLES = [
   'Philharmonia',
   'Sinfonia',
   'Symphony',
+  'Chamber',
   'Full Orchestra',
 ] as const;
 

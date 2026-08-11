@@ -1,5 +1,33 @@
 ---
 import Portal from '../../layouts/Portal.astro';
+import FeatureBrief from '../../components/FeatureBrief.astro';
+
+const points = [
+  {
+    what: 'Parents can check their balance without emailing anyone',
+    why: '"Did we pay the participation fee?" is the most common question the treasurer gets. This answers it at 11pm without involving a person.',
+  },
+  {
+    what: 'Pay online instead of sending a cheque in a folder',
+    why: 'Fewer envelopes lost in a backpack, and the payment records itself the moment it goes through.',
+  },
+  {
+    what: 'Outstanding forms in the same place as fees',
+    why: 'Medical, photo release, trip permission. Parents see everything they still owe on one screen instead of across five emails.',
+  },
+  {
+    what: 'A receipt they can find later',
+    why: 'Useful at tax time, and it ends the "we already paid that" conversation with a date attached.',
+  },
+  {
+    what: 'They only ever see their own student',
+    why: 'Enforced in the database, not by hiding a page. One family cannot reach another family’s record even by guessing the address.',
+  },
+  {
+    what: 'Payment details never touch our database',
+    why: 'Stripe takes the card directly. We store that a payment happened, not the card number — which is what keeps this safe to run at all.',
+  },
+];
 
 const charges = [
   { label: 'Student Participation Fee 2026–27', due: 'Sep 15, 2026', amount: '$195.00', status: 'due' },
@@ -17,6 +45,8 @@ const forms = [
 <Portal title="Overview" role="family">
   <h1>Anh Nguyen</h1>
   <p class="sub">Symphony Orchestra &middot; 4th period &middot; Class of 2028</p>
+
+  <FeatureBrief points={points} />
 
   <!-- Balance ------------------------------------------------------->
   <section class="card" id="fees">

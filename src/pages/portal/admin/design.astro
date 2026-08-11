@@ -1,5 +1,33 @@
 ---
 import Portal from '../../../layouts/Portal.astro';
+import FeatureBrief from '../../../components/FeatureBrief.astro';
+
+const points = [
+  {
+    what: 'Change a colour once, it changes everywhere',
+    why: 'Pick a new crimson and every header, link, and button across all pages follows. No hunting for the places it was used.',
+  },
+  {
+    what: 'Fix the header size yourself',
+    why: 'The exact thing that took several rounds of back-and-forth to adjust. It becomes a number you type.',
+  },
+  {
+    what: 'Swap typefaces without a rebuild',
+    why: 'If the school ever licenses acumin-pro, headings switch to the real face in one change instead of a code edit.',
+  },
+  {
+    what: 'Show or hide homepage sections',
+    why: 'Turn the announcements block on in September and off over the summer, without anything being deleted.',
+  },
+  {
+    what: 'Preview before anyone else sees it',
+    why: 'Try a colour, look at it, and reset if you hate it. Nothing goes live until you save.',
+  },
+  {
+    what: 'You cannot break the layout from here',
+    why: 'These are settings with limits, not free-form editing. The site will still work on phones no matter what you pick.',
+  },
+];
 
 /* Design settings. These map onto the CSS custom properties in
    global.css — changing one here would rewrite that token site-wide.
@@ -31,6 +59,8 @@ const layout = [
 <Portal title="Design & Appearance" role="admin">
   <h1>Design &amp; Appearance</h1>
   <p class="sub">Change how the whole site looks. Every page updates at once.</p>
+
+  <FeatureBrief points={points} />
 
   <!-- Colours -------------------------------------------------------->
   <section class="card">

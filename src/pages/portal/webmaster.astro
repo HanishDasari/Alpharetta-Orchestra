@@ -1,5 +1,29 @@
 ---
 import Portal from '../../layouts/Portal.astro';
+import FeatureBrief from '../../components/FeatureBrief.astro';
+
+const points = [
+  {
+    what: 'A student can help without being given the keys',
+    why: 'The webmaster keeps the site current — concerts, photos, announcements — with no access to families, payments, or accounts.',
+  },
+  {
+    what: 'Mr. Hood is not the bottleneck',
+    why: 'Photos from Friday’s concert can go up Saturday without waiting on him to find time.',
+  },
+  {
+    what: 'Access ends cleanly',
+    why: 'When a webmaster graduates, one switch removes them. No shared password to change and re-share with everyone.',
+  },
+  {
+    what: 'Restrictions are enforced, not trusted',
+    why: 'The database returns nothing for the tables this role should not see. It is not a hidden menu item someone could navigate around.',
+  },
+  {
+    what: 'Same editor, so training carries over',
+    why: 'Whoever takes over next year learns one interface, and Mr. Hood can help them because it is the screen he uses too.',
+  },
+];
 
 const tiles = [
   { n: '3', label: 'Upcoming concerts', sub: 'Next: Oct 15' },
@@ -22,6 +46,8 @@ const tiles = [
       </div>
     ))}
   </div>
+
+  <FeatureBrief points={points} />
 
   <section class="card" id="events">
     <h2>Add a concert</h2>

@@ -1,5 +1,33 @@
 ---
 import Portal from '../../layouts/Portal.astro';
+import FeatureBrief from '../../components/FeatureBrief.astro';
+
+const points = [
+  {
+    what: 'Edit any page without touching code',
+    why: 'The thing you asked for first. Change a paragraph, add a concert, swap a photo — publish, and it is live in about thirty seconds.',
+  },
+  {
+    what: 'Add a concert once and four pages update',
+    why: 'The homepage, the calendar, the past-events list, and the subscribe feed all read the same entry. This is why the current site goes stale — four pages, four chances to forget one.',
+  },
+  {
+    what: 'Change the design yourself',
+    why: 'Colours, fonts, header size, which homepage sections show. Under Design & Appearance. You will not need a student to make the header smaller.',
+  },
+  {
+    what: 'See what everyone else sees',
+    why: 'View as a student or a parent before you send a link out, so you know what actually reached them.',
+  },
+  {
+    what: 'Roster without money attached',
+    why: 'Names, ensembles, periods, grad years. Deliberately no fees or payment records — that is the treasurer’s, not yours.',
+  },
+  {
+    what: 'Nothing here can break the layout',
+    why: 'You are filling in labelled fields, not dragging boxes. There is no way to accidentally delete the navigation or break the site on phones.',
+  },
+];
 
 const tiles = [
   { n: '3', label: 'Upcoming concerts', sub: 'Next: Oct 15' },
@@ -29,6 +57,8 @@ const roster = [
       </div>
     ))}
   </div>
+
+  <FeatureBrief points={points} />
 
   <!-- Add a concert ------------------------------------------------->
   <section class="card" id="events">

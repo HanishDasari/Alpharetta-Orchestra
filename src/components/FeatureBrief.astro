@@ -1,0 +1,39 @@
+---
+/* "What's coming here and why it helps" — used on portal screens so each
+   page explains itself without anyone having to narrate it. */
+interface Point {
+  what: string;
+  why: string;
+}
+interface Props {
+  title?: string;
+  points: Point[];
+}
+const { title = "What's coming here", points } = Astro.props;
+---
+
+<section class="card fb">
+  <h2>{title}</h2>
+  <ul class="fb__list">
+    {points.map((p) => (
+      <li>
+        <b>{p.what}</b>
+        <span>{p.why}</span>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style is:global>
+  .fb__list { list-style: none; margin: 0; padding: 0; display: grid; gap: .95rem; }
+  .fb__list li {
+    display: grid; gap: .18rem;
+    padding-left: 1.15rem; position: relative;
+  }
+  .fb__list li::before {
+    content: ''; position: absolute; left: 0; top: .52rem;
+    width: 6px; height: 6px; border-radius: 50%; background: var(--maroon);
+  }
+  .fb__list b { font-size: .93rem; font-weight: 600; line-height: 1.4; color: var(--ink); }
+  .fb__list span { font-size: .87rem; line-height: 1.55; color: var(--ink-soft); }
+</style>

@@ -95,6 +95,24 @@ const rows = [
         label="Calendar goes here"
         note="The next two or three concerts, filled in automatically from the dates you enter. Nothing to update by hand."
         height="240px"
+        points={[
+          {
+            what: 'The next few concerts, always current',
+            why: 'Right now a parent has to click into a calendar page to find out when anything is. This puts the next date in front of them before they scroll.',
+          },
+          {
+            what: 'You enter a concert once, four places update',
+            why: 'The front page, the calendar page, the past-events list, and the subscribe feed all read from the same entry. No copying between pages.',
+          },
+          {
+            what: 'Concerts move themselves into the past',
+            why: 'The day after a concert it drops off the front page on its own. This is why the current site still shows events from years ago — nobody remembers to move them.',
+          },
+          {
+            what: 'Families can subscribe once',
+            why: 'Parents add the orchestra calendar to their phone and every concert you add from then on appears automatically. No more resending dates.',
+          },
+        ]}
       />
     </div>
   </section>

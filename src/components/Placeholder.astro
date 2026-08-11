@@ -1,21 +1,44 @@
 ---
-/* Demo-only. Marks a section that isn't built yet so the director can
-   see where things will sit without us faking the content.
+/* Demo-only. Marks a section that isn't built yet so the director can see
+   where things will sit, what will go there, and why it helps.
    Delete these once each section is real. */
+interface Point {
+  what: string;
+  why: string;
+}
 interface Props {
   label: string;
   note?: string;
   height?: string;
+  points?: Point[];
 }
-const { label, note, height = '200px' } = Astro.props;
+const { label, note, height = '200px', points = [] } = Astro.props;
 ---
 
-<div class="phold" style={`min-height:${height}`}>
-  <p class="phold__label">{label}</p>
-  {note && <p class="phold__note">{note}</p>}
+<div class="phold-wrap">
+  <div class="phold" style={`min-height:${height}`}>
+    <p class="phold__label">{label}</p>
+    {note && <p class="phold__note">{note}</p>}
+  </div>
+
+  {points.length > 0 && (
+    <div class="brief">
+      <p class="brief__head">What&rsquo;s coming here</p>
+      <ul class="brief__list">
+        {points.map((p) => (
+          <li>
+            <b>{p.what}</b>
+            <span>{p.why}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
 </div>
 
 <style>
+  .phold-wrap { display: grid; gap: 1rem; }
+
   .phold {
     display: grid;
     align-content: center;
@@ -43,5 +66,36 @@ const { label, note, height = '200px' } = Astro.props;
     max-width: 46ch;
     font-size: 0.875rem;
     color: var(--ink-faint);
+  }
+
+  /* Detailed brief — what the feature does and why it helps */
+  .brief {
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--maroon);
+    border-radius: var(--radius);
+    padding: 1.15rem 1.35rem;
+    background: var(--paper);
+  }
+  .brief__head {
+    margin: 0 0 0.85rem;
+    font-family: var(--font-body);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--maroon);
+  }
+  .brief__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.8rem; }
+  .brief__list li { display: grid; gap: 0.15rem; }
+  .brief__list b {
+    font-size: 0.92rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--ink);
+  }
+  .brief__list span {
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: var(--ink-soft);
   }
 </style>

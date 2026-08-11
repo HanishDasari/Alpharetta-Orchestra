@@ -1,6 +1,34 @@
 ---
 import Portal from '../../../layouts/Portal.astro';
 import Placeholder from '../../../components/Placeholder.astro';
+import FeatureBrief from '../../../components/FeatureBrief.astro';
+
+const points = [
+  {
+    what: 'Build a form without leaving the site',
+    why: 'Short answer, multiple choice, checkboxes, file upload — the same building blocks as Google Forms, in the same place you manage everything else.',
+  },
+  {
+    what: 'A QR code for any form in one click',
+    why: 'Drop it straight onto the daily board. Students scan it off the projector instead of typing a link or waiting for an email.',
+  },
+  {
+    what: 'Responses land next to the roster',
+    why: 'A uniform-size form already knows who is in which ensemble, so you get answers attached to students rather than a spreadsheet you have to match up by hand.',
+  },
+  {
+    what: 'You can see who has not answered',
+    why: 'The gap in a Google Forms sheet is invisible — you only see who replied. Here you can chase the eleven students who have not.',
+  },
+  {
+    what: 'Reusable every year',
+    why: 'Medical forms, photo releases, and trip permissions get duplicated and re-dated instead of rebuilt each August.',
+  },
+  {
+    what: 'Honest caveat: Google Forms is free and already works',
+    why: 'The reason to build our own is the QR-onto-the-board flow and responses tied to the roster. If those two do not matter to you, Google Forms is the better answer and we should skip this.',
+  },
+];
 ---
 
 <Portal title="Forms" role="admin">
@@ -24,6 +52,8 @@ import Placeholder from '../../../components/Placeholder.astro';
       height="200px"
     />
   </section>
+
+  <FeatureBrief points={points} />
 
   <section class="card">
     <h2>Not built yet</h2>

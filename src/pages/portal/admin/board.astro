@@ -1,6 +1,34 @@
 ---
 import Portal from '../../../layouts/Portal.astro';
 import Placeholder from '../../../components/Placeholder.astro';
+import FeatureBrief from '../../../components/FeatureBrief.astro';
+
+const points = [
+  {
+    what: 'One slide, written in the browser, ready for the projector',
+    why: 'Replaces making a fresh one-slide deck every morning. Same result, but you type it into a box instead of building a file.',
+  },
+  {
+    what: 'A Present button that fills the screen',
+    why: 'No opening a file, no share dialog, no "let me pull this up." One click from the same page you wrote it on.',
+  },
+  {
+    what: 'It posts itself to students at the end of the day',
+    why: 'This is the part slides genuinely cannot do. You write it once for the projector and students get it without you exporting, uploading, or emailing anything.',
+  },
+  {
+    what: 'Absent students can see exactly what they missed',
+    why: 'Instead of "what did I miss?" on the way in, they read the board for that date themselves. Cuts a recurring interruption at the start of class.',
+  },
+  {
+    what: 'Every board is kept and searchable',
+    why: 'Useful when a parent asks what was assigned three weeks ago, or when you want to reuse a warm-up you did last semester.',
+  },
+  {
+    what: 'Reusable templates',
+    why: 'LGPE week, concert week, and sub days each have a starting layout, so a normal morning is filling in three fields rather than starting blank.',
+  },
+];
 ---
 
 <Portal title="Daily Board" role="admin">
@@ -18,6 +46,8 @@ import Placeholder from '../../../components/Placeholder.astro';
       height="260px"
     />
   </section>
+
+  <FeatureBrief points={points} />
 
   <section class="card">
     <h2>How it would work</h2>

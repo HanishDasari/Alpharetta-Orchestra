@@ -1,6 +1,30 @@
 ---
 import Portal from '../../layouts/Portal.astro';
 import Placeholder from '../../components/Placeholder.astro';
+import FeatureBrief from '../../components/FeatureBrief.astro';
+
+const points = [
+  {
+    what: 'Today’s board, without asking anyone',
+    why: 'The same slide that was on the projector. A student who walked in late or sat in the back can read it again on their phone.',
+  },
+  {
+    what: 'Every past day, by date',
+    why: 'Absent students catch up themselves instead of asking Mr. Hood at the start of the next class. That question is the single most repeated interruption in a rehearsal room.',
+  },
+  {
+    what: 'Forms they still owe, in one list',
+    why: 'Right now a student has no way to know they missed a form until someone chases them. This shows what is outstanding.',
+  },
+  {
+    what: 'Their own concert dates',
+    why: 'Filtered to their ensemble, so a Concert Orchestra freshman is not scrolling past Chamber events that do not apply to them.',
+  },
+  {
+    what: 'Works on a phone',
+    why: 'This is the only screen students will actually open, and they will open it on a phone in the hallway. It is designed for that first.',
+  },
+];
 ---
 
 <Portal title="Today" role="student">
@@ -33,6 +57,8 @@ import Placeholder from '../../components/Placeholder.astro';
       height="160px"
     />
   </section>
+
+  <FeatureBrief points={points} />
 
   <section class="card">
     <h2>Not built yet</h2>

@@ -87,6 +87,33 @@ const roster = [
     </table>
   </section>
 
+  <!-- View as -------------------------------------------------------->
+  <section class="card" id="viewas">
+    <h2>View as</h2>
+    <p style="margin:0 0 1.1rem;color:var(--ink-soft);font-size:.9rem">
+      See the site exactly as someone else does — useful for checking what a
+      parent actually sees before you send a link out.
+    </p>
+
+    <div class="viewas">
+      <a class="viewas__opt" href="/portal/webmaster">
+        <b>Webmaster</b>
+        <small>The student editor&rsquo;s view. Same content tools, no roster.</small>
+      </a>
+      <a class="viewas__opt" href="/portal/family">
+        <b>Family</b>
+        <small>What a parent sees: their own student, balance, and forms.</small>
+      </a>
+      <div class="viewas__opt viewas__opt--off" aria-disabled="true">
+        <b>Treasurer <span class="lockicon" aria-hidden="true">🔒</span></b>
+        <small>
+          Not available. Fees and payment records are the boosters&rsquo;
+          responsibility, and viewing-as would be a way around that.
+        </small>
+      </div>
+    </div>
+  </section>
+
   <!-- Explicitly out of scope for this role ------------------------- -->
   <section class="card">
     <h2>What this role can&rsquo;t reach</h2>
@@ -103,3 +130,19 @@ const roster = [
     </div>
   </section>
 </Portal>
+
+<style is:global>
+  .viewas { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: .8rem; }
+  .viewas__opt {
+    display: grid; gap: .3rem; align-content: start;
+    padding: 1rem 1.1rem; border: 1px solid #E3E6E8; border-radius: 8px;
+    text-decoration: none; color: var(--ink); background: #fff;
+    transition: border-color .18s ease, transform .18s ease;
+  }
+  a.viewas__opt:hover { border-color: var(--maroon); transform: translateY(-2px); }
+  .viewas__opt b { font-size: .95rem; font-weight: 600; }
+  .viewas__opt small { font-size: .82rem; color: var(--ink-soft); line-height: 1.45; }
+  .viewas__opt--off { background: #F7F8F9; border-style: dashed; opacity: .8; }
+  .viewas__opt--off b { color: var(--ink-soft); }
+  .lockicon { font-size: .8rem; }
+</style>

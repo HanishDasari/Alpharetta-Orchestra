@@ -26,7 +26,9 @@ const NAV = {
       { label: 'Announcements', href: '/portal/admin#news', icon: '✎' },
       { label: 'Pages', href: '/portal/admin#pages', icon: '▭' },
       { label: 'Photos', href: '/portal/admin#photos', icon: '▣' },
+      { label: 'Design & Appearance', href: '/portal/admin/design', icon: '◐' },
       { label: 'Roster', href: '/portal/admin#roster', icon: '◍' },
+      { label: 'View as…', href: '/portal/admin#viewas', icon: '◎' },
     ],
   },
   treasurer: {
@@ -221,7 +223,7 @@ const nav = NAV[role];
     font: inherit; font-size: .88rem; font-weight: 500; cursor: pointer; text-decoration: none;
   }
   .pbtn--primary { background: var(--maroon); color: #fff; }
-  .pbtn--primary:hover { background: #8A4241; }
+  .pbtn--primary:hover { background: var(--maroon-bright); }
   .pbtn--ghost { border-color: #D8DDE0; color: var(--ink); background: #fff; }
 
   table.tbl { width: 100%; border-collapse: collapse; font-size: .9rem; }

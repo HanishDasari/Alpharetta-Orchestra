@@ -3,12 +3,20 @@
    Goal here is a faithful duplicate, so the values are the measured
    ones rather than a redesign.
    --------------------------------------------------------------- */
+/* Brand colours sampled directly from the logo (src/assets/logo.png):
+     #621B1D  35% of the logo's red pixels — deep crimson
+     #982430  20% — brighter crimson
+     #101820  27% of all pixels — near-black, already the site's text colour
+     #F8F8F8  48% — off-white
+   The old site used #6D3332, a browner maroon that never matched the mark. */
 :root {
-  --ink: #101820;        /* body text */
-  --maroon: #6D3332;     /* header band, links */
-  --silver: #A7A8A9;     /* feature-rows background */
-  --gray: #53565A;       /* footer background */
+  --ink: #101820;           /* body text — matches the logo exactly */
+  --maroon: #621B1D;        /* logo deep crimson — header band, links */
+  --maroon-bright: #982430; /* logo bright crimson — hover, accents */
+  --silver: #A7A8A9;        /* feature-rows background */
+  --gray: #53565A;          /* footer background */
   --paper: #ffffff;
+  --paper-off: #F8F8F8;     /* logo off-white */
   --rule: #E4E4E3;
 
   /* Poppins is the real body face. The live site sets headings in
@@ -123,7 +131,7 @@ main { flex: 1; }
 :root {
   --ink-soft: #53565A;
   --ink-faint: #8A8D91;
-  --paper-alt: #F6F6F5;
+  --paper-alt: #F8F8F8;   /* logo off-white */
   --radius: 8px;
   --measure: 68ch;
   --shadow: 0 1px 2px rgba(16,24,32,.05), 0 8px 24px rgba(16,24,32,.06);

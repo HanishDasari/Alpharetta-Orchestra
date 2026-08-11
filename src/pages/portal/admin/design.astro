@@ -1,0 +1,186 @@
+---
+import Portal from '../../../layouts/Portal.astro';
+
+/* Design settings. These map onto the CSS custom properties in
+   global.css — changing one here would rewrite that token site-wide.
+   Demo: controls are inert until the CMS is wired up. */
+
+const brand = [
+  { name: 'Deep crimson', hex: '#621B1D', use: 'Header band, links, buttons', fromLogo: true },
+  { name: 'Bright crimson', hex: '#982430', use: 'Hover states and accents', fromLogo: true },
+  { name: 'Near-black', hex: '#101820', use: 'All body text', fromLogo: true },
+  { name: 'Off-white', hex: '#F8F8F8', use: 'Alternating section backgrounds', fromLogo: true },
+  { name: 'Silver', hex: '#A7A8A9', use: 'Feature-row background', fromLogo: false },
+  { name: 'Gray', hex: '#53565A', use: 'Footer background', fromLogo: false },
+];
+
+const type = [
+  { role: 'Headings', font: 'Archivo', note: 'Stand-in for acumin-pro, which is Adobe-only' },
+  { role: 'Body text', font: 'Poppins', note: 'Same face the current site uses' },
+];
+
+const layout = [
+  { label: 'Header height at rest', value: '180px' },
+  { label: 'Header height once scrolled', value: '76px' },
+  { label: 'Logo width', value: '340px' },
+  { label: 'Content column width', value: '1189px' },
+  { label: 'Body text size', value: '16px' },
+];
+---
+
+<Portal title="Design & Appearance" role="admin">
+  <h1>Design &amp; Appearance</h1>
+  <p class="sub">Change how the whole site looks. Every page updates at once.</p>
+
+  <!-- Colours -------------------------------------------------------->
+  <section class="card">
+    <h2>Brand colours</h2>
+    <p class="hint">
+      The first four were sampled from your logo, so the site and the mark
+      actually match. Changing one here changes it everywhere it&rsquo;s used.
+    </p>
+
+    <div class="swatches">
+      {brand.map((c) => (
+        <div class="sw">
+          <span class="sw__chip" style={`background:${c.hex}`}></span>
+          <span class="sw__meta">
+            <b>{c.name}</b>
+            <code>{c.hex}</code>
+            <small>{c.use}</small>
+            {c.fromLogo && <span class="sw__tag">from logo</span>}
+          </span>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Type ----------------------------------------------------------->
+  <section class="card">
+    <h2>Typefaces</h2>
+    <table class="tbl">
+      <thead><tr><th>Used for</th><th>Typeface</th><th>Note</th></tr></thead>
+      <tbody>
+        {type.map((t) => (
+          <tr>
+            <td>{t.role}</td>
+            <td><b>{t.font}</b></td>
+            <td style="color:var(--ink-soft)">{t.note}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Layout --------------------------------------------------------->
+  <section class="card">
+    <h2>Sizing</h2>
+    <p class="hint">
+      The header size you asked about lives here — change it once, it applies
+      to every page.
+    </p>
+    <table class="tbl">
+      <thead><tr><th>Setting</th><th class="num">Value</th></tr></thead>
+      <tbody>
+        {layout.map((l) => (
+          <tr><td>{l.label}</td><td class="num"><code>{l.value}</code></td></tr>
+        ))}
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Homepage sections ---------------------------------------------->
+  <section class="card">
+    <h2>Homepage sections</h2>
+    <p class="hint">Reorder, hide, or show the blocks that make up the front page.</p>
+    <ul class="secs">
+      {[
+        ['Hero photo', 'Visible'],
+        ['Intro text + photo', 'Visible'],
+        ['Upcoming concerts', 'Visible'],
+        ['Three feature rows', 'Visible'],
+        ['Announcements', 'Hidden'],
+        ['Concert photos', 'Hidden'],
+        ['Quote', 'Visible'],
+      ].map(([label, state]) => (
+        <li>
+          <span class="secs__grip" aria-hidden="true">⠿</span>
+          <span class="secs__label">{label}</span>
+          <span class:list={['pill', state === 'Visible' ? 'pill--paid' : 'pill--due']}>{state}</span>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-bottom:1.25rem">
+    <button class="pbtn pbtn--primary" type="button">Save changes</button>
+    <button class="pbtn pbtn--ghost" type="button">Preview</button>
+    <button class="pbtn pbtn--ghost" type="button">Reset to defaults</button>
+  </div>
+
+  <!-- Honest scope note ---------------------------------------------- -->
+  <section class="card">
+    <h2>What this does and doesn&rsquo;t cover</h2>
+    <div class="two-col">
+      <div>
+        <b>You can change</b>
+        <ul>
+          <li>Any brand colour, everywhere it appears</li>
+          <li>Heading and body typefaces</li>
+          <li>Header height and logo size</li>
+          <li>Text sizes and content width</li>
+          <li>Which homepage sections show, and in what order</li>
+        </ul>
+      </div>
+      <div>
+        <b>Still needs a developer</b>
+        <ul>
+          <li>Moving individual elements around inside a section</li>
+          <li>Building a new kind of section from scratch</li>
+          <li>Changing how a page is structured</li>
+        </ul>
+      </div>
+    </div>
+    <p class="hint" style="margin-top:1rem">
+      This is theme control, not a drag-and-drop page builder. It covers the
+      changes people actually make; rebuilding a page-builder would be a
+      multi-year project and would let you break the layout by accident.
+    </p>
+  </section>
+</Portal>
+
+<style is:global>
+  .hint { font-size: .875rem; color: var(--ink-soft); margin: 0 0 1.1rem; }
+
+  .swatches { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: .9rem; }
+  .sw { display: flex; gap: .8rem; align-items: flex-start; }
+  .sw__chip {
+    flex: none; width: 46px; height: 46px; border-radius: 7px;
+    border: 1px solid rgba(16,24,32,.14);
+  }
+  .sw__meta { display: grid; gap: .1rem; }
+  .sw__meta b { font-size: .9rem; font-weight: 600; }
+  .sw__meta code { font-size: .78rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .sw__meta small { font-size: .78rem; color: var(--ink-faint); }
+  .sw__tag {
+    justify-self: start; margin-top: .2rem;
+    font-size: .64rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+    background: var(--maroon); color: #fff; padding: .1rem .4rem; border-radius: 3px;
+  }
+
+  .secs { list-style: none; margin: 0; padding: 0; }
+  .secs li {
+    display: flex; align-items: center; gap: .8rem;
+    padding: .65rem .2rem; border-bottom: 1px solid #EDEFF1;
+  }
+  .secs li:last-child { border-bottom: 0; }
+  .secs__grip { color: #C3C9CD; cursor: grab; }
+  .secs__label { flex: 1; font-size: .92rem; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.75rem; }
+  .two-col b { display: block; margin-bottom: .5rem; font-size: .9rem; }
+  .two-col ul { margin: 0; padding-left: 1.1rem; }
+  .two-col li { font-size: .875rem; color: var(--ink-soft); margin-bottom: .35rem; }
+
+  @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; gap: 1.25rem; } }
+</style>

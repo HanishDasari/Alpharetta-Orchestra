@@ -1,57 +1,78 @@
 ---
 import Base from '../layouts/Base.astro';
 import EventCard from '../components/EventCard.astro';
-import { getCollection } from 'astro:content';
 import { upcomingEvents } from '../lib/events';
+import { photos } from '../lib/photos';
 
 const next = await upcomingEvents(3);
-const ensembles = (await getCollection('ensembles', ({ data }) => !data.draft))
-  .sort((a, b) => a.data.order - b.data.order);
+
+/* Mirrors the current homepage: hero, three "Learn More" cards,
+   Dudamel quote. The upcoming-concerts strip is the one addition. */
+const cards = [
+  {
+    title: 'About the Program',
+    img: photos.program,
+    body:
+      'The nationally recognized Alpharetta High School orchestra program was ' +
+      'established in the fall of 2004 and is comprised of six orchestras and ' +
+      'about 130 members. Alpharetta High School Orchestras strive for ' +
+      'excellence in music education at the high school level.',
+    href: '/about',
+  },
+  {
+    title: 'The Orchestras',
+    img: photos.orchestras,
+    body:
+      'The program is made up of six ensembles: the Concert, Silver, ' +
+      'Philharmonia, Sinfonia, Symphony, and Chamber orchestras. The ' +
+      'orchestras have consistently achieved Superior ratings at adjudications ' +
+      'and have travelled to perform locally, statewide, and nationally.',
+    href: '/orchestras',
+  },
+  {
+    title: 'About the Director',
+    img: photos.director,
+    body:
+      'Jake Hood was named Director of Orchestras at Alpharetta High School in ' +
+      '2022, and was named the school’s 2026–2027 Teacher of the Year.',
+    href: '/about#director',
+  },
+];
 ---
 
 <Base title="home">
-  <!-- Hero -------------------------------------------------------->
+  <!-- Hero — full-bleed photo with the program intro over it -------->
   <section class="hero">
+    <img class="hero__img" src={photos.hero} alt="" fetchpriority="high" />
+    <div class="hero__scrim"></div>
     <div class="wrap hero__inner">
-      <p class="eyebrow">Alpharetta, Georgia · Est. 2004</p>
-      <h1>Where 130 students<br />become one orchestra.</h1>
-      <p class="lede">
-        Six ensembles. Daily instruction. A program that has played
-        Carnegie Hall, the Midwest Clinic, and Chicago Symphony Hall —
-        and rehearses down the hall from your first-period class.
+      <p class="hero__eyebrow">Alpharetta, Georgia</p>
+      <h1>Alpharetta High School Orchestras</h1>
+      <p class="hero__lede">
+        Approximately 130 students in six distinct levels of daily
+        string&nbsp;/&nbsp;orchestra instruction &mdash; building technique,
+        musicianship, ear training, and both solo and ensemble playing, to
+        prepare students to be thriving, independent musicians.
       </p>
       <div class="hero__actions">
         <a href="/orchestras" class="btn btn--primary">Meet the orchestras</a>
-        <a href="/calendar" class="btn btn--ghost">Upcoming concerts</a>
+        <a href="/calendar" class="btn btn--onphoto">Upcoming concerts</a>
       </div>
     </div>
   </section>
 
-  <!-- At a glance ------------------------------------------------->
-  <section class="section section--alt">
-    <div class="wrap">
-      <ul class="stats">
-        <li><strong>130+</strong><span>Student musicians</span></li>
-        <li><strong>6</strong><span>Leveled ensembles</span></li>
-        <li><strong>2004</strong><span>Program founded</span></li>
-        <li><strong>Superior</strong><span>LGPE ratings</span></li>
-      </ul>
-    </div>
-  </section>
-
-  <!-- Next up ----------------------------------------------------->
-  <section class="section">
-    <div class="wrap">
-      <div class="head">
-        <div>
-          <p class="eyebrow">Next up</p>
-          <h2>Come hear us play</h2>
+  <!-- Upcoming concerts — the addition ----------------------------->
+  {next.length > 0 && (
+    <section class="section upnext">
+      <div class="wrap">
+        <div class="upnext__head">
+          <div>
+            <p class="eyebrow">Next up</p>
+            <h2>Come hear us play</h2>
+          </div>
+          <a href="/calendar" class="upnext__link">Full calendar &rarr;</a>
         </div>
-        <a href="/calendar" class="head__link">Full calendar &rarr;</a>
-      </div>
-
-      {next.length > 0 ? (
-        <div class="grid">
+        <div class="upnext__grid">
           {next.map((e) => (
             <EventCard
               title={e.data.title}
@@ -63,37 +84,31 @@ const ensembles = (await getCollection('ensembles', ({ data }) => !data.draft))
             />
           ))}
         </div>
-      ) : (
-        <p class="empty">
-          No concerts on the calendar right now — check back soon, or
-          <a href="/events.ics">subscribe to our calendar</a> to get them automatically.
-        </p>
-      )}
-    </div>
-  </section>
+      </div>
+    </section>
+  )}
 
-  <!-- Ensembles --------------------------------------------------->
+  <!-- Three cards — same three as the current site ------------------>
   <section class="section section--alt">
     <div class="wrap">
-      <p class="eyebrow">The orchestras</p>
-      <h2>Six ensembles, one program</h2>
-      <p class="lede" style="margin-bottom:2.5rem">
-        Students are placed by audition and grow through the program year by year.
-      </p>
-
-      <div class="ens">
-        {ensembles.map((e) => (
-          <a href={`/orchestras#${e.slug}`} class="ens__item">
-            <h3>{e.data.name}</h3>
-            {e.data.gmeaLevel && <p class="ens__level">GMEA Level {e.data.gmeaLevel}</p>}
-            {e.data.summary && <p class="ens__sum">{e.data.summary}</p>}
-          </a>
+      <div class="cards">
+        {cards.map((c) => (
+          <article class="c">
+            <a href={c.href} class="c__media">
+              <img src={c.img} alt="" loading="lazy" />
+            </a>
+            <div class="c__body">
+              <h3 class="c__title"><a href={c.href}>{c.title}</a></h3>
+              <p class="c__text">{c.body}</p>
+              <span class="c__more">Learn more &rarr;</span>
+            </div>
+          </article>
         ))}
       </div>
     </div>
   </section>
 
-  <!-- Quote ------------------------------------------------------->
+  <!-- Quote --------------------------------------------------------->
   <section class="section quote">
     <div class="wrap">
       <blockquote>
@@ -105,51 +120,79 @@ const ensembles = (await getCollection('ensembles', ({ data }) => !data.draft))
 </Base>
 
 <style>
-  .hero { padding-block: clamp(4rem, 11vw, 8.5rem) clamp(3rem, 7vw, 5rem); }
-  .hero__inner { max-width: 900px; }
-  .hero h1 { margin-bottom: 1.25rem; }
-  .hero .lede { max-width: 58ch; }
-  .hero__actions { display: flex; flex-wrap: wrap; gap: 0.85rem; margin-top: 2.25rem; }
-
-  .stats {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 2rem; list-style: none; padding: 0; margin: 0; text-align: center;
+  /* Hero ---------------------------------------------------------- */
+  .hero {
+    position: relative;
+    display: grid;
+    align-items: end;
+    min-height: clamp(460px, 72vh, 720px);
+    isolation: isolate;
+    overflow: hidden;
   }
-  .stats li { display: flex; flex-direction: column; gap: 0.35rem; }
-  .stats strong { font-size: var(--step-3); font-weight: 600; letter-spacing: -0.03em; }
-  .stats span {
-    font-size: 0.78rem; font-weight: 500; letter-spacing: 0.1em;
-    text-transform: uppercase; color: var(--ink-soft);
+  .hero__img {
+    position: absolute; inset: 0; z-index: -2;
+    width: 100%; height: 100%; object-fit: cover; object-position: center 30%;
   }
+  .hero__scrim {
+    position: absolute; inset: 0; z-index: -1;
+    background:
+      linear-gradient(to top, rgba(16,24,32,.92) 0%, rgba(16,24,32,.72) 38%, rgba(16,24,32,.25) 70%, rgba(16,24,32,.35) 100%);
+  }
+  .hero__inner { padding-block: clamp(2.5rem, 6vw, 4.5rem); color: #fff; max-width: 780px; }
+  .hero__eyebrow {
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #E3C9C8; margin: 0 0 0.9rem;
+  }
+  .hero h1 {
+    font-size: clamp(2.1rem, 5.2vw, 3.6rem);
+    line-height: 1.08; letter-spacing: -0.03em;
+    margin: 0 0 1.1rem; color: #fff;
+  }
+  .hero__lede {
+    font-size: clamp(1rem, 1.6vw, 1.15rem);
+    line-height: 1.6; font-weight: 300;
+    color: rgba(255,255,255,.9); max-width: 60ch; margin: 0;
+  }
+  .hero__actions { display: flex; flex-wrap: wrap; gap: 0.85rem; margin-top: 2rem; }
 
-  .head {
+  .btn--onphoto {
+    border-color: rgba(255,255,255,.5); color: #fff; background: transparent;
+  }
+  .btn--onphoto:hover { border-color: #fff; background: rgba(255,255,255,.12); color: #fff; }
+
+  /* Next up -------------------------------------------------------- */
+  .upnext__head {
     display: flex; align-items: flex-end; justify-content: space-between;
-    gap: 1.5rem; margin-bottom: 2.5rem; flex-wrap: wrap;
+    gap: 1.5rem; flex-wrap: wrap; margin-bottom: 2rem;
   }
-  .head h2 { margin: 0; }
-  .head__link { font-size: 0.925rem; font-weight: 500; text-decoration: none; white-space: nowrap; }
-  .head__link:hover { text-decoration: underline; }
+  .upnext__head h2 { margin: 0; font-size: var(--step-2); }
+  .upnext__link { font-size: 0.925rem; font-weight: 500; text-decoration: none; white-space: nowrap; }
+  .upnext__link:hover { text-decoration: underline; }
+  .upnext__grid { display: grid; gap: 1rem; }
 
-  .grid { display: grid; gap: 1rem; }
-  .empty { color: var(--ink-soft); }
-
-  .ens { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; }
-  .ens__item {
-    display: block; padding: 1.6rem 1.4rem;
-    background: var(--paper); border: 1px solid var(--rule);
-    border-radius: var(--radius); text-decoration: none; color: var(--ink);
-    transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+  /* Three cards ---------------------------------------------------- */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
+  .c { display: flex; flex-direction: column; }
+  .c__media {
+    display: block; overflow: hidden; border-radius: var(--radius);
+    aspect-ratio: 4 / 3; background: var(--rule);
   }
-  .ens__item:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
-  .ens__item h3 { margin-bottom: 0.3rem; }
-  .ens__level {
-    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em;
-    text-transform: uppercase; color: var(--maroon); margin-bottom: 0.7rem;
+  .c__media img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform 0.5s var(--ease);
   }
-  .ens__sum { font-size: 0.9rem; color: var(--ink-soft); margin: 0; }
+  .c:hover .c__media img { transform: scale(1.04); }
 
+  .c__body { padding-top: 1.25rem; display: flex; flex-direction: column; flex: 1; }
+  .c__title { font-size: var(--step-1); margin-bottom: 0.6rem; }
+  .c__title a { color: var(--ink); text-decoration: none; }
+  .c__title a:hover { color: var(--maroon); }
+  .c__text { font-size: 0.925rem; color: var(--ink-soft); flex: 1; margin-bottom: 1rem; }
+  .c__more { font-size: 0.85rem; font-weight: 600; color: var(--maroon); }
+
+  /* Quote ---------------------------------------------------------- */
   .quote { text-align: center; }
-  .quote blockquote { margin: 0; max-width: 46ch; margin-inline: auto; }
+  .quote blockquote { margin: 0 auto; max-width: 46ch; }
   .quote p {
     font-size: var(--step-2); font-weight: 300; line-height: 1.4;
     letter-spacing: -0.02em; margin-bottom: 1.25rem; max-width: none;
@@ -157,5 +200,9 @@ const ensembles = (await getCollection('ensembles', ({ data }) => !data.draft))
   .quote cite {
     font-style: normal; font-size: 0.78rem; font-weight: 600;
     letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .c:hover .c__media img { transform: none; }
   }
 </style>

@@ -1,0 +1,50 @@
+---
+import Portal from '../../layouts/Portal.astro';
+import Placeholder from '../../components/Placeholder.astro';
+---
+
+<Portal title="Today" role="student">
+  <h1>Today</h1>
+  <p class="sub">Symphony Orchestra &middot; 4th period</p>
+
+  <section class="card" id="today">
+    <h2>Today&rsquo;s board</h2>
+    <Placeholder
+      label="Today's board goes here"
+      note="Whatever Mr. Hood put on the projector this morning, posted here automatically at the end of the day."
+      height="260px"
+    />
+  </section>
+
+  <section class="card" id="past">
+    <h2>Past boards</h2>
+    <Placeholder
+      label="Past boards go here"
+      note="Every previous day, so if you were absent you can see exactly what you missed."
+      height="180px"
+    />
+  </section>
+
+  <section class="card" id="forms">
+    <h2>Forms to fill</h2>
+    <Placeholder
+      label="Forms go here"
+      note="Anything assigned to you that still needs answering."
+      height="160px"
+    />
+  </section>
+
+  <section class="card">
+    <h2>Not built yet</h2>
+    <div class="locked">
+      <span aria-hidden="true" style="font-size:1.1rem;line-height:1">🔧</span>
+      <span>
+        <b style="display:block;color:var(--ink);margin-bottom:.25rem">
+          These are tabs, not features
+        </b>
+        They show where the daily board and forms would appear for students
+        once those are built.
+      </span>
+    </div>
+  </section>
+</Portal>

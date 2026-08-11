@@ -1,0 +1,56 @@
+---
+import Portal from '../../../layouts/Portal.astro';
+import Placeholder from '../../../components/Placeholder.astro';
+---
+
+<Portal title="Daily Board" role="admin">
+  <h1>Daily Board</h1>
+  <p class="sub">
+    The one slide you put up as students walk in — written here, shown in class,
+    then posted to students automatically.
+  </p>
+
+  <section class="card">
+    <h2>Today&rsquo;s board</h2>
+    <Placeholder
+      label="Board editor goes here"
+      note="Title, agenda, materials needed, and homework — laid out as one slide you can put straight on the projector."
+      height="260px"
+    />
+  </section>
+
+  <section class="card">
+    <h2>How it would work</h2>
+    <ol class="how">
+      <li>You type the day&rsquo;s board here before class.</li>
+      <li>Hit <b>Present</b> and it fills the screen for the projector.</li>
+      <li>At the end of the day it posts itself to the student portal.</li>
+      <li>Students who were absent can scroll back through past boards.</li>
+    </ol>
+    <p class="hint">
+      This replaces making a one-slide deck each morning. The part slides
+      can&rsquo;t do is the last two steps &mdash; posting itself and keeping an
+      archive students can search.
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>Not built yet</h2>
+    <div class="locked">
+      <span aria-hidden="true" style="font-size:1.1rem;line-height:1">🔧</span>
+      <span>
+        <b style="display:block;color:var(--ink);margin-bottom:.25rem">
+          This is a tab, not a feature
+        </b>
+        It&rsquo;s here so you can see where it would live. Nothing on this page
+        saves anything yet.
+      </span>
+    </div>
+  </section>
+</Portal>
+
+<style is:global>
+  .how { margin: 0 0 1rem; padding-left: 1.3rem; }
+  .how li { margin-bottom: .5rem; font-size: .93rem; }
+  .how b { font-weight: 600; }
+</style>

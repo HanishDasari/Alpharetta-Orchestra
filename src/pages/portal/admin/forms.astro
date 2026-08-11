@@ -1,0 +1,43 @@
+---
+import Portal from '../../../layouts/Portal.astro';
+import Placeholder from '../../../components/Placeholder.astro';
+---
+
+<Portal title="Forms" role="admin">
+  <h1>Forms</h1>
+  <p class="sub">Build a form, get a link and a QR code for the board.</p>
+
+  <section class="card">
+    <h2>Form builder</h2>
+    <Placeholder
+      label="Form builder goes here"
+      note="Add questions — short answer, multiple choice, checkboxes, file upload — the same way you would in Google Forms."
+      height="240px"
+    />
+  </section>
+
+  <section class="card">
+    <h2>QR codes</h2>
+    <Placeholder
+      label="QR code goes here"
+      note="One click turns any form into a QR code you can drop straight onto the daily board. Students scan it off the projector."
+      height="200px"
+    />
+  </section>
+
+  <section class="card">
+    <h2>Not built yet</h2>
+    <div class="locked">
+      <span aria-hidden="true" style="font-size:1.1rem;line-height:1">🔧</span>
+      <span>
+        <b style="display:block;color:var(--ink);margin-bottom:.25rem">
+          This is a tab, not a feature
+        </b>
+        Worth saying out loud: Google Forms already does most of this and is
+        free. The reason to build our own is that responses would land in the
+        same place as everything else &mdash; and the QR could go straight onto
+        the daily board without leaving the site.
+      </span>
+    </div>
+  </section>
+</Portal>

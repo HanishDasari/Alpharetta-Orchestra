@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import logo from '../assets/logo.png';
 
 /* Portal chrome. Looks like an app rather than the public site, because
    that's what it is.
@@ -11,7 +12,7 @@ import '../styles/global.css';
 
 interface Props {
   title: string;
-  role: 'admin' | 'treasurer' | 'webmaster' | 'family';
+  role: 'admin' | 'treasurer' | 'webmaster' | 'student' | 'family';
 }
 const { title, role } = Astro.props;
 
@@ -21,6 +22,8 @@ const NAV = {
     label: 'Director',
     items: [
       { label: 'Dashboard', href: '/portal/admin', icon: '▤' },
+      { label: 'Daily Board', href: '/portal/admin/board', icon: '▦' },
+      { label: 'Forms', href: '/portal/admin/forms', icon: '☑' },
       { label: 'Concerts & Events', href: '/portal/admin#events', icon: '♪' },
       { label: 'Orchestras', href: '/portal/admin#ensembles', icon: '❖' },
       { label: 'Announcements', href: '/portal/admin#news', icon: '✎' },
@@ -51,6 +54,16 @@ const NAV = {
       { label: 'Announcements', href: '/portal/webmaster#news', icon: '✎' },
       { label: 'Pages', href: '/portal/webmaster#pages', icon: '▭' },
       { label: 'Photos', href: '/portal/webmaster#photos', icon: '▣' },
+    ],
+  },
+  student: {
+    who: 'Anh Nguyen',
+    label: 'Student',
+    items: [
+      { label: 'Today', href: '/portal/student', icon: '▦' },
+      { label: 'Past boards', href: '/portal/student#past', icon: '▤' },
+      { label: 'Forms to fill', href: '/portal/student#forms', icon: '☑' },
+      { label: 'Calendar', href: '/calendar', icon: '♪' },
     ],
   },
   family: {
@@ -115,7 +128,8 @@ const nav = NAV[role];
       </aside>
 
       <main class="content">
-        <slot />
+        <img class="watermark" src={logo.src} alt="" aria-hidden="true" />
+        <div class="content__inner"><slot /></div>
       </main>
     </div>
   </body>
@@ -141,7 +155,7 @@ const nav = NAV[role];
 
   /* Sidebar ----------------------------------------------------- */
   .side {
-    background: var(--ink); color: #C9CBCD;
+    background: var(--maroon); color: #E8D8D8;
     display: flex; flex-direction: column; padding: 1.4rem 0;
   }
   .side__brand {
@@ -149,16 +163,16 @@ const nav = NAV[role];
     border-bottom: 1px solid rgba(255,255,255,.1); margin-bottom: 1rem;
   }
   .side__brand span { display: block; color: #fff; font-weight: 600; font-size: 1rem; }
-  .side__brand small { display: block; color: var(--silver); font-size: .74rem; margin-top: .15rem; }
+  .side__brand small { display: block; color: rgba(255,255,255,.6); font-size: .74rem; margin-top: .15rem; }
 
   .side__nav { display: flex; flex-direction: column; gap: 2px; padding: 0 .7rem; flex: 1; }
   .side__nav a {
     display: flex; align-items: center; gap: .7rem;
     padding: .55rem .75rem; border-radius: 6px;
-    color: #C9CBCD; text-decoration: none; font-size: .9rem;
+    color: #EBDCDC; text-decoration: none; font-size: .9rem;
   }
-  .side__nav a:hover { background: rgba(255,255,255,.07); color: #fff; }
-  .side__icon { width: 1.1rem; text-align: center; color: var(--silver); font-size: .85rem; }
+  .side__nav a:hover { background: rgba(255,255,255,.12); color: #fff; }
+  .side__icon { width: 1.1rem; text-align: center; color: rgba(255,255,255,.55); font-size: .85rem; }
 
   .side__me {
     display: flex; align-items: center; gap: .7rem;
@@ -168,13 +182,25 @@ const nav = NAV[role];
   .side__avatar {
     display: grid; place-items: center; flex: none;
     width: 34px; height: 34px; border-radius: 50%;
-    background: var(--maroon); color: #fff; font-weight: 600;
+    background: rgba(255,255,255,.18); color: #fff; font-weight: 600;
   }
   .side__me b { display: block; color: #fff; font-size: .875rem; font-weight: 500; }
-  .side__me small { display: block; color: var(--silver); font-size: .74rem; }
+  .side__me small { display: block; color: rgba(255,255,255,.6); font-size: .74rem; }
 
   /* Content ----------------------------------------------------- */
-  .content { padding: clamp(1.5rem, 3vw, 2.5rem); max-width: 1100px; }
+  .content {
+    position: relative; isolation: isolate; overflow: hidden;
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+  }
+  .content__inner { position: relative; z-index: 1; max-width: 1100px; }
+
+  /* Faint logo sitting behind the content, the way JFL does it */
+  .watermark {
+    position: absolute; z-index: 0; pointer-events: none; user-select: none;
+    top: 46%; left: 50%; transform: translate(-50%, -50%);
+    width: min(115%, 1000px); height: auto;
+    opacity: .05; filter: grayscale(1);
+  }
   .content h1 { font-size: 1.75rem; line-height: 1.2; margin: 0 0 .35rem; }
   .content .sub { color: var(--ink-soft); margin: 0 0 2rem; }
 

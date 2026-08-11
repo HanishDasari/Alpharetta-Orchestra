@@ -1,9 +1,8 @@
 ---
 import { photos } from '../lib/photos';
 
-/* Duplicates the current site's header: fixed maroon band, centered
-   logo, and one centered nav list that wraps onto three rows at
-   desktop width. Link order matches the live site exactly. */
+/* Same maroon band, logo and full nav as the live site — but shorter at
+   rest, and it collapses to just the logo once you scroll past the hero. */
 const nav = [
   { label: 'Uniforms', href: '/students' },
   { label: 'Orchestra 101', href: '/students' },
@@ -23,7 +22,7 @@ const nav = [
 
 <a class="skip" href="#main">Skip to Content</a>
 
-<header class="hdr">
+<header class="hdr" id="site-header">
   <a class="hdr__logo" href="/">
     <img src={photos.logo} alt="Alpharetta High School Orchestras" width="450" height="150" />
   </a>
@@ -35,6 +34,27 @@ const nav = [
     {nav.map((item) => <a href={item.href}>{item.label}</a>)}
   </nav>
 </header>
+
+<script is:inline>
+  (function () {
+    var hdr = document.getElementById('site-header');
+    if (!hdr) return;
+    var shrunk = false;
+    var TRIGGER = 90;
+
+    function update() {
+      var should = window.scrollY > TRIGGER;
+      if (should !== shrunk) {
+        shrunk = should;
+        hdr.classList.toggle('is-shrunk', shrunk);
+      }
+    }
+    update();
+    window.addEventListener('scroll', function () {
+      window.requestAnimationFrame(update);
+    }, { passive: true });
+  })();
+</script>
 
 <style>
   .vh {
@@ -48,33 +68,47 @@ const nav = [
     position: fixed; inset: 0 0 auto; z-index: 10;
     background: var(--maroon);
     display: flex; flex-direction: column; align-items: center;
-    padding-bottom: 14px; /* brings the band to the live site's 250px */
+    padding-bottom: 10px;
+    transition: padding-bottom .28s var(--ease);
   }
 
   .hdr__logo { display: block; line-height: 0; }
-  .hdr__logo img { width: 450px; height: 150px; max-width: 90vw; object-fit: contain; }
+  .hdr__logo img {
+    width: 340px; height: 113px; max-width: 86vw;
+    object-fit: contain;
+    transition: width .28s var(--ease), height .28s var(--ease);
+  }
 
   .hdr__nav {
     display: flex; flex-wrap: wrap; justify-content: center;
-    max-width: 640px; padding: 0 1rem;
+    max-width: 860px; padding: 0 1rem;
+    overflow: hidden;
+    max-height: 6rem; opacity: 1;
+    transition: max-height .28s var(--ease), opacity .2s var(--ease);
   }
   .hdr__nav a {
     color: #fff; text-decoration: none;
-    font-size: 16px; font-weight: 300; line-height: 28.8px;
+    font-size: 15px; font-weight: 300; line-height: 28.8px;
     padding: 0 .5rem;
     transition: opacity .18s ease;
   }
   .hdr__nav a:hover { opacity: .7; text-decoration: underline; }
 
+  /* Scrolled past the hero — collapse to the logo alone */
+  .hdr.is-shrunk { padding-bottom: 6px; }
+  .hdr.is-shrunk .hdr__logo img { width: 176px; height: 59px; }
+  .hdr.is-shrunk .hdr__nav { max-height: 0; opacity: 0; }
+
   .burger { display: none; }
 
   @media (max-width: 900px) {
     .hdr { padding-bottom: 0; }
-    .hdr__logo img { width: 280px; height: 93px; }
+    .hdr__logo img { width: 240px; height: 80px; }
+    .hdr.is-shrunk .hdr__logo img { width: 150px; height: 50px; }
 
     .burger {
-      display: block; width: 30px; height: 22px;
-      position: absolute; top: 1.25rem; right: 1.25rem; cursor: pointer;
+      display: block; width: 28px; height: 20px;
+      position: absolute; top: 1rem; right: 1.15rem; cursor: pointer;
     }
     .burger span, .burger::before, .burger::after {
       content: ''; position: absolute; left: 0;
@@ -82,23 +116,24 @@ const nav = [
       transition: transform .22s ease, opacity .22s ease;
     }
     .burger::before { top: 0; }
-    .burger span { top: 10px; }
+    .burger span { top: 9px; }
     .burger::after { bottom: 0; }
 
     .hdr__nav {
       flex-direction: column; align-items: center; width: 100%;
-      max-height: 0; overflow: hidden;
-      transition: max-height .3s ease;
+      max-width: none; max-height: 0; opacity: 1;
     }
-    .hdr__nav a { padding: .55rem 0; }
+    .hdr__nav a { padding: .5rem 0; }
 
+    /* On mobile the burger owns the nav, not the scroll state */
+    .hdr.is-shrunk .hdr__nav { opacity: 1; }
     #nav-toggle:checked ~ .hdr__nav { max-height: 32rem; padding-bottom: 1rem; }
     #nav-toggle:checked ~ .burger span { opacity: 0; }
-    #nav-toggle:checked ~ .burger::before { top: 10px; transform: rotate(45deg); }
-    #nav-toggle:checked ~ .burger::after { bottom: 10px; transform: rotate(-45deg); }
+    #nav-toggle:checked ~ .burger::before { top: 9px; transform: rotate(45deg); }
+    #nav-toggle:checked ~ .burger::after { bottom: 9px; transform: rotate(-45deg); }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .hdr__nav, .burger span, .burger::before, .burger::after { transition: none; }
+    .hdr, .hdr__logo img, .hdr__nav { transition: none; }
   }
 </style>

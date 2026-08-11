@@ -17,8 +17,8 @@
   --font-body: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-display: 'Archivo', 'Poppins', -apple-system, 'Segoe UI', sans-serif;
 
-  /* Header is fixed and this tall — content offsets by it */
-  --header-h: 250px;
+  /* Resting height of the fixed header — inner pages offset by it */
+  --header-h: 180px;
 
   --content-max: 1189px;
   --gutter: 38px;
@@ -106,8 +106,8 @@ img { max-width: 100%; height: auto; display: block; }
 main { flex: 1; }
 
 @media (max-width: 900px) {
-  /* logo 93px tall, nav collapses behind the burger */
-  :root { --header-h: 93px; --gutter: 22px; }
+  /* logo 80px tall, nav collapses behind the burger */
+  :root { --header-h: 80px; --gutter: 22px; }
   .duo { grid-template-columns: 1fr; gap: 2rem; }
   .duo--flip > :first-child { order: 0; }
   h1, h2 { font-size: 32px; line-height: 1.25; }

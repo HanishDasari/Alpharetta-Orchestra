@@ -1,0 +1,119 @@
+---
+import Portal from '../../layouts/Portal.astro';
+
+const tiles = [
+  { n: '87', label: 'Families paid', sub: 'of 128' },
+  { n: '41', label: 'Outstanding', sub: '$7,995 total' },
+  { n: '$16,965', label: 'Collected', sub: '2026–27 to date' },
+  { n: '12', label: 'Patrons', sub: '$1,150 raised' },
+];
+
+const families = [
+  { parent: 'Nguyen, Mai', student: 'Anh Nguyen', item: 'Participation Fee', owed: '$195.00', status: 'due' },
+  { parent: 'Patel, Rina', student: 'Dev Patel', item: 'Participation Fee', owed: '$0.00', status: 'paid' },
+  { parent: 'Brooks, Alan', student: 'Cora Brooks', item: 'Uniform balance', owed: '$45.00', status: 'due' },
+  { parent: 'Okafor, Ada', student: 'Ife Okafor', item: 'Participation Fee', owed: '$0.00', status: 'paid' },
+];
+
+const charges = [
+  { label: 'Student Participation Fee 2026–27', amount: '$195.00', applies: 'All students', due: 'Sep 15, 2026' },
+  { label: 'Patron Program', amount: 'From $50.00', applies: 'Optional', due: '—' },
+  { label: 'Program Book Ad', amount: 'Varies', applies: 'Optional', due: '—' },
+];
+---
+
+<Portal title="Dashboard" role="treasurer">
+  <h1>Dashboard</h1>
+  <p class="sub">Fees, payments, and reporting for the Orchestra Association.</p>
+
+  <div class="tiles">
+    {tiles.map((t) => (
+      <div class="tile">
+        <span class="tile__n">{t.n}</span>
+        <b>{t.label}</b>
+        <small>{t.sub}</small>
+      </div>
+    ))}
+  </div>
+
+  <section class="card" id="families">
+    <h2>Families &amp; payments</h2>
+    <div style="overflow-x:auto">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Parent</th><th>Student</th><th>Item</th>
+            <th class="num">Owed</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {families.map((f) => (
+            <tr>
+              <td>{f.parent}</td>
+              <td>{f.student}</td>
+              <td>{f.item}</td>
+              <td class="num">{f.owed}</td>
+              <td>
+                <span class:list={['pill', f.status === 'paid' ? 'pill--paid' : 'pill--due']}>
+                  {f.status === 'paid' ? 'Paid' : 'Due'}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p style="margin:1rem 0 0;font-size:.85rem;color:var(--ink-soft)">
+      Sample rows. Real records need the booster board&rsquo;s written sign-off
+      first — see <code>docs/portals-setup.md</code>.
+    </p>
+  </section>
+
+  <section class="card" id="charges">
+    <h2>Charges</h2>
+    <table class="tbl">
+      <thead>
+        <tr><th>Item</th><th class="num">Amount</th><th>Applies to</th><th>Due</th></tr>
+      </thead>
+      <tbody>
+        {charges.map((c) => (
+          <tr>
+            <td>{c.label}</td>
+            <td class="num">{c.amount}</td>
+            <td>{c.applies}</td>
+            <td>{c.due}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+    <div style="margin-top:1rem">
+      <button class="pbtn pbtn--primary" type="button">Add a charge</button>
+    </div>
+  </section>
+
+  <section class="card" id="reports">
+    <h2>Reports</h2>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+      <button class="pbtn pbtn--ghost" type="button">Export outstanding (CSV)</button>
+      <button class="pbtn pbtn--ghost" type="button">Export payments (CSV)</button>
+    </div>
+    <p style="margin:1rem 0 0;font-size:.85rem;color:var(--ink-soft)">
+      Stripe stays the system of record for money. These exports are for
+      booster bookkeeping, not a replacement for Stripe&rsquo;s own reporting.
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>Who else can see this</h2>
+    <div class="locked">
+      <span aria-hidden="true" style="font-size:1.1rem;line-height:1">🔒</span>
+      <span>
+        <b style="display:block;color:var(--ink);margin-bottom:.25rem">
+          Nobody but the treasurer
+        </b>
+        Not the director, not the webmaster. Families see only their own
+        balance. This is enforced in the database, not just in the menus.
+      </span>
+    </div>
+  </section>
+</Portal>

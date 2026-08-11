@@ -11,14 +11,14 @@ import '../styles/global.css';
 
 interface Props {
   title: string;
-  role: 'admin' | 'webmaster' | 'family';
+  role: 'admin' | 'treasurer' | 'webmaster' | 'family';
 }
 const { title, role } = Astro.props;
 
 const NAV = {
   admin: {
     who: 'Mr. Hood',
-    label: 'Administrator',
+    label: 'Director',
     items: [
       { label: 'Dashboard', href: '/portal/admin', icon: '▤' },
       { label: 'Concerts & Events', href: '/portal/admin#events', icon: '♪' },
@@ -26,8 +26,17 @@ const NAV = {
       { label: 'Announcements', href: '/portal/admin#news', icon: '✎' },
       { label: 'Pages', href: '/portal/admin#pages', icon: '▭' },
       { label: 'Photos', href: '/portal/admin#photos', icon: '▣' },
-      { label: 'Families & Payments', href: '/portal/admin#families', icon: '$' },
-      { label: 'Users & Roles', href: '/portal/admin#users', icon: '◍' },
+      { label: 'Roster', href: '/portal/admin#roster', icon: '◍' },
+    ],
+  },
+  treasurer: {
+    who: 'Booster Treasurer',
+    label: 'Treasurer',
+    items: [
+      { label: 'Dashboard', href: '/portal/treasurer', icon: '▤' },
+      { label: 'Families & Payments', href: '/portal/treasurer#families', icon: '$' },
+      { label: 'Charges', href: '/portal/treasurer#charges', icon: '▭' },
+      { label: 'Reports', href: '/portal/treasurer#reports', icon: '▤' },
     ],
   },
   webmaster: {

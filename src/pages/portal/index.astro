@@ -8,10 +8,17 @@ import '../../styles/global.css';
 const roles = [
   {
     key: 'admin',
-    name: 'Administrator',
+    name: 'Director',
     who: 'Mr. Hood',
-    blurb: 'Edits everything, sees family payment status, manages who has access.',
+    blurb: 'Edits the whole website and sees the roster. No access to fees or payment records.',
     href: '/portal/admin',
+  },
+  {
+    key: 'treasurer',
+    name: 'Treasurer',
+    who: 'Booster board',
+    blurb: 'The only role that sees money — who owes what, who has paid, and reporting.',
+    href: '/portal/treasurer',
   },
   {
     key: 'webmaster',

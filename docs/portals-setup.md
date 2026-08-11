@@ -1,7 +1,12 @@
 # Portals — setup guide
 
-Three roles were requested: **admin** (director), **webmaster** (student),
-and **family** (parents paying fees).
+Four roles: **admin** (director), **treasurer** (booster board),
+**webmaster** (student), and **family** (parents paying fees).
+
+> **The director must not see fee or payment records.** That is a
+> deliberate separation of duties, not an oversight — money is the
+> boosters' responsibility, not the teacher's. Any change that gives the
+> `admin` role access to `charges` or `payments` is a bug.
 
 Read this before writing any portal code. The first section is the part
 that decides whether this gets built at all.
@@ -29,15 +34,28 @@ touch nothing sensitive.
 
 ## What each role actually needs
 
-| Role | Who | What they do | Sensitive? |
+| Role | Who | What they do | Sees money? |
 | --- | --- | --- | --- |
-| `admin` | Mr. Hood | Everything. Edit content, see payment status, export data. | Yes — sees family records |
-| `webmaster` | Student | Edit site content. No payment or family data at all. | No |
-| `family` | Parents | See what they owe, pay it, get a receipt. Only their own record. | Yes — their own only |
+| `admin` | Mr. Hood | Edit all site content. See the roster. | **No** |
+| `treasurer` | Booster board | Fees, payments, charges, reporting. No site editing. | Yes — all families |
+| `webmaster` | Student | Edit site content. No roster, no money. | No |
+| `family` | Parents | Their own balance, forms, and payment. | Their own only |
 
-**Important:** admin and webmaster are the *same feature* at two permission
-levels — "edit the website without code." Don't build two editors. One
-content system, two roles.
+Two things fall out of this:
+
+- **admin and webmaster are the same feature** at two permission levels —
+  "edit the website without code." Don't build two editors. One content
+  system, two roles.
+- **admin and treasurer barely overlap.** The director edits the site;
+  the treasurer handles money. Neither needs the other's screens.
+
+### Open question for the boosters
+
+Who grants the `treasurer` role? If the director can assign roles, he can
+assign himself treasurer, and the separation above is decorative. The
+clean answer is that treasurer access is granted by the booster board
+through Supabase directly, not from inside the app. Confirm this before
+building role management.
 
 ---
 
@@ -71,7 +89,7 @@ That's the actual cost here, and it isn't money.
 
 ```sql
 -- Roles ------------------------------------------------------------
-create type user_role as enum ('admin', 'webmaster', 'family');
+create type user_role as enum ('admin', 'treasurer', 'webmaster', 'family');
 
 create table profiles (
   id          uuid primary key references auth.users on delete cascade,
@@ -140,9 +158,14 @@ returns boolean language sql stable security definer as $$
   );
 $$;
 
--- Admin sees everything
-create policy admin_all_charges on charges
-  for all using (current_role_is('admin'));
+-- Treasurer is the ONLY role with full access to money.
+-- Note this is treasurer, not admin. Changing it to admin would hand
+-- the director every family's payment record.
+create policy treasurer_all_charges on charges
+  for all using (current_role_is('treasurer'));
+
+create policy treasurer_all_payments on payments
+  for all using (current_role_is('treasurer'));
 
 -- A family sees only charges for students they're linked to
 create policy family_own_charges on charges
@@ -154,12 +177,25 @@ create policy family_own_charges on charges
     )
   );
 
--- Webmaster gets no access to charges at all — no policy, no rows.
+-- The director can read the roster, but no money.
+create policy admin_read_students on students
+  for select using (current_role_is('admin'));
+
+-- No policy naming 'admin' or 'webmaster' exists on charges or payments,
+-- so those roles get zero rows from both tables.
 ```
 
-Test RLS by logging in as each role and confirming a family account
-returns zero rows for someone else's student. Do this before launch, not
-after.
+### Verify this before launch, not after
+
+Log in as each role and confirm:
+
+- [ ] `admin` gets **zero rows** from `charges` and `payments`
+- [ ] `webmaster` gets zero rows from `charges`, `payments`, and `students`
+- [ ] `family` gets zero rows for a student they are not a guardian of
+- [ ] `treasurer` cannot edit site content
+
+The first one is the one people get wrong, because "admin" sounds like it
+should see everything. Here it must not.
 
 ---
 

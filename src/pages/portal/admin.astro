@@ -5,20 +5,20 @@ const tiles = [
   { n: '3', label: 'Upcoming concerts', sub: 'Next: Oct 15' },
   { n: '6', label: 'Orchestras', sub: 'All published' },
   { n: '128', label: 'Students', sub: '2026–27 roster' },
-  { n: '41', label: 'Fees outstanding', sub: 'of 128 families' },
+  { n: '1', label: 'Announcements', sub: 'Last posted Aug 1' },
 ];
 
-const families = [
-  { name: 'Nguyen, Mai', student: 'Anh Nguyen', ensemble: 'Symphony', owed: '$195.00', status: 'due' },
-  { name: 'Patel, Rina', student: 'Dev Patel', ensemble: 'Philharmonia', owed: '$0.00', status: 'paid' },
-  { name: 'Brooks, Alan', student: 'Cora Brooks', ensemble: 'Chamber', owed: '$45.00', status: 'due' },
-  { name: 'Okafor, Ada', student: 'Ife Okafor', ensemble: 'Concert', owed: '$0.00', status: 'paid' },
+const roster = [
+  { student: 'Anh Nguyen', ensemble: 'Symphony', period: '4th', year: '2028' },
+  { student: 'Dev Patel', ensemble: 'Philharmonia', period: '2nd', year: '2027' },
+  { student: 'Cora Brooks', ensemble: 'Chamber', period: '7th', year: '2026' },
+  { student: 'Ife Okafor', ensemble: 'Concert', period: '8th', year: '2029' },
 ];
 ---
 
 <Portal title="Dashboard" role="admin">
   <h1>Dashboard</h1>
-  <p class="sub">Everything on the site, and who has paid.</p>
+  <p class="sub">The website, and your roster.</p>
 
   <div class="tiles">
     {tiles.map((t) => (
@@ -70,50 +70,36 @@ const families = [
     </div>
   </section>
 
-  <!-- Families ------------------------------------------------------>
-  <section class="card" id="families">
-    <h2>Families &amp; payments</h2>
-    <div style="overflow-x:auto">
-      <table class="tbl">
-        <thead>
-          <tr>
-            <th>Parent</th><th>Student</th><th>Ensemble</th>
-            <th class="num">Owed</th><th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {families.map((f) => (
-            <tr>
-              <td>{f.name}</td>
-              <td>{f.student}</td>
-              <td>{f.ensemble}</td>
-              <td class="num">{f.owed}</td>
-              <td>
-                <span class:list={['pill', f.status === 'paid' ? 'pill--paid' : 'pill--due']}>
-                  {f.status === 'paid' ? 'Paid' : 'Due'}
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-    <p style="margin:1rem 0 0;font-size:.85rem;color:var(--ink-soft)">
-      Sample rows. Real data arrives once the boosters approve storing payment
-      records — see <code>docs/portals-setup.md</code>.
-    </p>
-  </section>
-
-  <!-- Users --------------------------------------------------------->
-  <section class="card" id="users">
-    <h2>Users &amp; roles</h2>
+  <!-- Roster — no money on this page -------------------------------->
+  <section class="card" id="roster">
+    <h2>Roster</h2>
     <table class="tbl">
-      <thead><tr><th>Person</th><th>Role</th><th>Can see</th></tr></thead>
+      <thead>
+        <tr><th>Student</th><th>Ensemble</th><th>Period</th><th>Class of</th></tr>
+      </thead>
       <tbody>
-        <tr><td>Mr. Hood</td><td>Administrator</td><td>Everything</td></tr>
-        <tr><td>Hanish</td><td>Webmaster</td><td>Site content only</td></tr>
-        <tr><td>128 parents</td><td>Family</td><td>Their own student only</td></tr>
+        {roster.map((r) => (
+          <tr>
+            <td>{r.student}</td><td>{r.ensemble}</td><td>{r.period}</td><td>{r.year}</td>
+          </tr>
+        ))}
       </tbody>
     </table>
+  </section>
+
+  <!-- Explicitly out of scope for this role ------------------------- -->
+  <section class="card">
+    <h2>What this role can&rsquo;t reach</h2>
+    <div class="locked">
+      <span aria-hidden="true" style="font-size:1.1rem;line-height:1">🔒</span>
+      <span>
+        <b style="display:block;color:var(--ink);margin-bottom:.25rem">
+          Fees and payment records belong to the treasurer
+        </b>
+        Who owes what, who has paid, and payment history are not visible from
+        this login. The database won&rsquo;t return those rows for the director
+        role, so they can&rsquo;t be reached by navigating to them either.
+      </span>
+    </div>
   </section>
 </Portal>

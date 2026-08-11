@@ -1,111 +1,104 @@
 ---
+import { photos } from '../lib/photos';
+
+/* Duplicates the current site's header: fixed maroon band, centered
+   logo, and one centered nav list that wraps onto three rows at
+   desktop width. Link order matches the live site exactly. */
 const nav = [
+  { label: 'Uniforms', href: '/students' },
+  { label: 'Orchestra 101', href: '/students' },
   { label: 'About', href: '/about' },
-  { label: 'Orchestras', href: '/orchestras' },
   { label: 'Calendar', href: '/calendar' },
-  { label: 'For Students', href: '/students' },
-  { label: 'Support Us', href: '/support' },
+  { label: 'Store', href: '/support' },
+  { label: 'Program Book', href: '/support' },
+  { label: 'Orchestra Memories', href: '/calendar' },
+  { label: 'Past Events', href: '/calendar' },
+  { label: 'Student Resources', href: '/students' },
+  { label: 'Orchestra Opportunities', href: '/students' },
+  { label: 'Contact', href: '/about' },
+  { label: 'Donate', href: '/support' },
+  { label: 'Patron Program', href: '/support' },
 ];
-const { pathname } = Astro.url;
 ---
 
-<a class="skip" href="#main">Skip to content</a>
+<a class="skip" href="#main">Skip to Content</a>
 
-<header class="site-header">
-  <div class="wrap bar">
-    <a class="brand" href="/">
-      <span class="brand__name">Alpharetta High School</span>
-      <span class="brand__sub">Orchestras</span>
-    </a>
+<header class="hdr">
+  <a class="hdr__logo" href="/">
+    <img src={photos.logo} alt="Alpharetta High School Orchestras" width="450" height="150" />
+  </a>
 
-    <input type="checkbox" id="nav-toggle" class="visually-hidden" />
-    <label for="nav-toggle" class="burger" aria-label="Menu"><span></span></label>
+  <input type="checkbox" id="nav-toggle" class="vh" />
+  <label for="nav-toggle" class="burger" aria-label="Menu"><span></span></label>
 
-    <nav class="nav" aria-label="Main">
-      {nav.map((item) => (
-        <a
-          href={item.href}
-          class="nav__link"
-          aria-current={pathname.startsWith(item.href) ? 'page' : undefined}
-        >{item.label}</a>
-      ))}
-      <a href="/support#donate" class="btn btn--primary nav__cta">Donate</a>
-    </nav>
-  </div>
+  <nav class="hdr__nav" aria-label="Main">
+    {nav.map((item) => <a href={item.href}>{item.label}</a>)}
+  </nav>
 </header>
 
 <style>
-  .skip {
-    position: absolute; left: -9999px;
-    background: var(--ink); color: #fff;
-    padding: 0.75rem 1.25rem; z-index: 100;
+  .vh {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
   }
+  .skip { position: absolute; left: -9999px; background: #fff; color: var(--maroon); padding: .75rem 1.25rem; z-index: 100; }
   .skip:focus { left: 1rem; top: 1rem; }
 
-  .site-header {
-    position: sticky; top: 0; z-index: 50;
-    background: rgba(255, 255, 255, 0.88);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--rule);
-  }
-  .bar {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 2rem; min-height: 56px;
+  .hdr {
+    position: fixed; inset: 0 0 auto; z-index: 10;
+    background: var(--maroon);
+    display: flex; flex-direction: column; align-items: center;
+    padding-bottom: 14px; /* brings the band to the live site's 250px */
   }
 
-  .brand { text-decoration: none; color: var(--ink); line-height: 1.1; }
-  .brand__name {
-    display: block; font-size: 0.58rem; font-weight: 600;
-    letter-spacing: 0.15em; text-transform: uppercase; color: var(--ink-soft);
-  }
-  .brand__sub { display: block; font-size: 1.02rem; font-weight: 600; letter-spacing: -0.01em; }
+  .hdr__logo { display: block; line-height: 0; }
+  .hdr__logo img { width: 450px; height: 150px; max-width: 90vw; object-fit: contain; }
 
-  .nav { display: flex; align-items: center; gap: 1.4rem; }
-  .nav__link {
-    text-decoration: none; color: var(--ink);
-    font-size: 0.85rem; font-weight: 500;
-    padding-block: 0.25rem;
-    border-bottom: 2px solid transparent;
-    transition: border-color 0.18s var(--ease), color 0.18s var(--ease);
+  .hdr__nav {
+    display: flex; flex-wrap: wrap; justify-content: center;
+    max-width: 640px; padding: 0 1rem;
   }
-  .nav__link:hover { border-bottom-color: var(--silver); }
-  .nav__link[aria-current='page'] { border-bottom-color: var(--maroon); color: var(--maroon); }
-  .nav__cta { margin-left: 0.5rem; }
+  .hdr__nav a {
+    color: #fff; text-decoration: none;
+    font-size: 16px; font-weight: 300; line-height: 28.8px;
+    padding: 0 .5rem;
+    transition: opacity .18s ease;
+  }
+  .hdr__nav a:hover { opacity: .7; text-decoration: underline; }
 
   .burger { display: none; }
 
   @media (max-width: 900px) {
+    .hdr { padding-bottom: 0; }
+    .hdr__logo img { width: 280px; height: 93px; }
+
     .burger {
       display: block; width: 30px; height: 22px;
-      position: relative; cursor: pointer;
+      position: absolute; top: 1.25rem; right: 1.25rem; cursor: pointer;
     }
-    .burger span,
-    .burger::before,
-    .burger::after {
+    .burger span, .burger::before, .burger::after {
       content: ''; position: absolute; left: 0;
-      width: 100%; height: 2px; background: var(--ink);
-      transition: transform 0.22s var(--ease), opacity 0.22s var(--ease);
+      width: 100%; height: 2px; background: #fff;
+      transition: transform .22s ease, opacity .22s ease;
     }
     .burger::before { top: 0; }
     .burger span { top: 10px; }
     .burger::after { bottom: 0; }
 
-    .nav {
-      position: absolute; inset: 56px 0 auto;
-      flex-direction: column; align-items: flex-start;
-      gap: 0; padding: 0 var(--gutter);
-      background: var(--paper);
-      border-bottom: 1px solid var(--rule);
+    .hdr__nav {
+      flex-direction: column; align-items: center; width: 100%;
       max-height: 0; overflow: hidden;
-      transition: max-height 0.28s var(--ease), padding 0.28s var(--ease);
+      transition: max-height .3s ease;
     }
-    .nav__link { width: 100%; padding-block: 1rem; border-bottom: 1px solid var(--rule); }
-    .nav__cta { margin: 1.25rem 0 1.75rem; }
+    .hdr__nav a { padding: .55rem 0; }
 
-    #nav-toggle:checked ~ .nav { max-height: 26rem; }
+    #nav-toggle:checked ~ .hdr__nav { max-height: 32rem; padding-bottom: 1rem; }
     #nav-toggle:checked ~ .burger span { opacity: 0; }
     #nav-toggle:checked ~ .burger::before { top: 10px; transform: rotate(45deg); }
     #nav-toggle:checked ~ .burger::after { bottom: 10px; transform: rotate(-45deg); }
-    #nav-toggle:focus-visible ~ .burger { outline: 2px solid var(--maroon); outline-offset: 4px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hdr__nav, .burger span, .burger::before, .burger::after { transition: none; }
   }
 </style>

@@ -1,78 +1,55 @@
 ---
-const year = new Date().getFullYear();
+/* Duplicates the current site's footer: gray band, three columns.
+   NOTE: the live site uses dark text (#101820) on this gray, which
+   fails contrast. Kept faithful for the demo — flagged in the README. */
 ---
 
-<footer class="foot">
-  <div class="wrap foot__grid">
+<footer class="ftr">
+  <div class="wrap ftr__grid">
     <div>
-      <p class="foot__brand">Alpharetta High School Orchestras</p>
-      <address class="foot__addr">
-        3595 Webb Bridge Road<br />
-        Alpharetta, GA 30005<br />
-        <a href="tel:+14702547640">470-254-7640</a> ext. 27668
-      </address>
+      <h4>Alpharetta High School Orchestras</h4>
+      <p>3595 Webb Bridge Road<br />Alpharetta, GA 30005</p>
     </div>
 
-    <nav aria-label="Footer">
-      <p class="foot__head">Explore</p>
-      <a href="/orchestras">Our Orchestras</a>
-      <a href="/calendar">Calendar</a>
-      <a href="/students">Student Resources</a>
-      <a href="/support">Support Us</a>
-    </nav>
+    <div>
+      <p class="ftr__head">About</p>
+      <p><a href="/about">The Program</a></p>
+    </div>
 
     <div>
-      <p class="foot__head">Follow</p>
-      <div class="foot__social">
-        <a href="https://www.facebook.com/alpharettaorchestra/">Facebook</a>
-        <a href="https://www.instagram.com/">Instagram</a>
-        <a href="https://www.youtube.com/">YouTube</a>
-      </div>
-      <p class="foot__note">
-        The AHS Orchestra Association is a 501(c)(3) non-profit
-        supporting the orchestra program.
-      </p>
+      <p class="ftr__head">Donate</p>
+      <p><a href="/support">Support Us</a></p>
     </div>
-  </div>
-
-  <div class="wrap foot__base">
-    <p>&copy; {year} Alpharetta High School Orchestras</p>
-    <a href="/events.ics">Subscribe to our calendar</a>
   </div>
 </footer>
 
 <style>
-  .foot {
-    background: var(--ink);
-    color: #C9CBCD;
-    padding-block: clamp(3rem, 6vw, 4.5rem) 2rem;
+  .ftr {
+    background: #53565A;
+    color: var(--ink);
+    padding-block: 3.2rem;
     margin-top: auto;
-    font-size: 0.925rem;
   }
-  .foot__grid {
+  .ftr__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 2.5rem;
-    padding-bottom: 2.5rem;
+    grid-template-columns: 689fr 189fr 189fr;
+    gap: 3.5rem;
   }
-  .foot__brand { color: #fff; font-weight: 600; margin-bottom: 0.6rem; }
-  .foot__addr { font-style: normal; line-height: 1.8; }
-  .foot__head {
-    color: #fff; font-size: 0.72rem; font-weight: 600;
-    letter-spacing: 0.14em; text-transform: uppercase;
-    margin-bottom: 0.9rem;
+  .ftr h4 {
+    font-family: var(--font-display);
+    font-size: 25.2px; font-weight: 500; line-height: 34.5px;
+    margin: 0 0 2rem;
   }
-  .foot a { color: #C9CBCD; text-decoration: none; }
-  .foot a:hover { color: #fff; text-decoration: underline; }
-  .foot nav a, .foot__social a { display: block; padding-block: 0.3rem; }
-  .foot__note { margin-top: 1.25rem; font-size: 0.82rem; color: var(--silver); }
+  .ftr__head {
+    font-size: 23.7px; font-weight: 300; line-height: 42.6px;
+    margin: 0 0 .75rem;
+  }
+  .ftr p { font-size: 16px; font-weight: 300; line-height: 28.8px; margin: 0; max-width: none; }
+  .ftr a { color: var(--maroon); text-decoration: none; }
+  .ftr a:hover { text-decoration: underline; }
 
-  .foot__base {
-    display: flex; flex-wrap: wrap; gap: 1rem;
-    justify-content: space-between; align-items: center;
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
-    padding-top: 1.75rem;
-    font-size: 0.82rem;
+  @media (max-width: 800px) {
+    .ftr__grid { grid-template-columns: 1fr; gap: 2rem; }
+    .ftr h4 { margin-bottom: 1rem; }
   }
-  .foot__base p { margin: 0; }
 </style>

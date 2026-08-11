@@ -6,14 +6,20 @@ import '../styles/global.css';
 interface Props {
   title: string;
   description?: string;
+  /** Homepage only: let the hero photo run under the fixed header,
+      the way the current site does. */
+  flushHeader?: boolean;
 }
 
 const {
   title,
-  description = 'The Alpharetta High School Orchestras — six ensembles, 130+ student musicians, and a nationally recognized string program in Alpharetta, Georgia.',
+  description = 'The Alpharetta High School Orchestras — approximately 130 students in six levels of daily string instruction in Alpharetta, Georgia.',
+  flushHeader = title === 'home',
 } = Astro.props;
 
-const fullTitle = title === 'home' ? 'Alpharetta High School Orchestras' : `${title} — Alpharetta High School Orchestras`;
+const fullTitle = title === 'home'
+  ? 'Alpharetta High School Orchestras'
+  : `${title} — Alpharetta High School Orchestras`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 
@@ -25,8 +31,6 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
 
-    <!-- Open Graph: this is what makes links look right when shared,
-         which matters for the "reach people outside our school" goal. -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
@@ -35,7 +39,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&family=Archivo:wght@500;600&display=swap"
       rel="stylesheet"
     />
 
@@ -44,12 +48,15 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 
   <body>
     <Header />
-    <main id="main"><slot /></main>
+    <main id="main" class:list={[!flushHeader && 'main--offset']}>
+      <slot />
+    </main>
     <Footer />
   </body>
 </html>
 
-<style is:global>
-  body { display: flex; flex-direction: column; min-height: 100vh; }
-  main { flex: 1; }
+<style>
+  /* Inner pages start below the fixed header; the homepage doesn't,
+     so its hero photo sits underneath it. */
+  .main--offset { padding-top: var(--header-h); }
 </style>

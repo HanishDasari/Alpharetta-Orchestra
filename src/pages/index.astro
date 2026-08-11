@@ -3,15 +3,18 @@ import Base from '../layouts/Base.astro';
 import Placeholder from '../components/Placeholder.astro';
 import { photos } from '../lib/photos';
 
-/* DEMO BUILD.
-   Sections that exist on the current site are real. Sections we're
-   proposing to add are marked with <Placeholder /> so the director can
-   see where they'd sit without us inventing content for them.
-   The working calendar lives on /calendar — this page just points at it. */
-const cards = [
+/* Duplicate of the current homepage, section for section:
+     1. full-bleed hero photo (no text on it)
+     2. white band — photo left, intro copy right
+     3. silver band — three alternating photo/text rows
+     4. white band — left-aligned Dudamel quote
+   The one addition is the calendar placeholder, styled to match. */
+
+const rows = [
   {
     title: 'About the Program',
     img: photos.program,
+    flip: false,
     body:
       'The nationally recognized Alpharetta High School orchestra program was ' +
       'established in the fall of 2004 and is comprised of six orchestras and ' +
@@ -22,47 +25,71 @@ const cards = [
   {
     title: 'The Orchestras',
     img: photos.orchestras,
+    flip: true,
     body:
-      'The program is made up of six ensembles: the Concert, Silver, ' +
-      'Philharmonia, Sinfonia, Symphony, and Chamber orchestras. The ' +
-      'orchestras have consistently achieved Superior ratings at adjudications ' +
-      'and have travelled to perform locally, statewide, and nationally.',
+      'The Alpharetta High School Orchestra program is made up of six ensembles: ' +
+      'the Concert, Silver, Philharmonia, Sinfonia, Symphony, and Chamber ' +
+      'orchestras. The orchestras have consistently achieved Superior ratings at ' +
+      'adjudications and have travelled to perform locally, statewide, and nationally.',
     href: '/orchestras',
   },
   {
     title: 'About the Director',
     img: photos.director,
-    body:
-      'Jake Hood was named Director of Orchestras at Alpharetta High School in ' +
-      '2022, and was named the school’s 2026–2027 Teacher of the Year.',
+    flip: false,
+    body: 'Jake Hood was named Director of Orchestras at Alpharetta High School in 2022.',
     href: '/about#director',
   },
 ];
 ---
 
 <Base title="home">
-  <!-- Hero — full-bleed photo with the program intro over it -------->
+  <!-- 1. Hero photo, full bleed, no overlay text ------------------ -->
   <section class="hero">
-    <img class="hero__img" src={photos.hero} alt="" fetchpriority="high" />
-    <div class="hero__scrim"></div>
-    <div class="wrap hero__inner">
-      <p class="hero__eyebrow">Alpharetta, Georgia</p>
-      <h1>Alpharetta High School Orchestras</h1>
-      <p class="hero__lede">
-        Approximately 130 students in six distinct levels of daily
-        string&nbsp;/&nbsp;orchestra instruction &mdash; building technique,
-        musicianship, ear training, and both solo and ensemble playing, to
-        prepare students to be thriving, independent musicians.
-      </p>
-      <div class="hero__actions">
-        <a href="/orchestras" class="btn btn--primary">Meet the orchestras</a>
-        <a href="/calendar" class="btn btn--onphoto">Upcoming concerts</a>
+    <img src={photos.hero} alt="" fetchpriority="high" />
+  </section>
+
+  <!-- 2. Intro: photo left, copy right ---------------------------- -->
+  <section class="intro">
+    <div class="wrap duo">
+      <img class="intro__img" src={photos.intro} alt="" />
+      <div>
+        <p>
+          The Alpharetta High School Orchestra, located in Alpharetta, Georgia
+          has approximately 130 students participating in 6 distinct levels of
+          daily string/orchestra instruction. The program focuses on improving
+          string technique, musicianship, ear training, and both solo and
+          ensemble playing to prepare students to be thriving, independent
+          musicians. The orchestra program has students who are extremely
+          enthusiastic and dedicated to their craft.
+        </p>
+        <p>
+          The orchestra is fortunate to have incredible facilities and
+          equipment, a supportive administrative team, and an amazing parent
+          booster organization.
+        </p>
       </div>
     </div>
   </section>
 
-  <!-- Proposed: upcoming concerts ---------------------------------->
-  <section class="section">
+  <!-- 3. Silver band: three alternating rows ---------------------- -->
+  <section class="feat">
+    <div class="wrap">
+      {rows.map((r) => (
+        <div class:list={['duo', 'feat__row', r.flip && 'duo--flip']}>
+          <img class="feat__img" src={r.img} alt="" loading="lazy" />
+          <div>
+            <h3>{r.title}</h3>
+            <p>{r.body}</p>
+            <a href={r.href} class="btn-learn">Learn More</a>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Proposed addition: upcoming concerts ------------------------ -->
+  <section class="add">
     <div class="wrap">
       <Placeholder
         label="Calendar goes here"
@@ -72,133 +99,41 @@ const cards = [
     </div>
   </section>
 
-  <!-- Three cards — same three as the current site ------------------>
-  <section class="section section--alt">
+  <!-- 4. Quote, left aligned -------------------------------------- -->
+  <section class="quote">
     <div class="wrap">
-      <div class="cards">
-        {cards.map((c) => (
-          <article class="c">
-            <a href={c.href} class="c__media">
-              <img src={c.img} alt="" loading="lazy" />
-            </a>
-            <div class="c__body">
-              <h3 class="c__title"><a href={c.href}>{c.title}</a></h3>
-              <p class="c__text">{c.body}</p>
-              <span class="c__more">Learn more &rarr;</span>
-            </div>
-          </article>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <!-- Proposed: announcements --------------------------------------->
-  <section class="section">
-    <div class="wrap">
-      <Placeholder
-        label="Announcements go here"
-        note="Short posts for reminders — call times, uniform notes, trip deadlines. You post, it shows up."
-        height="180px"
-      />
-    </div>
-  </section>
-
-  <!-- Proposed: photos ---------------------------------------------->
-  <section class="section section--alt">
-    <div class="wrap">
-      <Placeholder
-        label="Concert photos go here"
-        note="A strip from the most recent concert, linking to the full set. Photos attach to the concert they came from."
-        height="220px"
-      />
-    </div>
-  </section>
-
-  <!-- Quote --------------------------------------------------------->
-  <section class="section quote">
-    <div class="wrap">
-      <blockquote>
-        <p>&ldquo;With an orchestra, you are building citizens, better citizens for the community.&rdquo;</p>
-        <cite>Gustavo Dudamel</cite>
-      </blockquote>
+      <h2>&ldquo;With an orchestra, you are building citizens, better citizens for the community.&rdquo;</h2>
+      <p>&mdash; Gustavo Dudamel</p>
     </div>
   </section>
 </Base>
 
 <style>
-  /* Hero ---------------------------------------------------------- */
-  .hero {
-    position: relative;
-    display: grid;
-    align-items: end;
-    min-height: clamp(460px, 72vh, 720px);
-    isolation: isolate;
-    overflow: hidden;
-  }
-  .hero__img {
-    position: absolute; inset: 0; z-index: -2;
-    width: 100%; height: 100%; object-fit: cover; object-position: center 30%;
-  }
-  .hero__scrim {
-    position: absolute; inset: 0; z-index: -1;
-    background:
-      linear-gradient(to top, rgba(16,24,32,.92) 0%, rgba(16,24,32,.72) 38%, rgba(16,24,32,.25) 70%, rgba(16,24,32,.35) 100%);
-  }
-  .hero__inner { padding-block: clamp(2.5rem, 6vw, 4.5rem); color: #fff; max-width: 780px; }
-  .hero__eyebrow {
-    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em;
-    text-transform: uppercase; color: #E3C9C8; margin: 0 0 0.9rem;
-  }
-  .hero h1 {
-    font-size: clamp(2.1rem, 5.2vw, 3.6rem);
-    line-height: 1.08; letter-spacing: -0.03em;
-    margin: 0 0 1.1rem; color: #fff;
-  }
-  .hero__lede {
-    font-size: clamp(0.95rem, 1.2vw, 1.05rem);
-    line-height: 1.6; font-weight: 400;
-    color: rgba(255,255,255,.88); max-width: 58ch; margin: 0;
-  }
-  .hero__actions { display: flex; flex-wrap: wrap; gap: 0.85rem; margin-top: 2rem; }
+  /* The header is fixed and overlays the top of the hero photo,
+     exactly as it does on the live site. */
+  .hero { height: 528px; overflow: hidden; }
+  .hero img { width: 100%; height: 100%; object-fit: cover; }
 
-  .btn--onphoto {
-    border-color: rgba(255,255,255,.5); color: #fff; background: transparent;
-  }
-  .btn--onphoto:hover { border-color: #fff; background: rgba(255,255,255,.12); color: #fff; }
+  .intro { background: #fff; padding-block: 42px 104px; }
+  .intro__img { width: 100%; aspect-ratio: 589 / 393; object-fit: cover; }
 
-  /* Three cards ---------------------------------------------------- */
-  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
-  .c { display: flex; flex-direction: column; }
-  .c__media {
-    display: block; overflow: hidden; border-radius: var(--radius);
-    aspect-ratio: 4 / 3; background: var(--rule);
-  }
-  .c__media img {
-    width: 100%; height: 100%; object-fit: cover;
-    transition: transform 0.5s var(--ease);
-  }
-  .c:hover .c__media img { transform: scale(1.04); }
+  .feat { background: var(--silver); color: #fff; padding-block: 85px; }
+  .feat__row + .feat__row { margin-top: 121px; }
+  .feat__img { width: 100%; aspect-ratio: 539 / 358; object-fit: cover; }
+  .feat h3 { color: #fff; margin-bottom: 28px; }
+  .feat p { margin-bottom: 40px; }
 
-  .c__body { padding-top: 1.25rem; display: flex; flex-direction: column; flex: 1; }
-  .c__title { font-size: var(--step-1); margin-bottom: 0.6rem; }
-  .c__title a { color: var(--ink); text-decoration: none; }
-  .c__title a:hover { color: var(--maroon); }
-  .c__text { font-size: 0.925rem; color: var(--ink-soft); flex: 1; margin-bottom: 1rem; }
-  .c__more { font-size: 0.85rem; font-weight: 600; color: var(--maroon); }
+  .add { background: #fff; padding-block: 64px; }
 
-  /* Quote ---------------------------------------------------------- */
-  .quote { text-align: center; }
-  .quote blockquote { margin: 0 auto; max-width: 46ch; }
-  .quote p {
-    font-size: var(--step-2); font-weight: 300; line-height: 1.4;
-    letter-spacing: -0.02em; margin-bottom: 1.25rem; max-width: none;
-  }
-  .quote cite {
-    font-style: normal; font-size: 0.78rem; font-weight: 600;
-    letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft);
-  }
+  .quote { background: #fff; padding-block: 85px; }
+  .quote h2 { max-width: 589px; margin-bottom: 32px; }
+  .quote p { margin: 0; }
 
-  @media (prefers-reduced-motion: reduce) {
-    .c:hover .c__media img { transform: none; }
+  @media (max-width: 900px) {
+    .hero { height: 300px; }
+    .intro { padding-block: 32px 56px; }
+    .feat { padding-block: 56px; }
+    .feat__row + .feat__row { margin-top: 64px; }
+    .quote { padding-block: 56px; }
   }
 </style>

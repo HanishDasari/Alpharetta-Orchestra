@@ -1,0 +1,146 @@
+---
+import '../../styles/global.css';
+
+/* Sign-in screen. The form is intentionally inert — real auth arrives
+   with Supabase (see docs/portals-setup.md). The role buttons below it
+   exist so the portals can be demoed without accounts. */
+
+const roles = [
+  {
+    key: 'admin',
+    name: 'Administrator',
+    who: 'Mr. Hood',
+    blurb: 'Edits everything, sees family payment status, manages who has access.',
+    href: '/portal/admin',
+  },
+  {
+    key: 'webmaster',
+    name: 'Webmaster',
+    who: 'Student',
+    blurb: 'Edits site content. Cannot see families, payments, or user accounts.',
+    href: '/portal/webmaster',
+  },
+  {
+    key: 'family',
+    name: 'Family',
+    who: 'Parent',
+    blurb: 'Sees only their own student — fees owed, forms, and payment history.',
+    href: '/portal/family',
+  },
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sign in — AHS Orchestras</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Archivo:wght@500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body class="login">
+    <main class="box">
+      <a class="back" href="/">&larr; Back to the website</a>
+
+      <h1>Sign in</h1>
+      <p class="sub">Alpharetta High School Orchestras</p>
+
+      <form class="form" aria-describedby="inert-note">
+        <div class="fld">
+          <label for="email">Email</label>
+          <input class="inp" id="email" type="email" placeholder="you@example.com" disabled />
+        </div>
+        <div class="fld">
+          <label for="pw">Password</label>
+          <input class="inp" id="pw" type="password" placeholder="••••••••" disabled />
+        </div>
+        <button class="pbtn pbtn--primary full" type="button" disabled>Sign in</button>
+      </form>
+
+      <p class="note" id="inert-note">
+        Real sign-in isn&rsquo;t built yet. Pick a role below to preview what each
+        person would see.
+      </p>
+
+      <div class="roles">
+        {roles.map((r) => (
+          <a class="role" href={r.href} data-role={r.key}>
+            <span class="role__top">
+              <b>{r.name}</b>
+              <small>{r.who}</small>
+            </span>
+            <span class="role__blurb">{r.blurb}</span>
+          </a>
+        ))}
+      </div>
+    </main>
+
+    <script is:inline>
+      // Demo only — remembers which role you picked so the portal chrome
+      // can show the right name. Not authentication.
+      document.querySelectorAll('[data-role]').forEach(function (el) {
+        el.addEventListener('click', function () {
+          try { localStorage.setItem('ahs-demo-role', el.dataset.role); } catch (e) {}
+        });
+      });
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  .login {
+    display: grid; place-items: center; min-height: 100vh;
+    background: var(--ink); padding: 2rem 1rem; font-weight: 400; line-height: 1.6;
+  }
+  .box {
+    width: 100%; max-width: 430px; background: #fff;
+    border-radius: 12px; padding: 2.25rem;
+  }
+  .back { font-size: .82rem; color: var(--ink-soft); text-decoration: none; }
+  .back:hover { color: var(--maroon); }
+  .box h1 { font-size: 1.7rem; margin: 1.25rem 0 .2rem; }
+  .box .sub { color: var(--ink-soft); font-size: .9rem; margin: 0 0 1.75rem; }
+
+  .form .fld { margin-bottom: .9rem; }
+  .form .fld label {
+    display: block; font-size: .72rem; font-weight: 600; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--ink-soft); margin-bottom: .3rem;
+  }
+  .form .inp {
+    width: 100%; border: 1px solid #D8DDE0; border-radius: 6px;
+    padding: .6rem .7rem; font: inherit; font-size: .92rem; background: #F7F8F9;
+  }
+  .full { width: 100%; justify-content: center; margin-top: .3rem; }
+  .pbtn {
+    display: inline-flex; align-items: center; padding: .65rem 1.15rem;
+    border-radius: 6px; border: 1px solid transparent; font: inherit;
+    font-size: .9rem; font-weight: 500; cursor: pointer;
+  }
+  .pbtn--primary { background: var(--maroon); color: #fff; }
+  .pbtn:disabled { opacity: .45; cursor: not-allowed; }
+
+  .note {
+    font-size: .84rem; color: var(--ink-soft);
+    background: #F4F7F8; border: 1px solid #DCE6E9; border-radius: 7px;
+    padding: .8rem .9rem; margin: 1.5rem 0 1.1rem;
+  }
+
+  .roles { display: grid; gap: .6rem; }
+  .role {
+    display: grid; gap: .25rem; padding: .9rem 1rem;
+    border: 1px solid #E3E6E8; border-radius: 8px;
+    text-decoration: none; color: var(--ink);
+    transition: border-color .18s ease, background-color .18s ease;
+  }
+  .role:hover { border-color: var(--maroon); background: #FCFAFA; }
+  .role__top { display: flex; align-items: baseline; gap: .5rem; }
+  .role__top b { font-size: .95rem; font-weight: 600; }
+  .role__top small { color: var(--ink-soft); font-size: .78rem; }
+  .role__blurb { font-size: .82rem; color: var(--ink-soft); line-height: 1.45; }
+</style>

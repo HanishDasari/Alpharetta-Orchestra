@@ -1,0 +1,69 @@
+---
+import Portal from '../../layouts/Portal.astro';
+
+const tiles = [
+  { n: '3', label: 'Upcoming concerts', sub: 'Next: Oct 15' },
+  { n: '6', label: 'Orchestras', sub: 'All published' },
+  { n: '1', label: 'Announcements', sub: 'Last posted Aug 1' },
+  { n: '5', label: 'Pages', sub: 'About, Students, Support…' },
+];
+---
+
+<Portal title="Dashboard" role="webmaster">
+  <h1>Dashboard</h1>
+  <p class="sub">Same editor Mr. Hood uses, without the family and payment data.</p>
+
+  <div class="tiles">
+    {tiles.map((t) => (
+      <div class="tile">
+        <span class="tile__n">{t.n}</span>
+        <b>{t.label}</b>
+        <small>{t.sub}</small>
+      </div>
+    ))}
+  </div>
+
+  <section class="card" id="events">
+    <h2>Add a concert</h2>
+    <div class="fld">
+      <label for="t">Title</label>
+      <input class="inp" id="t" value="Winter Concert 2026" readonly />
+    </div>
+    <div class="row2">
+      <div class="fld">
+        <label for="d">Date</label>
+        <input class="inp" id="d" value="December 10, 2026" readonly />
+      </div>
+      <div class="fld">
+        <label for="tm">Start time</label>
+        <input class="inp" id="tm" value="7:00 PM" readonly />
+      </div>
+    </div>
+    <div class="fld">
+      <label>Who&rsquo;s performing</label>
+      <div class="chips">
+        {['Concert','Silver','Philharmonia','Sinfonia','Symphony','Chamber'].map((e) => (
+          <span class="chip on">{e}</span>
+        ))}
+      </div>
+    </div>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+      <button class="pbtn pbtn--primary" type="button">Publish</button>
+      <button class="pbtn pbtn--ghost" type="button">Save as draft</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>What this role can&rsquo;t reach</h2>
+    <div class="locked">
+      <span aria-hidden="true" style="font-size:1.1rem;line-height:1">🔒</span>
+      <span>
+        <b style="display:block;color:var(--ink);margin-bottom:.25rem">
+          Families, payments, and user accounts are hidden
+        </b>
+        Not just hidden in the menu — the database refuses to return those rows
+        for this role. A webmaster who went looking still wouldn&rsquo;t find them.
+      </span>
+    </div>
+  </section>
+</Portal>

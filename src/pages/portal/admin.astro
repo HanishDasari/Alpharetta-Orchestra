@@ -1,0 +1,119 @@
+---
+import Portal from '../../layouts/Portal.astro';
+
+const tiles = [
+  { n: '3', label: 'Upcoming concerts', sub: 'Next: Oct 15' },
+  { n: '6', label: 'Orchestras', sub: 'All published' },
+  { n: '128', label: 'Students', sub: '2026–27 roster' },
+  { n: '41', label: 'Fees outstanding', sub: 'of 128 families' },
+];
+
+const families = [
+  { name: 'Nguyen, Mai', student: 'Anh Nguyen', ensemble: 'Symphony', owed: '$195.00', status: 'due' },
+  { name: 'Patel, Rina', student: 'Dev Patel', ensemble: 'Philharmonia', owed: '$0.00', status: 'paid' },
+  { name: 'Brooks, Alan', student: 'Cora Brooks', ensemble: 'Chamber', owed: '$45.00', status: 'due' },
+  { name: 'Okafor, Ada', student: 'Ife Okafor', ensemble: 'Concert', owed: '$0.00', status: 'paid' },
+];
+---
+
+<Portal title="Dashboard" role="admin">
+  <h1>Dashboard</h1>
+  <p class="sub">Everything on the site, and who has paid.</p>
+
+  <div class="tiles">
+    {tiles.map((t) => (
+      <div class="tile">
+        <span class="tile__n">{t.n}</span>
+        <b>{t.label}</b>
+        <small>{t.sub}</small>
+      </div>
+    ))}
+  </div>
+
+  <!-- Add a concert ------------------------------------------------->
+  <section class="card" id="events">
+    <h2>Add a concert</h2>
+    <div class="fld">
+      <label for="t">Title</label>
+      <input class="inp" id="t" value="Fall Concert 2026" readonly />
+    </div>
+    <div class="row2">
+      <div class="fld">
+        <label for="d">Date</label>
+        <input class="inp" id="d" value="October 15, 2026" readonly />
+      </div>
+      <div class="fld">
+        <label for="tm">Start time</label>
+        <input class="inp" id="tm" value="7:00 PM" readonly />
+      </div>
+    </div>
+    <div class="fld">
+      <label for="loc">Location</label>
+      <input class="inp" id="loc" value="AHS Performing Arts Center" readonly />
+    </div>
+    <div class="fld">
+      <label>Who&rsquo;s performing</label>
+      <div class="chips">
+        {['Concert','Silver','Philharmonia','Sinfonia','Symphony','Chamber'].map((e) => (
+          <span class="chip on">{e}</span>
+        ))}
+      </div>
+    </div>
+    <div class="fld">
+      <label for="desc">Description</label>
+      <textarea class="inp inp--area" id="desc" readonly>Opening with visiting 8th graders from Webb Bridge and Hopewell. Free and open to the public.</textarea>
+    </div>
+    <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+      <button class="pbtn pbtn--primary" type="button">Publish</button>
+      <button class="pbtn pbtn--ghost" type="button">Save as draft</button>
+      <small style="margin-left:auto;color:var(--ink-soft)">Live in about 30 seconds</small>
+    </div>
+  </section>
+
+  <!-- Families ------------------------------------------------------>
+  <section class="card" id="families">
+    <h2>Families &amp; payments</h2>
+    <div style="overflow-x:auto">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Parent</th><th>Student</th><th>Ensemble</th>
+            <th class="num">Owed</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {families.map((f) => (
+            <tr>
+              <td>{f.name}</td>
+              <td>{f.student}</td>
+              <td>{f.ensemble}</td>
+              <td class="num">{f.owed}</td>
+              <td>
+                <span class:list={['pill', f.status === 'paid' ? 'pill--paid' : 'pill--due']}>
+                  {f.status === 'paid' ? 'Paid' : 'Due'}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p style="margin:1rem 0 0;font-size:.85rem;color:var(--ink-soft)">
+      Sample rows. Real data arrives once the boosters approve storing payment
+      records — see <code>docs/portals-setup.md</code>.
+    </p>
+  </section>
+
+  <!-- Users --------------------------------------------------------->
+  <section class="card" id="users">
+    <h2>Users &amp; roles</h2>
+    <table class="tbl">
+      <thead><tr><th>Person</th><th>Role</th><th>Can see</th></tr></thead>
+      <tbody>
+        <tr><td>Mr. Hood</td><td>Administrator</td><td>Everything</td></tr>
+        <tr><td>Hanish</td><td>Webmaster</td><td>Site content only</td></tr>
+        <tr><td>128 parents</td><td>Family</td><td>Their own student only</td></tr>
+      </tbody>
+    </table>
+  </section>
+</Portal>

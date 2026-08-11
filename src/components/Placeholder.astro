@@ -1,0 +1,47 @@
+---
+/* Demo-only. Marks a section that isn't built yet so the director can
+   see where things will sit without us faking the content.
+   Delete these once each section is real. */
+interface Props {
+  label: string;
+  note?: string;
+  height?: string;
+}
+const { label, note, height = '200px' } = Astro.props;
+---
+
+<div class="phold" style={`min-height:${height}`}>
+  <p class="phold__label">{label}</p>
+  {note && <p class="phold__note">{note}</p>}
+</div>
+
+<style>
+  .phold {
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: 0.5rem;
+    text-align: center;
+    padding: 2rem 1.5rem;
+    border: 2px dashed var(--rule);
+    border-radius: var(--radius);
+    background:
+      repeating-linear-gradient(-45deg,
+        var(--paper-alt) 0 10px,
+        transparent 10px 20px);
+  }
+  .phold__label {
+    margin: 0;
+    font-size: clamp(1rem, 2.2vw, 1.35rem);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .phold__note {
+    margin: 0;
+    max-width: 46ch;
+    font-size: 0.875rem;
+    color: var(--ink-faint);
+  }
+</style>

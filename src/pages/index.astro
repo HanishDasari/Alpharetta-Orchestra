@@ -1,13 +1,13 @@
 ---
 import Base from '../layouts/Base.astro';
-import EventCard from '../components/EventCard.astro';
-import { upcomingEvents } from '../lib/events';
+import Placeholder from '../components/Placeholder.astro';
 import { photos } from '../lib/photos';
 
-const next = await upcomingEvents(3);
-
-/* Mirrors the current homepage: hero, three "Learn More" cards,
-   Dudamel quote. The upcoming-concerts strip is the one addition. */
+/* DEMO BUILD.
+   Sections that exist on the current site are real. Sections we're
+   proposing to add are marked with <Placeholder /> so the director can
+   see where they'd sit without us inventing content for them.
+   The working calendar lives on /calendar — this page just points at it. */
 const cards = [
   {
     title: 'About the Program',
@@ -61,32 +61,16 @@ const cards = [
     </div>
   </section>
 
-  <!-- Upcoming concerts — the addition ----------------------------->
-  {next.length > 0 && (
-    <section class="section upnext">
-      <div class="wrap">
-        <div class="upnext__head">
-          <div>
-            <p class="eyebrow">Next up</p>
-            <h2>Come hear us play</h2>
-          </div>
-          <a href="/calendar" class="upnext__link">Full calendar &rarr;</a>
-        </div>
-        <div class="upnext__grid">
-          {next.map((e) => (
-            <EventCard
-              title={e.data.title}
-              start={e.data.start}
-              location={e.data.location}
-              ensembles={e.data.ensembles}
-              summary={e.data.summary}
-              href={`/events/${e.slug}`}
-            />
-          ))}
-        </div>
-      </div>
-    </section>
-  )}
+  <!-- Proposed: upcoming concerts ---------------------------------->
+  <section class="section">
+    <div class="wrap">
+      <Placeholder
+        label="Calendar goes here"
+        note="The next two or three concerts, filled in automatically from the dates you enter. Nothing to update by hand."
+        height="240px"
+      />
+    </div>
+  </section>
 
   <!-- Three cards — same three as the current site ------------------>
   <section class="section section--alt">
@@ -105,6 +89,28 @@ const cards = [
           </article>
         ))}
       </div>
+    </div>
+  </section>
+
+  <!-- Proposed: announcements --------------------------------------->
+  <section class="section">
+    <div class="wrap">
+      <Placeholder
+        label="Announcements go here"
+        note="Short posts for reminders — call times, uniform notes, trip deadlines. You post, it shows up."
+        height="180px"
+      />
+    </div>
+  </section>
+
+  <!-- Proposed: photos ---------------------------------------------->
+  <section class="section section--alt">
+    <div class="wrap">
+      <Placeholder
+        label="Concert photos go here"
+        note="A strip from the most recent concert, linking to the full set. Photos attach to the concert they came from."
+        height="220px"
+      />
     </div>
   </section>
 
@@ -149,9 +155,9 @@ const cards = [
     margin: 0 0 1.1rem; color: #fff;
   }
   .hero__lede {
-    font-size: clamp(1rem, 1.6vw, 1.15rem);
-    line-height: 1.6; font-weight: 300;
-    color: rgba(255,255,255,.9); max-width: 60ch; margin: 0;
+    font-size: clamp(0.95rem, 1.2vw, 1.05rem);
+    line-height: 1.6; font-weight: 400;
+    color: rgba(255,255,255,.88); max-width: 58ch; margin: 0;
   }
   .hero__actions { display: flex; flex-wrap: wrap; gap: 0.85rem; margin-top: 2rem; }
 
@@ -159,16 +165,6 @@ const cards = [
     border-color: rgba(255,255,255,.5); color: #fff; background: transparent;
   }
   .btn--onphoto:hover { border-color: #fff; background: rgba(255,255,255,.12); color: #fff; }
-
-  /* Next up -------------------------------------------------------- */
-  .upnext__head {
-    display: flex; align-items: flex-end; justify-content: space-between;
-    gap: 1.5rem; flex-wrap: wrap; margin-bottom: 2rem;
-  }
-  .upnext__head h2 { margin: 0; font-size: var(--step-2); }
-  .upnext__link { font-size: 0.925rem; font-weight: 500; text-decoration: none; white-space: nowrap; }
-  .upnext__link:hover { text-decoration: underline; }
-  .upnext__grid { display: grid; gap: 1rem; }
 
   /* Three cards ---------------------------------------------------- */
   .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }

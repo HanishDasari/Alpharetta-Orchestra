@@ -1,8 +1,12 @@
 ---
-import { photos } from '../lib/photos';
+import { Image } from 'astro:assets';
+import logo from '../assets/logo.png';
 
 /* Same maroon band, logo and full nav as the live site — but shorter at
-   rest, and it collapses to just the logo once you scroll past the hero. */
+   rest, and it collapses to just the logo once you scroll past the hero.
+
+   The logo is self-hosted (src/assets/logo.png) rather than pulled from
+   the Squarespace CDN, so it survives the account being cancelled. */
 const nav = [
   { label: 'Uniforms', href: '/students' },
   { label: 'Orchestra 101', href: '/students' },
@@ -23,8 +27,10 @@ const nav = [
 <a class="skip" href="#main">Skip to Content</a>
 
 <header class="hdr" id="site-header">
+  <a class="hdr__signin" href="/portal">Sign in</a>
+
   <a class="hdr__logo" href="/">
-    <img src={photos.logo} alt="Alpharetta High School Orchestras" width="450" height="150" />
+    <Image src={logo} alt="Alpharetta High School Orchestras" width={680} height={227} loading="eager" />
   </a>
 
   <input type="checkbox" id="nav-toggle" class="vh" />
@@ -72,6 +78,16 @@ const nav = [
     transition: padding-bottom .28s var(--ease);
   }
 
+  .hdr__signin {
+    position: absolute; top: 14px; right: 20px;
+    color: #fff; text-decoration: none;
+    font-size: 13px; font-weight: 500; letter-spacing: .04em;
+    padding: .32rem .85rem;
+    border: 1px solid rgba(255,255,255,.45); border-radius: 999px;
+    transition: background-color .18s var(--ease), border-color .18s var(--ease);
+  }
+  .hdr__signin:hover { background: rgba(255,255,255,.15); border-color: #fff; color: #fff; }
+
   .hdr__logo { display: block; line-height: 0; }
   .hdr__logo img {
     width: 340px; height: 113px; max-width: 86vw;
@@ -105,6 +121,9 @@ const nav = [
     .hdr { padding-bottom: 0; }
     .hdr__logo img { width: 240px; height: 80px; }
     .hdr.is-shrunk .hdr__logo img { width: 150px; height: 50px; }
+
+    /* burger owns the right side on mobile */
+    .hdr__signin { top: 15px; right: auto; left: 16px; font-size: 12px; padding: .28rem .7rem; }
 
     .burger {
       display: block; width: 28px; height: 20px;

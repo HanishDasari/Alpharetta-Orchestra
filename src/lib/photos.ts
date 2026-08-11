@@ -10,9 +10,10 @@
    --------------------------------------------------------------- */
 const CDN = 'https://images.squarespace-cdn.com/content/v1/62d45db4bbe0785e23f4ddae';
 
+/* The logo is no longer here — it now lives at src/assets/logo.png and is
+   imported directly by Header.astro. These five still need the same
+   treatment. */
 export const photos = {
-  /** Header wordmark, centered on the maroon band */
-  logo: `${CDN}/0256ce6e-843a-49e8-8497-58d53217c7d2/Untitled+design.png`,
   /** Section 1 — full-bleed hero photo */
   hero: `${CDN}/04db763f-4598-4ea9-b7bc-4c96c3392a85/2C8A9407.jpg`,
   /** Section 2 — photo beside the intro copy */

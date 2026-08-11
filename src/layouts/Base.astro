@@ -9,12 +9,15 @@ interface Props {
   /** Homepage only: let the hero photo run under the fixed header,
       the way the current site does. */
   flushHeader?: boolean;
+  /** Keep internal pages (proposals, drafts) out of search results. */
+  noindex?: boolean;
 }
 
 const {
   title,
   description = 'The Alpharetta High School Orchestras — approximately 130 students in six levels of daily string instruction in Alpharetta, Georgia.',
   flushHeader = title === 'home',
+  noindex = false,
 } = Astro.props;
 
 const fullTitle = title === 'home'
@@ -29,6 +32,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonical} />
 
     <meta property="og:type" content="website" />

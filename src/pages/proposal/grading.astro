@@ -1,0 +1,313 @@
+---
+import Base from '../../layouts/Base.astro';
+
+/* Internal proposal page — deliberately not in the nav and marked
+   noindex. It exists so Hanish can walk Mr. Hood through how a grading
+   helper would work without anyone having to take his word for it. */
+
+const steps = [
+  {
+    n: 1,
+    who: 'Mr. Hood',
+    title: 'Export your gradebook from Canvas',
+    body:
+      'In Canvas: Grades → Export → CSV. This gives a file that already has every ' +
+      'student, in Canvas’s own format, with the ID numbers Canvas expects back. ' +
+      'Starting from your export is what keeps names and IDs from ever getting mismatched.',
+  },
+  {
+    n: 2,
+    who: 'Students / families',
+    title: 'They submit through the website',
+    body:
+      'A simple form — practice minutes, concert attendance check-in, uniform ' +
+      'confirmation, whatever the repetitive thing is. They fill it in on their phone. ' +
+      'It lands in a list you can see.',
+  },
+  {
+    n: 3,
+    who: 'Mr. Hood',
+    title: 'Review the list and click Export',
+    body:
+      'You see everything that came in, sorted by class period. You can correct or ' +
+      'delete anything that looks wrong. When it looks right, click Export and the ' +
+      'site produces a CSV laid out to match the file from step 1.',
+  },
+  {
+    n: 4,
+    who: 'Mr. Hood',
+    title: 'Import it into Canvas',
+    body:
+      'In Canvas: Grades → Import → choose the file. Canvas shows you a preview of ' +
+      'exactly what will change before anything is saved. You approve it. Done.',
+  },
+];
+
+const safety = [
+  {
+    t: 'The website never connects to Canvas',
+    b: 'There is no login, no API key, no integration. The two systems never talk to each other. You are the only connection between them — you download a file and you upload a file.',
+  },
+  {
+    t: 'The website never stores a grade',
+    b: 'It stores what students submit — minutes practiced, present or absent. Turning that into a grade happens in your head and in Canvas, not on the site.',
+  },
+  {
+    t: 'Nothing enters Canvas without you approving it',
+    b: 'You see the list before exporting, and Canvas shows you a preview before importing. There are two checkpoints, both yours.',
+  },
+  {
+    t: 'No district IT approval needed',
+    b: 'Because nothing touches Fulton County systems, there is nothing for them to review or approve. You are just using Canvas’s own built-in import feature, the same as uploading a spreadsheet.',
+  },
+  {
+    t: 'If the website disappeared, Canvas is untouched',
+    b: 'Everything already imported stays in Canvas. The site is a helper for collecting information, never the system of record.',
+  },
+];
+
+const goodFor = [
+  'Practice log minutes',
+  'Concert attendance',
+  'Form or permission-slip completion',
+  'Uniform check-in',
+  'Participation points',
+  'Anything that is "did they do it, yes or no"',
+];
+
+const notFor = [
+  'Playing tests and auditions',
+  'Anything you have to listen to and judge',
+  'Written work you have to read',
+  'Anything requiring your musical opinion',
+];
+---
+
+<Base
+  title="Grading Helper — Proposal"
+  description="How a website could reduce repetitive Canvas data entry without ever touching Canvas itself."
+  noindex
+>
+  <article class="section">
+    <div class="wrap">
+      <p class="tag">Internal proposal &middot; not part of the public site</p>
+      <h1>Could the website help with Canvas?</h1>
+      <p class="lede">
+        Short version: <strong>yes, but only by staying completely out of Canvas.</strong>
+        Here is exactly how it would work, and why it is safe.
+      </p>
+
+      <!-- The honest limitation, first ------------------------------->
+      <div class="note note--warn">
+        <h2>First, what we are <em>not</em> going to do</h2>
+        <p>
+          It is technically possible to make a website push grades straight into
+          Canvas. We are not going to do that, for three reasons:
+        </p>
+        <ul>
+          <li>
+            <strong>Grades are protected records.</strong> Under FERPA, a student
+            grade is a federally protected education record. A website built by a
+            student, holding other students&rsquo; grades, is a serious risk &mdash;
+            and the consequences would land on you, not on us.
+          </li>
+          <li>
+            <strong>We would not get access anyway.</strong> Fulton County controls
+            the Canvas instance. Connecting an outside app requires district IT
+            approval, which a student-built project will not get.
+          </li>
+          <li>
+            <strong>Someone has to maintain it.</strong> Hanish graduates. Nobody
+            should inherit a system that touches grades.
+          </li>
+        </ul>
+        <p class="note__close">
+          So the design below deliberately keeps the website on the outside. It
+          collects information and hands you a file. You stay in control of
+          everything that reaches Canvas.
+        </p>
+      </div>
+
+      <!-- The flow --------------------------------------------------->
+      <h2 class="h-section">How it would actually work</h2>
+      <ol class="steps">
+        {steps.map((s) => (
+          <li class="step">
+            <span class="step__n" aria-hidden="true">{s.n}</span>
+            <div>
+              <p class="step__who">{s.who}</p>
+              <h3>{s.title}</h3>
+              <p>{s.body}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      <div class="flow" role="img" aria-label="Canvas export, then website collects, then export CSV, then Canvas import. The website and Canvas never connect directly.">
+        <span class="flow__box">Canvas<small>export CSV</small></span>
+        <span class="flow__arrow">&rarr;</span>
+        <span class="flow__box flow__box--site">Website<small>collects entries</small></span>
+        <span class="flow__arrow">&rarr;</span>
+        <span class="flow__box">You<small>review &amp; export</small></span>
+        <span class="flow__arrow">&rarr;</span>
+        <span class="flow__box">Canvas<small>import CSV</small></span>
+      </div>
+      <p class="flow__cap">
+        Note that every arrow passes through you. There is no direct line between
+        the website and Canvas.
+      </p>
+
+      <!-- Why it's safe ---------------------------------------------- -->
+      <h2 class="h-section">Why this is safe</h2>
+      <dl class="safety">
+        {safety.map((s) => (
+          <div class="safety__row">
+            <dt>{s.t}</dt>
+            <dd>{s.b}</dd>
+          </div>
+        ))}
+      </dl>
+
+      <!-- Scope ------------------------------------------------------ -->
+      <h2 class="h-section">What it can and cannot help with</h2>
+      <div class="two">
+        <div class="col col--yes">
+          <h3>Good fit</h3>
+          <ul>{goodFor.map((i) => <li>{i}</li>)}</ul>
+        </div>
+        <div class="col col--no">
+          <h3>Not a fit</h3>
+          <ul>{notFor.map((i) => <li>{i}</li>)}</ul>
+        </div>
+      </div>
+
+      <!-- The ask ---------------------------------------------------- -->
+      <div class="note note--ask">
+        <h2>What we need from you</h2>
+        <p>One question, and the answer decides whether this is worth building:</p>
+        <p class="ask">
+          &ldquo;What do you end up typing into Canvas most often, and where does
+          that information come from before it gets there?&rdquo;
+        </p>
+        <p>
+          If the answer is something like &ldquo;I read 130 practice logs off paper
+          every week,&rdquo; this saves you real time. If it is &ldquo;I grade playing
+          tests,&rdquo; then no website helps and we should leave it alone rather
+          than build something that just adds a step.
+        </p>
+      </div>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .wrap { max-width: 860px; }
+
+  .tag {
+    display: inline-block;
+    font-size: .7rem; font-weight: 600; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--maroon);
+    border: 1px solid var(--rule); border-radius: 999px;
+    padding: .3rem .8rem; margin-bottom: 1.5rem;
+  }
+
+  h1 { font-size: 2.4rem; line-height: 1.15; margin-bottom: 1rem; }
+  .lede { font-size: 1.1rem; margin-bottom: 2.5rem; }
+  .h-section {
+    font-size: 1.6rem; margin-top: 3.5rem; margin-bottom: 1.5rem;
+    padding-bottom: .6rem; border-bottom: 1px solid var(--rule);
+  }
+
+  /* Callouts */
+  .note {
+    border-radius: var(--radius); padding: 1.75rem;
+    margin: 2.5rem 0; border: 1px solid var(--rule);
+  }
+  .note h2 { font-size: 1.2rem; margin: 0 0 .9rem; }
+  .note ul { padding-left: 1.15rem; margin: 0 0 1rem; }
+  .note li { margin-bottom: .7rem; }
+  .note--warn { background: #FBF7F7; border-color: #E4D2D1; }
+  .note--warn h2 { color: var(--maroon); }
+  .note__close { margin-bottom: 0; font-weight: 500; }
+  .note--ask { background: var(--paper-alt); }
+  .ask {
+    font-size: 1.15rem; font-weight: 500; line-height: 1.5;
+    border-left: 3px solid var(--maroon);
+    padding-left: 1.1rem; margin: 1.2rem 0;
+  }
+
+  /* Steps */
+  .steps { list-style: none; padding: 0; margin: 0; counter-reset: none; }
+  .step {
+    display: grid; grid-template-columns: 46px 1fr; gap: 1.25rem;
+    padding-bottom: 1.75rem; margin-bottom: 1.75rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .step:last-child { border-bottom: 0; margin-bottom: 0; }
+  .step__n {
+    display: grid; place-items: center;
+    width: 46px; height: 46px; border-radius: 50%;
+    background: var(--maroon); color: #fff;
+    font-size: 1.05rem; font-weight: 600;
+  }
+  .step__who {
+    font-size: .68rem; font-weight: 600; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--maroon); margin: 0 0 .3rem;
+  }
+  .step h3 { font-size: 1.15rem; margin: 0 0 .5rem; }
+  .step p { margin: 0; color: var(--ink-soft); }
+
+  /* Flow diagram */
+  .flow {
+    display: flex; align-items: stretch; justify-content: center;
+    flex-wrap: wrap; gap: .6rem;
+    padding: 1.75rem 1rem; margin-top: 2.5rem;
+    background: var(--paper-alt); border-radius: var(--radius);
+  }
+  .flow__box {
+    display: grid; align-content: center; gap: .2rem;
+    padding: .9rem 1.1rem; min-width: 132px; text-align: center;
+    background: #fff; border: 1px solid var(--rule); border-radius: 6px;
+    font-weight: 600; font-size: .92rem;
+  }
+  .flow__box small {
+    display: block; font-weight: 400; font-size: .72rem; color: var(--ink-soft);
+  }
+  .flow__box--site { border-color: var(--maroon); border-width: 2px; }
+  .flow__arrow { align-self: center; color: var(--silver); font-size: 1.2rem; }
+  .flow__cap {
+    text-align: center; font-size: .875rem; color: var(--ink-soft);
+    margin-top: .9rem;
+  }
+
+  /* Safety list */
+  .safety { margin: 0; }
+  .safety__row { padding: 1.1rem 0; border-bottom: 1px solid var(--rule); }
+  .safety__row:last-child { border-bottom: 0; }
+  .safety dt {
+    font-weight: 600; margin-bottom: .35rem;
+    padding-left: 1.5rem; position: relative;
+  }
+  .safety dt::before {
+    content: '✓'; position: absolute; left: 0;
+    color: var(--maroon); font-weight: 700;
+  }
+  .safety dd { margin: 0 0 0 1.5rem; color: var(--ink-soft); font-size: .95rem; }
+
+  /* Two columns */
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  .col { padding: 1.4rem; border: 1px solid var(--rule); border-radius: var(--radius); }
+  .col h3 { font-size: 1rem; margin: 0 0 .8rem; }
+  .col ul { margin: 0; padding-left: 1.15rem; }
+  .col li { margin-bottom: .45rem; font-size: .93rem; color: var(--ink-soft); }
+  .col--yes { border-left: 3px solid var(--maroon); }
+  .col--no { border-left: 3px solid var(--silver); }
+  .col--no li { text-decoration: none; }
+
+  @media (max-width: 700px) {
+    .two { grid-template-columns: 1fr; }
+    .step { grid-template-columns: 36px 1fr; gap: .9rem; }
+    .step__n { width: 36px; height: 36px; font-size: .9rem; }
+    .flow__arrow { transform: rotate(90deg); }
+  }
+</style>

@@ -42,6 +42,8 @@ const roster = [
   { student: 'Cora Brooks', ensemble: 'Chamber', period: '7th', year: '2026' },
   { student: 'Ife Okafor', ensemble: 'Concert', period: '8th', year: '2029' },
 ];
+
+const ensembles = ['Concert', 'Silver', 'Philharmonia', 'Sinfonia', 'Symphony', 'Chamber'];
 ---
 
 <Portal title="Dashboard" role="admin">
@@ -60,44 +62,112 @@ const roster = [
 
   <FeatureBrief points={points} />
 
-  <!-- Add a concert ------------------------------------------------->
-  <section class="card" id="events">
-    <h2>Add a concert</h2>
-    <div class="fld">
-      <label for="t">Title</label>
-      <input class="inp" id="t" value="Fall Concert 2026" readonly />
+  <!-- Demo-only concert workflow ------------------------------------->
+  <section class="card concert-demo" id="events" aria-labelledby="concert-demo-title">
+    <div class="concert-demo__heading">
+      <div>
+        <p class="kicker">Demo workflow</p>
+        <h2 id="concert-demo-title">Add a concert once</h2>
+      </div>
+      <span class="demo-badge">Preview only — nothing is saved</span>
     </div>
-    <div class="row2">
+    <p class="concert-demo__intro">
+      Fill in a concert as Mr. Hood would. <strong>Show preview</strong> updates the four places
+      families would see it, but only in this browser tab. It does not publish, save, or send anything.
+    </p>
+
+    <form id="concert-demo-form" class="concert-demo__form">
       <div class="fld">
-        <label for="d">Date</label>
-        <input class="inp" id="d" value="October 15, 2026" readonly />
+        <label for="concert-title">Concert title</label>
+        <input class="inp" id="concert-title" name="title" value="Fall Concert 2026" required />
+      </div>
+      <div class="row2">
+        <div class="fld">
+          <label for="concert-date">Date</label>
+          <input class="inp" id="concert-date" name="date" type="date" value="2026-10-15" required />
+        </div>
+        <div class="fld">
+          <label for="concert-time">Start time</label>
+          <input class="inp" id="concert-time" name="time" type="time" value="19:00" required />
+        </div>
       </div>
       <div class="fld">
-        <label for="tm">Start time</label>
-        <input class="inp" id="tm" value="7:00 PM" readonly />
+        <label for="concert-location">Location</label>
+        <input class="inp" id="concert-location" name="location" value="AHS Performing Arts Center" required />
       </div>
-    </div>
-    <div class="fld">
-      <label for="loc">Location</label>
-      <input class="inp" id="loc" value="AHS Performing Arts Center" readonly />
-    </div>
-    <div class="fld">
-      <label>Who&rsquo;s performing</label>
-      <div class="chips">
-        {['Concert','Silver','Philharmonia','Sinfonia','Symphony','Chamber'].map((e) => (
-          <span class="chip on">{e}</span>
-        ))}
+      <fieldset class="fld ensemble-picker">
+        <legend>Who&rsquo;s performing</legend>
+        <div class="ensemble-picker__choices">
+          {ensembles.map((ensemble) => (
+            <label class="ensemble-picker__choice">
+              <input type="checkbox" name="ensembles" value={ensemble} checked={ensemble !== 'Chamber'} />
+              <span>{ensemble}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+      <div class="fld">
+        <label for="concert-description">Description</label>
+        <textarea class="inp inp--area" id="concert-description" name="description" required>Opening with visiting 8th graders from Webb Bridge and Hopewell. Free and open to the public.</textarea>
       </div>
-    </div>
-    <div class="fld">
-      <label for="desc">Description</label>
-      <textarea class="inp inp--area" id="desc" readonly>Opening with visiting 8th graders from Webb Bridge and Hopewell. Free and open to the public.</textarea>
-    </div>
-    <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
-      <button class="pbtn pbtn--primary" type="button">Publish</button>
-      <button class="pbtn pbtn--ghost" type="button">Save as draft</button>
-      <small style="margin-left:auto;color:var(--ink-soft)">Live in about 30 seconds</small>
-    </div>
+      <div class="concert-demo__actions">
+        <button class="pbtn pbtn--primary" type="submit">Show preview</button>
+        <button class="pbtn pbtn--ghost" type="reset">Reset example</button>
+        <p class="demo-status" id="concert-demo-status" aria-live="polite">
+          Editing this sample affects only the previews below.
+        </p>
+      </div>
+    </form>
+
+    <section class="concert-preview" id="concert-preview" aria-labelledby="concert-preview-title">
+      <div class="concert-preview__heading">
+        <div>
+          <p class="kicker">What changes after publishing</p>
+          <h3 id="concert-preview-title">One concert, four public surfaces</h3>
+        </div>
+        <span class="preview-pill">Live demo preview</span>
+      </div>
+
+      <div class="preview-grid">
+        <article class="surface surface--home">
+          <p class="surface__label">Homepage · Next up</p>
+          <p class="surface__eyebrow" data-date-short>Thu, Oct 15 · 7:00 PM</p>
+          <h4 data-title>Fall Concert 2026</h4>
+          <p class="surface__location" data-location>AHS Performing Arts Center</p>
+          <div class="surface__chips" data-ensembles></div>
+        </article>
+
+        <article class="surface surface--calendar">
+          <p class="surface__label">Calendar · Upcoming</p>
+          <div class="calendar-row">
+            <time class="calendar-row__date" data-date-calendar>OCT<br /><b>15</b></time>
+            <div>
+              <h4 data-title>Fall Concert 2026</h4>
+              <p data-time-location>7:00 PM · AHS Performing Arts Center</p>
+              <small data-ensembles-line>Concert · Silver · Philharmonia · Sinfonia · Symphony</small>
+            </div>
+          </div>
+        </article>
+
+        <article class="surface surface--event">
+          <p class="surface__label">Event page · Details</p>
+          <p class="surface__eyebrow">Concert &amp; event</p>
+          <h4 data-title>Fall Concert 2026</h4>
+          <p class="event-facts"><span data-date-long>Thursday, October 15, 2026</span><br /><span data-time-location>7:00 PM · AHS Performing Arts Center</span></p>
+          <p class="surface__description" data-description>Opening with visiting 8th graders from Webb Bridge and Hopewell. Free and open to the public.</p>
+        </article>
+
+        <article class="surface surface--feed">
+          <p class="surface__label">Subscribe feed · Calendar entry</p>
+          <pre class="ics-preview"><code><span>BEGIN:VEVENT</span>
+<span data-ics-summary>SUMMARY:Fall Concert 2026</span>
+<span data-ics-start>DTSTART;TZID=America/New_York:20261015T190000</span>
+<span data-ics-location>LOCATION:AHS Performing Arts Center</span>
+<span>END:VEVENT</span></code></pre>
+          <p class="surface__feed-note">Parents who subscribe receive this event when the published calendar is refreshed.</p>
+        </article>
+      </div>
+    </section>
   </section>
 
   <!-- Roster — no money on this page -------------------------------->
@@ -165,7 +235,188 @@ const roster = [
   </section>
 </Portal>
 
+<script>
+  const form = document.querySelector<HTMLFormElement>('#concert-demo-form');
+  const status = document.querySelector<HTMLElement>('#concert-demo-status');
+
+  function formatDate(dateValue: string, options: Intl.DateTimeFormatOptions) {
+    const [year, month, day] = dateValue.split('-').map(Number);
+    return new Intl.DateTimeFormat('en-US', options).format(new Date(year, month - 1, day, 12));
+  }
+
+  function formatTime(timeValue: string) {
+    const [hour, minute] = timeValue.split(':').map(Number);
+    return new Intl.DateTimeFormat('en-US', {
+      hour: 'numeric', minute: '2-digit',
+    }).format(new Date(2026, 0, 1, hour, minute));
+  }
+
+  function icsSafe(value: string) {
+    return value.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
+  }
+
+  function setText(selector: string, value: string) {
+    document.querySelectorAll<HTMLElement>(selector).forEach((element) => {
+      element.textContent = value;
+    });
+  }
+
+  function renderEnsembles(ensembleNames: string[]) {
+    document.querySelectorAll<HTMLElement>('[data-ensembles]').forEach((container) => {
+      container.replaceChildren();
+      if (ensembleNames.length === 0) {
+        const empty = document.createElement('span');
+        empty.className = 'surface__empty';
+        empty.textContent = 'No ensembles selected yet';
+        container.append(empty);
+        return;
+      }
+      ensembleNames.forEach((name) => {
+        const chip = document.createElement('span');
+        chip.className = 'surface__chip';
+        chip.textContent = name;
+        container.append(chip);
+      });
+    });
+  }
+
+  function renderPreview() {
+    if (!form || !status) return;
+    const values = new FormData(form);
+    const title = String(values.get('title') || '').trim() || 'Untitled concert';
+    const date = String(values.get('date') || '2026-10-15');
+    const time = String(values.get('time') || '19:00');
+    const location = String(values.get('location') || '').trim() || 'Location to be confirmed';
+    const description = String(values.get('description') || '').trim() || 'Description to be added.';
+    const selectedEnsembles = values.getAll('ensembles').map(String);
+    const eventDate = new Date(`${date}T12:00:00`);
+    const month = new Intl.DateTimeFormat('en-US', { month: 'short' }).format(eventDate).toUpperCase();
+    const day = new Intl.DateTimeFormat('en-US', { day: 'numeric' }).format(eventDate);
+    const compactTime = time.replace(':', '') + '00';
+
+    setText('[data-title]', title);
+    setText('[data-location]', location);
+    setText('[data-description]', description);
+    setText('[data-date-short]', `${formatDate(date, { weekday: 'short', month: 'short', day: 'numeric' })} · ${formatTime(time)}`);
+    setText('[data-date-long]', formatDate(date, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }));
+    setText('[data-time-location]', `${formatTime(time)} · ${location}`);
+    setText('[data-ensembles-line]', selectedEnsembles.length ? selectedEnsembles.join(' · ') : 'Ensembles to be confirmed');
+    setText('[data-ics-summary]', `SUMMARY:${icsSafe(title)}`);
+    setText('[data-ics-start]', `DTSTART;TZID=America/New_York:${date.replaceAll('-', '')}T${compactTime}`);
+    setText('[data-ics-location]', `LOCATION:${icsSafe(location)}`);
+
+    document.querySelectorAll<HTMLElement>('[data-date-calendar]').forEach((element) => {
+      element.replaceChildren(document.createTextNode(month), document.createElement('br'));
+      const strong = document.createElement('b');
+      strong.textContent = day;
+      element.append(strong);
+    });
+
+    renderEnsembles(selectedEnsembles);
+    status.textContent = `Preview updated for ${title}. Nothing has been saved or published.`;
+  }
+
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    renderPreview();
+    document.querySelector('#concert-preview')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+
+  form?.addEventListener('reset', () => {
+    window.setTimeout(() => {
+      renderPreview();
+      if (status) status.textContent = 'Example restored. Nothing has been saved or published.';
+    });
+  });
+
+  renderPreview();
+</script>
+
 <style is:global>
+  .concert-demo { overflow: hidden; }
+  .concert-demo__heading, .concert-preview__heading {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 1rem; margin-bottom: .75rem;
+  }
+  .concert-demo h2, .concert-preview h3 { margin: 0; }
+  .kicker {
+    margin: 0 0 .3rem; color: var(--maroon); text-transform: uppercase;
+    font-size: .7rem; font-weight: 600; letter-spacing: .12em;
+  }
+  .demo-badge, .preview-pill {
+    flex: 0 0 auto; padding: .38rem .62rem; border-radius: 999px;
+    font-size: .72rem; line-height: 1.3; font-weight: 600;
+  }
+  .demo-badge { color: #6F4D0A; background: #FFF6DE; border: 1px solid #E7CA82; }
+  .preview-pill { color: var(--maroon); background: #F7EDEE; border: 1px solid #E4C5C7; }
+  .concert-demo__intro { color: var(--ink-soft); font-size: .92rem; max-width: 74ch; }
+  .concert-demo__form { margin-top: 1.5rem; }
+  .concert-demo__actions {
+    display: flex; gap: .5rem; align-items: center; flex-wrap: wrap;
+  }
+  .demo-status { margin: 0 0 0 auto; color: var(--ink-soft); font-size: .8rem; }
+
+  .ensemble-picker { border: 0; padding: 0; margin: 0 0 1rem; }
+  .ensemble-picker legend {
+    padding: 0; margin-bottom: .45rem; font-size: .78rem; font-weight: 600;
+    letter-spacing: .05em; color: var(--ink-soft);
+  }
+  .ensemble-picker__choices { display: flex; gap: .5rem; flex-wrap: wrap; }
+  .ensemble-picker__choice {
+    display: inline-flex; align-items: center; gap: .38rem; cursor: pointer;
+    border: 1px solid #D8DDE0; border-radius: 999px; padding: .38rem .65rem;
+    font-size: .82rem; color: var(--ink); background: #fff;
+  }
+  .ensemble-picker__choice:has(input:checked) { border-color: var(--maroon); background: #FCF5F5; }
+  .ensemble-picker__choice input { accent-color: var(--maroon); margin: 0; }
+
+  .concert-preview {
+    margin-top: 2rem; padding: 1.4rem; border: 1px solid #DEE5E7;
+    border-radius: 10px; background: #F7FAFB;
+  }
+  .concert-preview h3 { font-size: 1.2rem; }
+  .preview-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+  .surface {
+    min-width: 0; border: 1px solid #E0E5E7; border-radius: 8px;
+    background: #fff; padding: 1rem;
+  }
+  .surface__label {
+    margin: 0 0 .8rem; color: var(--ink-soft); font-size: .67rem;
+    font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+  }
+  .surface h4 { margin: 0 0 .45rem; color: var(--ink); font-size: 1rem; line-height: 1.3; }
+  .surface__eyebrow { margin: 0 0 .35rem; color: var(--maroon); font-size: .78rem; font-weight: 600; }
+  .surface__location, .surface__description, .event-facts, .surface__feed-note {
+    margin: 0; color: var(--ink-soft); font-size: .82rem; line-height: 1.5;
+  }
+  .surface__description { margin-top: .7rem; }
+  .surface__chips { display: flex; gap: .3rem; flex-wrap: wrap; margin-top: .8rem; }
+  .surface__chip {
+    display: inline-block; padding: .2rem .42rem; border-radius: 999px;
+    background: #F7EDEE; color: var(--maroon); font-size: .66rem; font-weight: 600;
+  }
+  .surface__empty { color: var(--ink-faint); font-size: .74rem; font-style: italic; }
+
+  .surface--home { border-top: 4px solid var(--maroon); }
+  .surface--calendar { background: #FCFCFC; }
+  .calendar-row { display: grid; grid-template-columns: 48px 1fr; gap: .8rem; align-items: start; }
+  .calendar-row__date {
+    display: block; border-radius: 6px; padding: .3rem .2rem; background: var(--maroon);
+    color: #fff; text-align: center; font-size: .63rem; line-height: 1.25; letter-spacing: .08em;
+  }
+  .calendar-row__date b { font-size: 1.15rem; letter-spacing: 0; }
+  .calendar-row p { margin: 0 0 .25rem; color: var(--ink-soft); font-size: .78rem; line-height: 1.4; }
+  .calendar-row small { display: block; color: var(--ink-faint); font-size: .72rem; line-height: 1.4; }
+
+  .surface--event { background: #fff; }
+  .event-facts { padding: .6rem 0; border-block: 1px solid #E7EBED; }
+  .ics-preview {
+    overflow-x: auto; margin: 0; padding: .75rem; border-radius: 6px;
+    background: #101820; color: #E7F0F2; font-size: .68rem; line-height: 1.65;
+  }
+  .ics-preview span { display: block; white-space: pre; }
+  .surface__feed-note { margin-top: .7rem; }
+
   .viewas { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: .8rem; }
   .viewas__opt {
     display: grid; gap: .3rem; align-content: start;
@@ -179,4 +430,10 @@ const roster = [
   .viewas__opt--off { background: #F7F8F9; border-style: dashed; opacity: .8; }
   .viewas__opt--off b { color: var(--ink-soft); }
   .lockicon { font-size: .8rem; }
+
+  @media (max-width: 700px) {
+    .concert-demo__heading, .concert-preview__heading { flex-direction: column; }
+    .demo-status { width: 100%; margin-left: 0; }
+    .preview-grid { grid-template-columns: 1fr; }
+  }
 </style>

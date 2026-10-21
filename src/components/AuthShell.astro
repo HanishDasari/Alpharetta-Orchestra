@@ -1,0 +1,71 @@
+---
+import '../styles/global.css';
+import { Image } from 'astro:assets';
+import logo from '../assets/logo.png';
+
+/* The frame around Sign in and Reset password: maroon band with the
+   logo, one centred card. Shares the portal's form styles. */
+interface Props { title: string }
+const { title } = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} — AHS Orchestras</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Archivo:wght@500;600&display=swap" rel="stylesheet" />
+  </head>
+  <body class="auth">
+    <header class="auth__band">
+      <a href="/"><Image src={logo} alt="Alpharetta High School Orchestras" width={240} height={80} loading="eager" /></a>
+    </header>
+    <main class="auth__card">
+      <slot />
+    </main>
+    <p class="auth__back"><a href="/">Back to the website</a></p>
+  </body>
+</html>
+
+<style is:global>
+  .auth { display: block; background: #F4F5F6; font-weight: 400; font-size: 15px; line-height: 1.6; }
+  .auth__band { background: var(--maroon); display: grid; place-items: center; padding: 1.25rem 1rem 4.5rem; }
+  .auth__band img { width: 240px; height: 80px; object-fit: contain; }
+  .auth__card {
+    width: min(420px, calc(100% - 2rem)); margin: -3rem auto 0;
+    background: #fff; border: 1px solid #E3E6E8; border-radius: 12px;
+    padding: 2rem 1.75rem; box-shadow: 0 18px 40px -24px rgb(16 24 32 / .35);
+  }
+  .auth h1 { font-size: 1.6rem; line-height: 1.2; margin: 0 0 .25rem; }
+  .auth .lede { color: var(--ink-soft); margin: 0 0 1.5rem; font-size: .95rem; }
+  .auth .fld { margin-bottom: 1rem; }
+  .auth .fld label { display: block; font-size: .8rem; font-weight: 500; color: var(--ink); margin-bottom: .3rem; }
+  .auth .inp {
+    width: 100%; border: 1px solid #C9D0D4; border-radius: 6px; padding: .65rem .75rem;
+    font: inherit; font-size: 16px; color: var(--ink); background: #fff;
+  }
+  .auth .inp:focus { outline: 2px solid var(--maroon); outline-offset: 1px; border-color: transparent; }
+  .auth .pbtn {
+    display: inline-flex; justify-content: center; align-items: center; gap: .4rem;
+    padding: .7rem 1.2rem; border-radius: 6px; border: 1px solid transparent;
+    font: inherit; font-size: .92rem; font-weight: 500; cursor: pointer;
+    transition: background-color .15s ease, transform .12s ease;
+  }
+  .auth .pbtn:active { transform: scale(0.97); }
+  .auth .pbtn[disabled] { opacity: .6; cursor: progress; }
+  .auth .pbtn--primary { background: var(--maroon); color: #fff; }
+  .auth .pbtn--primary:hover { background: var(--maroon-bright); }
+  .auth .pbtn--ghost { background: #fff; border-color: #C9D0D4; color: var(--ink); }
+  .auth .pbtn--wide { width: 100%; }
+  .auth .err { background: #FBEDEC; color: #8A2B29; border-radius: 6px; padding: .6rem .75rem; font-size: .88rem; margin: 0 0 1rem; }
+  .auth .err.ok, .auth #reset-msg { background: #EEF4F1; color: #1F5B3F; }
+  .auth .forgot { margin-top: 1.25rem; font-size: .9rem; }
+  .auth .forgot summary { cursor: pointer; color: var(--maroon); font-weight: 500; }
+  .auth .forgot form { margin-top: .9rem; }
+  .auth .forgot p { color: var(--ink-soft); margin: 0 0 .9rem; }
+  .auth .fine { font-size: .82rem; color: var(--ink-soft); margin: 1.5rem 0 0; padding-top: 1rem; border-top: 1px solid #EDEFF1; }
+  .auth__back { text-align: center; font-size: .88rem; margin: 1.5rem 0 3rem; }
+</style>

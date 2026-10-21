@@ -1,0 +1,195 @@
+{
+  "slug": "students",
+  "title": "Student Resources",
+  "description": "Handbook, audition materials, uniforms, instrument guidance, and summer programs for Alpharetta High School orchestra students.",
+  "system": true,
+  "blocks": [
+    {
+      "id": "b015",
+      "type": "heading",
+      "eyebrow": "For students & families",
+      "title": "Resources",
+      "lede": "Everything you need for the year, in one place."
+    },
+    {
+      "id": "b016",
+      "type": "cards",
+      "items": [
+        {
+          "title": "Student Handbook",
+          "body": "Grading, attendance, concert expectations, and program policies.",
+          "url": "https://www.alpharettaorchestra.com/s/AHSO-Handbookdocx.pdf"
+        },
+        {
+          "title": "Audition Materials",
+          "body": "Scales and excerpts for placement auditions. Posted here each spring."
+        },
+        {
+          "title": "Concert Uniforms",
+          "body": "Approved dresses and tuxedos, and what else counts as concert black.",
+          "url": "#uniforms"
+        },
+        {
+          "title": "Instrument Dealers & Repair",
+          "body": "Local shops for rentals, purchases, and repairs.",
+          "url": "#dealers"
+        }
+      ]
+    },
+    {
+      "id": "uniforms",
+      "type": "cards",
+      "heading": "Concert uniforms",
+      "items": [
+        {
+          "title": "Dresses",
+          "body": "Choose the Everett, Kingsley, or Noel. Dresses arrive un-hemmed; many dry cleaners offer hemming.",
+          "url": "https://sepapparel.com/everett-concert-choir-dress.html",
+          "cta": "Shop dresses"
+        },
+        {
+          "title": "Tuxedos",
+          "body": "We wear a black shirt under the jacket instead of white, with a bowtie or long tie. Any collar style is fine, and any vendor is fine.",
+          "url": "https://sepapparel.com/full-tuxedo-with-long-tie.html",
+          "cta": "Full tuxedo with long tie"
+        },
+        {
+          "title": "Alternative clothing",
+          "body": "If tuxes and dresses aren't your style, anything formal and all black works. Formal black closed-toe shoes are part of every uniform.",
+          "url": "https://coregami.com/",
+          "cta": "Coregami catalog"
+        }
+      ]
+    },
+    {
+      "id": "b017",
+      "type": "text",
+      "tone": "light",
+      "heading": "Obtaining a String Instrument",
+      "md": "A quality instrument is essential. Poor quality instruments cause\nfrustration for the student and prevent adequate progress.\n\nBe very cautious of cheap instruments sold online — often called\n\"V.S.O.s,\" or Violin Shaped Objects. They frequently need repairs that cost\nmore than the instrument did. If the price sounds too good to be true, it\nprobably is.\n\n## Questions to ask before you rent\n\n- What is the rental schedule — monthly, quarterly, or something else?\n- Does **100%** of what you pay in rent apply toward an eventual purchase?\n- Can you trade up to a larger size as your child grows?\n- Is insurance included, and what exactly does it cover?\n- Which repairs are covered under the rental agreement?\n\n## What a good shop provides\n\n- Brand-name strings\n- On-site setup of bridge, soundpost, and fittings, so the instrument is\n  ready to play when you get it\n- A real horsehair bow, already rosined\n- Qualified luthiers doing repairs in house\n- Regular visits to the school\n\n## Accessories every student needs\n\n- A cleaning cloth and rosin\n- A rigid shoulder rest — violin and viola\n- A rock stop — cello and bass"
+    },
+    {
+      "id": "dealers",
+      "type": "list",
+      "tone": "light",
+      "columns": 2,
+      "heading": "Instrument dealers & repair shops",
+      "intro": "Mr. Hood and the AHS Orchestra program don't endorse any particular vendor. To have a shop added, [email Mr. Hood](mailto:hoodj3@fultonschools.org).",
+      "items": [
+        {
+          "title": "Atlanta Violins",
+          "detail": "387 S Atlanta St., Roswell · (770) 642-8111",
+          "url": "https://www.atlantaviolins.com"
+        },
+        {
+          "title": "Beau Vinci Violins",
+          "detail": "116 N Main St., Alpharetta · (678) 691-2394",
+          "url": "https://www.beauvinciviolins.com"
+        },
+        {
+          "title": "Draisen Edwards Music",
+          "detail": "4880 Lower Roswell Rd, Suite 780E, Marietta · (770) 971-9755",
+          "url": "https://www.draisenedwardsmusic.com"
+        },
+        {
+          "title": "Harmony House",
+          "detail": "3610 Kennesaw N. Industrial Pkwy, Suite 100A, Kennesaw · (770) 422-0022",
+          "url": "http://www.theharmonyhouse.net"
+        },
+        {
+          "title": "Huthmaker Violins",
+          "detail": "3949 Russell St., Suwanee · (770) 945-1188",
+          "url": "https://www.huthmakerviolins.com"
+        },
+        {
+          "title": "Jennings Music",
+          "detail": "2511 Canton Rd., Marietta · (770) 425-2560",
+          "url": "https://www.jenningsmusic.com"
+        },
+        {
+          "title": "Ken Stanton Music (North Point)",
+          "detail": "6010 North Point Pkwy, Alpharetta · (770) 670-4424",
+          "url": "http://www.kenstanton.net"
+        },
+        {
+          "title": "Mandarin Strings",
+          "detail": "1735 Roswell Rd., Marietta · (404) 936-5653",
+          "url": "http://www.mandarinstrings.com"
+        },
+        {
+          "title": "Music & Arts (North Point)",
+          "detail": "7331 North Point Pkwy, Alpharetta · (770) 993-4428",
+          "url": "http://www.musicarts.com"
+        },
+        {
+          "title": "Ronald Sachs Violins (Lilburn)",
+          "detail": "836 Pleasant Hill Rd, Lilburn · (770) 485-8814",
+          "url": "http://www.ronaldsachs.com"
+        },
+        {
+          "title": "Ronald Sachs Violins (Marietta)",
+          "detail": "3100 Roswell Rd, Ste. 117, Marietta · (770) 931-2440",
+          "url": "http://www.ronaldsachs.com"
+        },
+        {
+          "title": "Voss Violins",
+          "detail": "620 Glen Iris Dr NE, Springs Loft 104, Atlanta · (404) 876-8617",
+          "url": "http://www.vossviolins.com"
+        }
+      ]
+    },
+    {
+      "id": "summer",
+      "type": "list",
+      "heading": "Summer programs",
+      "columns": 1,
+      "intro": "Students who want to keep playing over the summer have good options close to home.",
+      "items": [
+        {
+          "title": "Summer Arts Intensive, Kennesaw State University",
+          "detail": "Taught by faculty from the Atlanta Symphony Orchestra.",
+          "url": "https://www.kennesaw.edu/arts/academics/music/community-programs/summer-arts-intensive.php"
+        },
+        {
+          "title": "UGA Summer Music Camp",
+          "detail": "Five-day residential camp with masterclasses. Rising 9th graders and up, placement audition required.",
+          "url": "https://ugamusiccamps.weebly.com/music-camp.html"
+        },
+        {
+          "title": "Atlanta Chamber Music Festival, Emory University",
+          "detail": "Seven-day residential chamber music program, grades 6–12. Applications due May 1.",
+          "url": "http://www.atlantachambermusicfestival.com/"
+        },
+        {
+          "title": "FSU String Orchestra Camp",
+          "detail": "Week-long intensive with sectionals, masterclasses, chamber ensembles, and theory.",
+          "url": "https://music.fsu.edu/summermusiccamps/String-Orchestra-Camp"
+        },
+        {
+          "title": "Vivo Summer String Institute, Atlanta Symphony Orchestra",
+          "url": "https://www.aso.org/education-community/educators/vivo-summer-string-institute"
+        },
+        {
+          "title": "GSU Summer Music Institute",
+          "url": "https://thearts.gsu.edu/educational-outreach-summermusic/"
+        },
+        {
+          "title": "Atlanta Festival Academy Summer Music Institute",
+          "url": "https://atlantafestivalacademy.org/smi/"
+        },
+        {
+          "title": "Franklin Pond Summer Intensive",
+          "url": "https://franklinpond.org/summer-intensive-program/"
+        },
+        {
+          "title": "MYSO Summer Workshop",
+          "url": "https://www.mysoatlanta.org/"
+        },
+        {
+          "title": "Upbeat String Camp",
+          "url": "https://www.upbeatstringcamp.com/"
+        }
+      ]
+    }
+  ]
+}

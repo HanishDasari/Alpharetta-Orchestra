@@ -1,0 +1,19 @@
+{
+  "slug": "calendar",
+  "title": "Calendar",
+  "description": "Concerts, festivals, and events for the Alpharetta High School Orchestras. Subscribe to add them to your own calendar.",
+  "system": true,
+  "blocks": [
+    {
+      "id": "b013",
+      "type": "heading",
+      "eyebrow": "Calendar",
+      "title": "Concerts & events",
+      "lede": "Everything on one page. Subscribe once and new concerts show up in your phone's calendar automatically."
+    },
+    {
+      "id": "b014",
+      "type": "calendar"
+    }
+  ]
+}

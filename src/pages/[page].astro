@@ -1,0 +1,22 @@
+---
+import Base from '../layouts/Base.astro';
+import Blocks from '../components/Blocks.astro';
+import { getSitePages, type SitePage } from '../lib/content';
+import { RESERVED_SLUGS } from '../lib/blocks';
+
+/* Every page except the homepage: the built-in ones (About, Calendar,
+   Student Resources...) and any page added in the portal. Fixed routes
+   like /portal and /events always win over these. */
+export async function getStaticPaths() {
+  const pages = await getSitePages();
+  return pages
+    .filter((p) => p.slug !== 'home' && !RESERVED_SLUGS.includes(p.slug))
+    .map((page) => ({ params: { page: page.slug }, props: { page } }));
+}
+
+const { page } = Astro.props as { page: SitePage };
+---
+
+<Base title={page.title} description={page.description} flushHeader={page.blocks[0]?.type === 'hero'}>
+  <Blocks blocks={page.blocks} />
+</Base>

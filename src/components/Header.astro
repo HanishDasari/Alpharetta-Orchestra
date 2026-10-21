@@ -1,27 +1,15 @@
 ---
 import { Image } from 'astro:assets';
 import logo from '../assets/logo.png';
+import { getNav } from '../lib/content';
 
 /* Same maroon band, logo and full nav as the live site — but shorter at
    rest, and it collapses to just the logo once you scroll past the hero.
 
    The logo is self-hosted (src/assets/logo.png) rather than pulled from
    the Squarespace CDN, so it survives the account being cancelled. */
-const nav = [
-  { label: 'Uniforms', href: '/students' },
-  { label: 'Orchestra 101', href: '/students' },
-  { label: 'About', href: '/about' },
-  { label: 'Calendar', href: '/calendar' },
-  { label: 'Store', href: '/support' },
-  { label: 'Program Book', href: '/support' },
-  { label: 'Orchestra Memories', href: '/calendar' },
-  { label: 'Past Events', href: '/calendar' },
-  { label: 'Student Resources', href: '/students' },
-  { label: 'Orchestra Opportunities', href: '/students' },
-  { label: 'Contact', href: '/about' },
-  { label: 'Donate', href: '/support' },
-  { label: 'Patron Program', href: '/support' },
-];
+// The menu is edited in the portal (Menu & footer).
+const nav = (await getNav()).header.filter((i) => i.label && i.url);
 ---
 
 <a class="skip" href="#main">Skip to Content</a>
@@ -37,7 +25,7 @@ const nav = [
   <label for="nav-toggle" class="burger" aria-label="Menu"><span></span></label>
 
   <nav class="hdr__nav" aria-label="Main">
-    {nav.map((item) => <a href={item.href}>{item.label}</a>)}
+    {nav.map((item) => <a href={item.url}>{item.label}</a>)}
   </nav>
 </header>
 
@@ -116,6 +104,10 @@ const nav = [
   .hdr.is-shrunk .hdr__nav { max-height: 0; opacity: 0; }
 
   .burger { display: none; }
+
+  /* Design & Appearance → Header size: Compact */
+  :global([data-header="compact"]) .hdr__logo img { width: 240px; height: 80px; }
+  :global([data-header="compact"]) .hdr__nav a { font-size: 14px; line-height: 24px; }
 
   @media (max-width: 900px) {
     .hdr { padding-bottom: 0; }

@@ -1,439 +1,75 @@
 ---
 import Portal from '../../layouts/Portal.astro';
-import FeatureBrief from '../../components/FeatureBrief.astro';
-
-const points = [
-  {
-    what: 'Edit any page without touching code',
-    why: 'The thing you asked for first. Change a paragraph, add a concert, swap a photo — publish, and it is live in about thirty seconds.',
-  },
-  {
-    what: 'Add a concert once and four pages update',
-    why: 'The homepage, the calendar, the past-events list, and the subscribe feed all read the same entry. This is why the current site goes stale — four pages, four chances to forget one.',
-  },
-  {
-    what: 'Change the design yourself',
-    why: 'Colours, fonts, header size, which homepage sections show. Under Design & Appearance. You will not need a student to make the header smaller.',
-  },
-  {
-    what: 'See what everyone else sees',
-    why: 'View as a student or a parent before you send a link out, so you know what actually reached them.',
-  },
-  {
-    what: 'Roster without money attached',
-    why: 'Names, ensembles, periods, grad years. Deliberately no fees or payment records — that is the treasurer’s, not yours.',
-  },
-  {
-    what: 'Nothing here can break the layout',
-    why: 'You are filling in labelled fields, not dragging boxes. There is no way to accidentally delete the navigation or break the site on phones.',
-  },
-];
-
-const tiles = [
-  { n: '3', label: 'Upcoming concerts', sub: 'Next: Oct 15' },
-  { n: '6', label: 'Orchestras', sub: 'All published' },
-  { n: '128', label: 'Students', sub: '2026–27 roster' },
-  { n: '1', label: 'Announcements', sub: 'Last posted Aug 1' },
-];
-
-const roster = [
-  { student: 'Anh Nguyen', ensemble: 'Symphony', period: '4th', year: '2028' },
-  { student: 'Dev Patel', ensemble: 'Philharmonia', period: '2nd', year: '2027' },
-  { student: 'Cora Brooks', ensemble: 'Chamber', period: '7th', year: '2026' },
-  { student: 'Ife Okafor', ensemble: 'Concert', period: '8th', year: '2029' },
-];
-
-const ensembles = ['Concert', 'Silver', 'Philharmonia', 'Sinfonia', 'Symphony', 'Chamber'];
 ---
 
-<Portal title="Dashboard" role="admin">
-  <h1>Dashboard</h1>
-  <p class="sub">The website, and your roster.</p>
+<Portal title="Dashboard" roles={['admin']}>
+  <h1 id="hello">Dashboard</h1>
+  <p class="sub">The website, the classroom, and your roster.</p>
 
   <div class="tiles">
-    {tiles.map((t) => (
-      <div class="tile">
-        <span class="tile__n">{t.n}</span>
-        <b>{t.label}</b>
-        <small>{t.sub}</small>
-      </div>
-    ))}
+    <a class="tile" href="/portal/events"><span class="tile__n" id="t-events">&ndash;</span><b>Upcoming concerts</b><small id="t-events-sub">&nbsp;</small></a>
+    <a class="tile" href="/portal/admin/board"><span class="tile__n" id="t-board">&ndash;</span><b>Today&rsquo;s board</b><small id="t-board-sub">&nbsp;</small></a>
+    <a class="tile" href="/portal/admin/forms"><span class="tile__n" id="t-forms">&ndash;</span><b>Open forms</b><small id="t-forms-sub">&nbsp;</small></a>
+    <a class="tile" href="/portal/roster"><span class="tile__n" id="t-roster">&ndash;</span><b>Students</b><small>On the roster</small></a>
   </div>
 
-  <FeatureBrief points={points} />
+  <div class="split split--even">
+    <section class="card">
+      <h2>Website</h2>
+      <ul class="list">
+        <li><a class="row" href="/portal/events"><b>Concerts &amp; Events</b><small>Add once: homepage, calendar and subscribed phones all update</small></a></li>
+        <li><a class="row" href="/portal/news"><b>Announcements</b><small>News for families and the community</small></a></li>
+        <li><a class="row" href="/portal/pages"><b>Pages</b><small>Every page on the site, section by section, and new pages</small></a></li>
+        <li><a class="row" href="/portal/menu"><b>Menu &amp; footer</b><small>The links at the top and bottom of every page</small></a></li>
+        <li><a class="row" href="/portal/ensembles"><b>Orchestras</b><small>The six ensembles and their requirements</small></a></li>
+        <li><a class="row" href="/portal/photos"><b>Photos</b><small>The spinning photo ring on the homepage</small></a></li>
+        <li><a class="row" href="/portal/admin/design"><b>Design &amp; Appearance</b><small>Colours, fonts, homepage sections</small></a></li>
+      </ul>
+    </section>
 
-  <!-- Demo-only concert workflow ------------------------------------->
-  <section class="card concert-demo" id="events" aria-labelledby="concert-demo-title">
-    <div class="concert-demo__heading">
-      <div>
-        <p class="kicker">Demo workflow</p>
-        <h2 id="concert-demo-title">Add a concert once</h2>
-      </div>
-      <span class="demo-badge">Preview only — nothing is saved</span>
-    </div>
-    <p class="concert-demo__intro">
-      Fill in a concert as Mr. Hood would. <strong>Show preview</strong> updates the four places
-      families would see it, but only in this browser tab. It does not publish, save, or send anything.
-    </p>
-
-    <form id="concert-demo-form" class="concert-demo__form">
-      <div class="fld">
-        <label for="concert-title">Concert title</label>
-        <input class="inp" id="concert-title" name="title" value="Fall Concert 2026" required />
-      </div>
-      <div class="row2">
-        <div class="fld">
-          <label for="concert-date">Date</label>
-          <input class="inp" id="concert-date" name="date" type="date" value="2026-10-15" required />
-        </div>
-        <div class="fld">
-          <label for="concert-time">Start time</label>
-          <input class="inp" id="concert-time" name="time" type="time" value="19:00" required />
-        </div>
-      </div>
-      <div class="fld">
-        <label for="concert-location">Location</label>
-        <input class="inp" id="concert-location" name="location" value="AHS Performing Arts Center" required />
-      </div>
-      <fieldset class="fld ensemble-picker">
-        <legend>Who&rsquo;s performing</legend>
-        <div class="ensemble-picker__choices">
-          {ensembles.map((ensemble) => (
-            <label class="ensemble-picker__choice">
-              <input type="checkbox" name="ensembles" value={ensemble} checked={ensemble !== 'Chamber'} />
-              <span>{ensemble}</span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
-      <div class="fld">
-        <label for="concert-description">Description</label>
-        <textarea class="inp inp--area" id="concert-description" name="description" required>Opening with visiting 8th graders from Webb Bridge and Hopewell. Free and open to the public.</textarea>
-      </div>
-      <div class="concert-demo__actions">
-        <button class="pbtn pbtn--primary" type="submit">Show preview</button>
-        <button class="pbtn pbtn--ghost" type="reset">Reset example</button>
-        <p class="demo-status" id="concert-demo-status" aria-live="polite">
-          Editing this sample affects only the previews below.
-        </p>
-      </div>
-    </form>
-
-    <section class="concert-preview" id="concert-preview" aria-labelledby="concert-preview-title">
-      <div class="concert-preview__heading">
-        <div>
-          <p class="kicker">What changes after publishing</p>
-          <h3 id="concert-preview-title">One concert, four public surfaces</h3>
-        </div>
-        <span class="preview-pill">Live demo preview</span>
-      </div>
-
-      <div class="preview-grid">
-        <article class="surface surface--home">
-          <p class="surface__label">Homepage · Next up</p>
-          <p class="surface__eyebrow" data-date-short>Thu, Oct 15 · 7:00 PM</p>
-          <h4 data-title>Fall Concert 2026</h4>
-          <p class="surface__location" data-location>AHS Performing Arts Center</p>
-          <div class="surface__chips" data-ensembles></div>
-        </article>
-
-        <article class="surface surface--calendar">
-          <p class="surface__label">Calendar · Upcoming</p>
-          <div class="calendar-row">
-            <time class="calendar-row__date" data-date-calendar>OCT<br /><b>15</b></time>
-            <div>
-              <h4 data-title>Fall Concert 2026</h4>
-              <p data-time-location>7:00 PM · AHS Performing Arts Center</p>
-              <small data-ensembles-line>Concert · Silver · Philharmonia · Sinfonia · Symphony</small>
-            </div>
-          </div>
-        </article>
-
-        <article class="surface surface--event">
-          <p class="surface__label">Event page · Details</p>
-          <p class="surface__eyebrow">Concert &amp; event</p>
-          <h4 data-title>Fall Concert 2026</h4>
-          <p class="event-facts"><span data-date-long>Thursday, October 15, 2026</span><br /><span data-time-location>7:00 PM · AHS Performing Arts Center</span></p>
-          <p class="surface__description" data-description>Opening with visiting 8th graders from Webb Bridge and Hopewell. Free and open to the public.</p>
-        </article>
-
-        <article class="surface surface--feed">
-          <p class="surface__label">Subscribe feed · Calendar entry</p>
-          <pre class="ics-preview"><code><span>BEGIN:VEVENT</span>
-<span data-ics-summary>SUMMARY:Fall Concert 2026</span>
-<span data-ics-start>DTSTART;TZID=America/New_York:20261015T190000</span>
-<span data-ics-location>LOCATION:AHS Performing Arts Center</span>
-<span>END:VEVENT</span></code></pre>
-          <p class="surface__feed-note">Parents who subscribe receive this event when the published calendar is refreshed.</p>
-        </article>
+    <section class="card">
+      <h2>Classroom</h2>
+      <ul class="list">
+        <li><a class="row" href="/portal/admin/board"><b>Daily Board</b><small>Write it, present it, students catch up later</small></a></li>
+        <li><a class="row" href="/portal/admin/forms"><b>Forms</b><small>Slips and sign-ups with QR codes and a who-hasn&rsquo;t-answered list</small></a></li>
+        <li><a class="row" href="/portal/roster"><b>Roster</b><small>Students, ensembles, and which logins belong to whom</small></a></li>
+        <li><a class="row" href="/portal/student"><b>View as a student</b><small>See exactly what students see</small></a></li>
+        <li><a class="row" href="/portal/family"><b>View as a family</b><small>See what parents see (without the fees)</small></a></li>
+      </ul>
+      <div class="locked" style="margin-top:1rem">
+        <span><b style="display:block;color:var(--ink);margin-bottom:.2rem">No fees or payments here</b>
+        Those belong to the booster treasurer. The database refuses to show them to the director&rsquo;s account, not just the menus.</span>
       </div>
     </section>
-  </section>
-
-  <!-- Roster — no money on this page -------------------------------->
-  <section class="card" id="roster">
-    <h2>Roster</h2>
-    <table class="tbl">
-      <thead>
-        <tr><th>Student</th><th>Ensemble</th><th>Period</th><th>Class of</th></tr>
-      </thead>
-      <tbody>
-        {roster.map((r) => (
-          <tr>
-            <td>{r.student}</td><td>{r.ensemble}</td><td>{r.period}</td><td>{r.year}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </section>
-
-  <!-- View as -------------------------------------------------------->
-  <section class="card" id="viewas">
-    <h2>View as</h2>
-    <p style="margin:0 0 1.1rem;color:var(--ink-soft);font-size:.9rem">
-      See the site exactly as someone else does — useful for checking what a
-      parent actually sees before you send a link out.
-    </p>
-
-    <div class="viewas">
-      <a class="viewas__opt" href="/portal/webmaster">
-        <b>Webmaster</b>
-        <small>The student editor&rsquo;s view. Same content tools, no roster.</small>
-      </a>
-      <a class="viewas__opt" href="/portal/student">
-        <b>Student</b>
-        <small>Today&rsquo;s board, past boards, and forms to fill.</small>
-      </a>
-      <a class="viewas__opt" href="/portal/family">
-        <b>Family</b>
-        <small>What a parent sees: their own student, balance, and forms.</small>
-      </a>
-      <div class="viewas__opt viewas__opt--off" aria-disabled="true">
-        <b>Treasurer <span class="lockicon" aria-hidden="true">🔒</span></b>
-        <small>
-          Not available. Fees and payment records are the boosters&rsquo;
-          responsibility, and viewing-as would be a way around that.
-        </small>
-      </div>
-    </div>
-  </section>
-
-  <!-- Explicitly out of scope for this role ------------------------- -->
-  <section class="card">
-    <h2>What this role can&rsquo;t reach</h2>
-    <div class="locked">
-      <span aria-hidden="true" style="font-size:1.1rem;line-height:1">🔒</span>
-      <span>
-        <b style="display:block;color:var(--ink);margin-bottom:.25rem">
-          Fees and payment records belong to the treasurer
-        </b>
-        Who owes what, who has paid, and payment history are not visible from
-        this login. The database won&rsquo;t return those rows for the director
-        role, so they can&rsquo;t be reached by navigating to them either.
-      </span>
-    </div>
-  </section>
+  </div>
 </Portal>
 
-<script>
-  const form = document.querySelector<HTMLFormElement>('#concert-demo-form');
-  const status = document.querySelector<HTMLElement>('#concert-demo-status');
-
-  function formatDate(dateValue: string, options: Intl.DateTimeFormatOptions) {
-    const [year, month, day] = dateValue.split('-').map(Number);
-    return new Intl.DateTimeFormat('en-US', options).format(new Date(year, month - 1, day, 12));
-  }
-
-  function formatTime(timeValue: string) {
-    const [hour, minute] = timeValue.split(':').map(Number);
-    return new Intl.DateTimeFormat('en-US', {
-      hour: 'numeric', minute: '2-digit',
-    }).format(new Date(2026, 0, 1, hour, minute));
-  }
-
-  function icsSafe(value: string) {
-    return value.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
-  }
-
-  function setText(selector: string, value: string) {
-    document.querySelectorAll<HTMLElement>(selector).forEach((element) => {
-      element.textContent = value;
-    });
-  }
-
-  function renderEnsembles(ensembleNames: string[]) {
-    document.querySelectorAll<HTMLElement>('[data-ensembles]').forEach((container) => {
-      container.replaceChildren();
-      if (ensembleNames.length === 0) {
-        const empty = document.createElement('span');
-        empty.className = 'surface__empty';
-        empty.textContent = 'No ensembles selected yet';
-        container.append(empty);
-        return;
-      }
-      ensembleNames.forEach((name) => {
-        const chip = document.createElement('span');
-        chip.className = 'surface__chip';
-        chip.textContent = name;
-        container.append(chip);
-      });
-    });
-  }
-
-  function renderPreview() {
-    if (!form || !status) return;
-    const values = new FormData(form);
-    const title = String(values.get('title') || '').trim() || 'Untitled concert';
-    const date = String(values.get('date') || '2026-10-15');
-    const time = String(values.get('time') || '19:00');
-    const location = String(values.get('location') || '').trim() || 'Location to be confirmed';
-    const description = String(values.get('description') || '').trim() || 'Description to be added.';
-    const selectedEnsembles = values.getAll('ensembles').map(String);
-    const eventDate = new Date(`${date}T12:00:00`);
-    const month = new Intl.DateTimeFormat('en-US', { month: 'short' }).format(eventDate).toUpperCase();
-    const day = new Intl.DateTimeFormat('en-US', { day: 'numeric' }).format(eventDate);
-    const compactTime = time.replace(':', '') + '00';
-
-    setText('[data-title]', title);
-    setText('[data-location]', location);
-    setText('[data-description]', description);
-    setText('[data-date-short]', `${formatDate(date, { weekday: 'short', month: 'short', day: 'numeric' })} · ${formatTime(time)}`);
-    setText('[data-date-long]', formatDate(date, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }));
-    setText('[data-time-location]', `${formatTime(time)} · ${location}`);
-    setText('[data-ensembles-line]', selectedEnsembles.length ? selectedEnsembles.join(' · ') : 'Ensembles to be confirmed');
-    setText('[data-ics-summary]', `SUMMARY:${icsSafe(title)}`);
-    setText('[data-ics-start]', `DTSTART;TZID=America/New_York:${date.replaceAll('-', '')}T${compactTime}`);
-    setText('[data-ics-location]', `LOCATION:${icsSafe(location)}`);
-
-    document.querySelectorAll<HTMLElement>('[data-date-calendar]').forEach((element) => {
-      element.replaceChildren(document.createTextNode(month), document.createElement('br'));
-      const strong = document.createElement('b');
-      strong.textContent = day;
-      element.append(strong);
-    });
-
-    renderEnsembles(selectedEnsembles);
-    status.textContent = `Preview updated for ${title}. Nothing has been saved or published.`;
-  }
-
-  form?.addEventListener('submit', (event) => {
-    event.preventDefault();
-    renderPreview();
-    document.querySelector('#concert-preview')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  });
-
-  form?.addEventListener('reset', () => {
-    window.setTimeout(() => {
-      renderPreview();
-      if (status) status.textContent = 'Example restored. Nothing has been saved or published.';
-    });
-  });
-
-  renderPreview();
-</script>
-
-<style is:global>
-  .concert-demo { overflow: hidden; }
-  .concert-demo__heading, .concert-preview__heading {
-    display: flex; align-items: flex-start; justify-content: space-between;
-    gap: 1rem; margin-bottom: .75rem;
-  }
-  .concert-demo h2, .concert-preview h3 { margin: 0; }
-  .kicker {
-    margin: 0 0 .3rem; color: var(--maroon); text-transform: uppercase;
-    font-size: .7rem; font-weight: 600; letter-spacing: .12em;
-  }
-  .demo-badge, .preview-pill {
-    flex: 0 0 auto; padding: .38rem .62rem; border-radius: 999px;
-    font-size: .72rem; line-height: 1.3; font-weight: 600;
-  }
-  .demo-badge { color: #6F4D0A; background: #FFF6DE; border: 1px solid #E7CA82; }
-  .preview-pill { color: var(--maroon); background: #F7EDEE; border: 1px solid #E4C5C7; }
-  .concert-demo__intro { color: var(--ink-soft); font-size: .92rem; max-width: 74ch; }
-  .concert-demo__form { margin-top: 1.5rem; }
-  .concert-demo__actions {
-    display: flex; gap: .5rem; align-items: center; flex-wrap: wrap;
-  }
-  .demo-status { margin: 0 0 0 auto; color: var(--ink-soft); font-size: .8rem; }
-
-  .ensemble-picker { border: 0; padding: 0; margin: 0 0 1rem; }
-  .ensemble-picker legend {
-    padding: 0; margin-bottom: .45rem; font-size: .78rem; font-weight: 600;
-    letter-spacing: .05em; color: var(--ink-soft);
-  }
-  .ensemble-picker__choices { display: flex; gap: .5rem; flex-wrap: wrap; }
-  .ensemble-picker__choice {
-    display: inline-flex; align-items: center; gap: .38rem; cursor: pointer;
-    border: 1px solid #D8DDE0; border-radius: 999px; padding: .38rem .65rem;
-    font-size: .82rem; color: var(--ink); background: #fff;
-  }
-  .ensemble-picker__choice:has(input:checked) { border-color: var(--maroon); background: #FCF5F5; }
-  .ensemble-picker__choice input { accent-color: var(--maroon); margin: 0; }
-
-  .concert-preview {
-    margin-top: 2rem; padding: 1.4rem; border: 1px solid #DEE5E7;
-    border-radius: 10px; background: #F7FAFB;
-  }
-  .concert-preview h3 { font-size: 1.2rem; }
-  .preview-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
-  .surface {
-    min-width: 0; border: 1px solid #E0E5E7; border-radius: 8px;
-    background: #fff; padding: 1rem;
-  }
-  .surface__label {
-    margin: 0 0 .8rem; color: var(--ink-soft); font-size: .67rem;
-    font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
-  }
-  .surface h4 { margin: 0 0 .45rem; color: var(--ink); font-size: 1rem; line-height: 1.3; }
-  .surface__eyebrow { margin: 0 0 .35rem; color: var(--maroon); font-size: .78rem; font-weight: 600; }
-  .surface__location, .surface__description, .event-facts, .surface__feed-note {
-    margin: 0; color: var(--ink-soft); font-size: .82rem; line-height: 1.5;
-  }
-  .surface__description { margin-top: .7rem; }
-  .surface__chips { display: flex; gap: .3rem; flex-wrap: wrap; margin-top: .8rem; }
-  .surface__chip {
-    display: inline-block; padding: .2rem .42rem; border-radius: 999px;
-    background: #F7EDEE; color: var(--maroon); font-size: .66rem; font-weight: 600;
-  }
-  .surface__empty { color: var(--ink-faint); font-size: .74rem; font-style: italic; }
-
-  .surface--home { border-top: 4px solid var(--maroon); }
-  .surface--calendar { background: #FCFCFC; }
-  .calendar-row { display: grid; grid-template-columns: 48px 1fr; gap: .8rem; align-items: start; }
-  .calendar-row__date {
-    display: block; border-radius: 6px; padding: .3rem .2rem; background: var(--maroon);
-    color: #fff; text-align: center; font-size: .63rem; line-height: 1.25; letter-spacing: .08em;
-  }
-  .calendar-row__date b { font-size: 1.15rem; letter-spacing: 0; }
-  .calendar-row p { margin: 0 0 .25rem; color: var(--ink-soft); font-size: .78rem; line-height: 1.4; }
-  .calendar-row small { display: block; color: var(--ink-faint); font-size: .72rem; line-height: 1.4; }
-
-  .surface--event { background: #fff; }
-  .event-facts { padding: .6rem 0; border-block: 1px solid #E7EBED; }
-  .ics-preview {
-    overflow-x: auto; margin: 0; padding: .75rem; border-radius: 6px;
-    background: #101820; color: #E7F0F2; font-size: .68rem; line-height: 1.65;
-  }
-  .ics-preview span { display: block; white-space: pre; }
-  .surface__feed-note { margin-top: .7rem; }
-
-  .viewas { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: .8rem; }
-  .viewas__opt {
-    display: grid; gap: .3rem; align-content: start;
-    padding: 1rem 1.1rem; border: 1px solid #E3E6E8; border-radius: 8px;
-    text-decoration: none; color: var(--ink); background: #fff;
-    transition: border-color .18s ease, transform .18s ease;
-  }
-  a.viewas__opt:hover { border-color: var(--maroon); transform: translateY(-2px); }
-  .viewas__opt b { font-size: .95rem; font-weight: 600; }
-  .viewas__opt small { font-size: .82rem; color: var(--ink-soft); line-height: 1.45; }
-  .viewas__opt--off { background: #F7F8F9; border-style: dashed; opacity: .8; }
-  .viewas__opt--off b { color: var(--ink-soft); }
-  .lockicon { font-size: .8rem; }
-
-  @media (max-width: 700px) {
-    .concert-demo__heading, .concert-preview__heading { flex-direction: column; }
-    .demo-status { width: 100%; margin-left: 0; }
-    .preview-grid { grid-template-columns: 1fr; }
-  }
+<style>
+  .split--even { grid-template-columns: 1fr 1fr; }
+  @media (max-width: 1000px) { .split--even { grid-template-columns: 1fr; } }
 </style>
+
+<script>
+  import { whenReady, fmtDate, schoolToday } from '../../portal/client';
+
+  const { db, profile } = await whenReady();
+  const set = (id: string, v: string) => (document.getElementById(id)!.textContent = v);
+  if (profile.full_name) set('hello', `Hi, ${profile.full_name.split(' ')[0]}`);
+
+  const now = new Date().toISOString();
+  const [ev, board, forms, roster] = await Promise.all([
+    db.from('events').select('title, start_at, all_day', { count: 'exact' }).eq('draft', false).gte('start_at', now).order('start_at').limit(1),
+    db.from('boards').select('published, body').eq('board_date', schoolToday()).maybeSingle(),
+    db.from('forms').select('id', { count: 'exact', head: true }).eq('open', true),
+    db.from('students').select('id', { count: 'exact', head: true }),
+  ]);
+
+  set('t-events', String(ev.count ?? 0));
+  const next = ev.data?.[0];
+  set('t-events-sub', next ? `Next: ${next.title}, ${fmtDate(next.start_at, next.all_day ? { timeZone: 'UTC', month: 'short', day: 'numeric' } : { month: 'short', day: 'numeric' })}` : 'Nothing scheduled');
+  set('t-board', board.data ? (board.data.published ? 'Live' : 'Draft') : 'None');
+  set('t-board-sub', board.data ? (board.data.published ? 'Students can see it' : 'Students see it tomorrow') : 'Write today’s board');
+  set('t-forms', String(forms.count ?? 0));
+  set('t-forms-sub', forms.count ? 'Collecting answers' : 'Nothing out right now');
+  set('t-roster', String(roster.count ?? 0));
+</script>

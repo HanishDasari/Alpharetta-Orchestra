@@ -1,0 +1,212 @@
+---
+import Portal from '../../layouts/Portal.astro';
+
+const ENSEMBLES = ['Concert', 'Silver', 'Philharmonia', 'Sinfonia', 'Symphony', 'Chamber'];
+---
+
+<Portal title="Roster" roles={['admin']}>
+  <div class="head">
+    <div>
+      <h1>Roster</h1>
+      <p class="sub">Names, ensembles and periods. No fees or payments here; those belong to the booster treasurer.</p>
+    </div>
+    <button class="pbtn pbtn--primary" type="button" id="new">Add student</button>
+  </div>
+
+  <div class="split split--wide">
+    <section class="card" aria-labelledby="list-h">
+      <h2 id="list-h">Students <span class="count" id="count"></span></h2>
+      <div class="fld">
+        <label for="q" class="vh">Search</label>
+        <input class="inp" id="q" type="search" placeholder="Search by name or ensemble" />
+      </div>
+      <div class="tblwrap">
+        <table class="tbl">
+          <thead><tr><th>Name</th><th>Ensemble</th><th>Per.</th><th>Class of</th><th>Login</th></tr></thead>
+          <tbody id="rows"><tr><td colspan="5" class="empty">Loading&hellip;</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="form-h">
+      <h2 id="form-h">Add student</h2>
+      <form id="form" novalidate>
+        <div class="row2">
+          <div class="fld"><label for="first">First name</label><input class="inp" id="first" name="first" required /></div>
+          <div class="fld"><label for="last">Last name</label><input class="inp" id="last" name="last" required /></div>
+        </div>
+        <div class="row3">
+          <div class="fld">
+            <label for="ensemble">Ensemble</label>
+            <select class="inp" id="ensemble" name="ensemble">
+              <option value="">Not placed yet</option>
+              {ENSEMBLES.map((e) => <option>{e}</option>)}
+            </select>
+          </div>
+          <div class="fld"><label for="period">Period</label><input class="inp" id="period" name="period" placeholder="4th" /></div>
+          <div class="fld"><label for="grad">Class of</label><input class="inp" id="grad" name="grad" type="number" min="2020" max="2040" /></div>
+        </div>
+        <div class="fld">
+          <label for="studentEmail">Student&rsquo;s login email <span class="opt">(optional)</span></label>
+          <input class="inp" id="studentEmail" name="studentEmail" type="email" />
+          <p class="hint">Links the student&rsquo;s portal account so they see the daily board and their forms. The account has to exist first (see the setup guide).</p>
+        </div>
+        <div class="fld">
+          <label for="parents">Parent / guardian login emails <span class="opt">(optional)</span></label>
+          <input class="inp" id="parents" name="parents" placeholder="one@example.com, two@example.com" />
+          <p class="hint">Lets those family accounts see this student. Separate several with commas.</p>
+        </div>
+        <div class="actions">
+          <button class="pbtn pbtn--primary" type="submit" id="save">Save</button>
+          <span class="spacer"></span>
+          <button class="pbtn pbtn--danger" type="button" id="del" hidden>Remove from roster</button>
+        </div>
+      </form>
+    </section>
+  </div>
+</Portal>
+
+<style>
+  .split--wide { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); }
+  .tblwrap { overflow-x: auto; }
+  .tbl tbody tr { cursor: pointer; }
+  .tbl tbody tr:hover td { background: #F7F8F9; }
+  .tbl tbody tr[aria-selected="true"] td { background: #F7EEEE; }
+  .count { font-weight: 400; color: var(--ink-soft); font-size: .9rem; }
+  .opt { text-transform: none; letter-spacing: 0; font-weight: 400; }
+  .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  @media (max-width: 1000px) { .split--wide { grid-template-columns: 1fr; } }
+</style>
+
+<script>
+  import { whenReady, esc, toast, explain } from '../../portal/client';
+
+  const { db } = await whenReady();
+  const form = document.getElementById('form') as HTMLFormElement;
+  const tbody = document.getElementById('rows')!;
+  const q = document.getElementById('q') as HTMLInputElement;
+  const f = (n: string) => form.elements.namedItem(n) as HTMLInputElement;
+
+  let students: any[] = [];
+  let profiles = new Map<string, { id: string; email: string; role: string }>();
+  let guardians: { profile_id: string; student_id: string }[] = [];
+  let current: any = null;
+
+  async function load() {
+    const [s, p, g] = await Promise.all([
+      db.from('students').select('*').order('last_name').order('first_name'),
+      db.from('profiles').select('id, email, role'),
+      db.from('guardians').select('*'),
+    ]);
+    const error = s.error ?? p.error ?? g.error;
+    if (error) return toast(explain(error), 'error');
+    students = s.data!;
+    profiles = new Map(p.data!.map((x) => [x.id, x]));
+    guardians = g.data!;
+    render();
+  }
+
+  function render() {
+    const term = q.value.trim().toLowerCase();
+    const shown = students.filter((s) =>
+      !term || `${s.first_name} ${s.last_name} ${s.ensemble ?? ''}`.toLowerCase().includes(term));
+    document.getElementById('count')!.textContent = `(${students.length})`;
+    tbody.innerHTML = shown.length ? shown.map((s) => `<tr data-id="${s.id}" aria-selected="${current?.id === s.id}">
+        <td>${esc(s.first_name)} ${esc(s.last_name)}</td>
+        <td>${esc(s.ensemble ?? '')}</td>
+        <td>${esc(s.period ?? '')}</td>
+        <td>${esc(s.grad_year ?? '')}</td>
+        <td>${s.profile_id ? 'Yes' : ''}</td></tr>`).join('')
+      : `<tr><td colspan="5" class="empty">${students.length ? 'No one matches that search.' : 'No students yet. Use Add student.'}</td></tr>`;
+  }
+
+  function fill(s: any | null) {
+    current = s;
+    form.reset();
+    document.getElementById('form-h')!.textContent = s ? `${s.first_name} ${s.last_name}` : 'Add student';
+    document.getElementById('del')!.hidden = !s;
+    if (s) {
+      f('first').value = s.first_name;
+      f('last').value = s.last_name;
+      (form.elements.namedItem('ensemble') as HTMLSelectElement).value = s.ensemble ?? '';
+      f('period').value = s.period ?? '';
+      f('grad').value = s.grad_year ?? '';
+      f('studentEmail').value = s.profile_id ? profiles.get(s.profile_id)?.email ?? '' : '';
+      f('parents').value = guardians.filter((g) => g.student_id === s.id)
+        .map((g) => profiles.get(g.profile_id)?.email).filter(Boolean).join(', ');
+    }
+    render();
+  }
+
+  function findProfile(email: string, role: string) {
+    const e = email.trim().toLowerCase();
+    return [...profiles.values()].find((p) => p.email?.toLowerCase() === e && p.role === role);
+  }
+
+  tbody.addEventListener('click', (e) => {
+    const id = (e.target as HTMLElement).closest('tr')?.dataset.id;
+    if (id) fill(students.find((s) => s.id === id));
+  });
+  q.addEventListener('input', render);
+  document.getElementById('new')!.addEventListener('click', () => { fill(null); f('first').focus(); });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const first = f('first').value.trim(), last = f('last').value.trim();
+    if (!first || !last) return toast('Enter a first and last name.', 'error');
+
+    // Resolve emails to accounts before saving anything.
+    let profile_id: string | null = null;
+    const se = f('studentEmail').value.trim();
+    if (se) {
+      const p = findProfile(se, 'student');
+      if (!p) return toast(`No student account uses ${se}. Create it first (setup guide), then link it here.`, 'error');
+      profile_id = p.id;
+    }
+    const parentEmails = f('parents').value.split(',').map((x) => x.trim()).filter(Boolean);
+    const parentIds: string[] = [];
+    for (const pe of parentEmails) {
+      const p = findProfile(pe, 'family');
+      if (!p) return toast(`No family account uses ${pe}. Create it first, then add it here.`, 'error');
+      parentIds.push(p.id);
+    }
+
+    const v = {
+      first_name: first, last_name: last,
+      ensemble: (form.elements.namedItem('ensemble') as HTMLSelectElement).value || null,
+      period: f('period').value.trim() || null,
+      grad_year: Number(f('grad').value) || null,
+      profile_id,
+    };
+    const btn = document.getElementById('save') as HTMLButtonElement;
+    btn.disabled = true;
+    const res = current
+      ? await db.from('students').update(v).eq('id', current.id).select().single()
+      : await db.from('students').insert(v).select().single();
+    if (res.error) { btn.disabled = false; return toast(explain(res.error), 'error'); }
+
+    // Replace this student's guardian links with the list on the form.
+    const sid = res.data.id;
+    const del = await db.from('guardians').delete().eq('student_id', sid);
+    const ins = parentIds.length
+      ? await db.from('guardians').insert(parentIds.map((profile_id) => ({ profile_id, student_id: sid })))
+      : { error: null };
+    btn.disabled = false;
+    if (del.error || ins.error) return toast(explain(del.error ?? ins.error), 'error');
+    toast('Saved.');
+    await load();
+    fill(students.find((s) => s.id === sid));
+  });
+
+  document.getElementById('del')!.addEventListener('click', async () => {
+    if (!current || !confirm(`Remove ${current.first_name} ${current.last_name} from the roster?`)) return;
+    const { error } = await db.from('students').delete().eq('id', current.id);
+    if (error) return toast(explain(error), 'error');
+    toast('Removed.');
+    fill(null);
+    load();
+  });
+
+  fill(null);
+  load();
+</script>

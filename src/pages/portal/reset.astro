@@ -1,0 +1,51 @@
+---
+import AuthShell from '../../components/AuthShell.astro';
+
+/* Where the password-reset (and invite) email links land. Supabase signs
+   the user in from the link, then they choose a password here. */
+---
+
+<AuthShell title="Choose a password">
+  <h1>Choose a password</h1>
+  <p class="lede">At least 10 characters. You&rsquo;ll use it with your email to sign in.</p>
+
+  <form id="pwform" novalidate>
+    <div class="fld">
+      <label for="pw1">New password</label>
+      <input class="inp" id="pw1" type="password" autocomplete="new-password" minlength="10" required />
+    </div>
+    <div class="fld">
+      <label for="pw2">Type it again</label>
+      <input class="inp" id="pw2" type="password" autocomplete="new-password" minlength="10" required />
+    </div>
+    <p class="err" id="err" role="alert" hidden></p>
+    <button class="pbtn pbtn--primary pbtn--wide" type="submit">Save password</button>
+  </form>
+</AuthShell>
+
+<script>
+  import { supabase } from '../../lib/supabase';
+  import { HOME, type Role } from '../../portal/client';
+
+  const db = supabase();
+  const form = document.getElementById('pwform') as HTMLFormElement;
+  const err = document.getElementById('err')!;
+  const show = (m: string) => { err.textContent = m; err.hidden = !m; };
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const a = (document.getElementById('pw1') as HTMLInputElement).value;
+    const b = (document.getElementById('pw2') as HTMLInputElement).value;
+    if (a.length < 10) return show('Use at least 10 characters.');
+    if (a !== b) return show('The two passwords don’t match.');
+    if (!db) return show('The portal isn’t connected to its database yet.');
+
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) return show('This link has expired or was already used. Request a new one from the sign-in page.');
+
+    const { error } = await db.auth.updateUser({ password: a });
+    if (error) return show(error.message);
+    const { data } = await db.from('profiles').select('role').eq('id', session.user.id).single();
+    location.replace(data ? HOME[data.role as Role] : '/portal');
+  });
+</script>

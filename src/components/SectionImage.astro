@@ -1,0 +1,31 @@
+---
+import { Image } from 'astro:assets';
+import { resolveImage } from '../lib/images';
+
+/* One image from a page section: built-in photos are resized by Astro,
+   uploaded ones were already resized in the browser before upload. */
+interface Props {
+  image?: string;
+  class?: string;
+  widths?: number[];
+  sizes?: string;
+  eager?: boolean;
+}
+const { image, class: cls, widths = [600, 1100], sizes = '100vw', eager = false } = Astro.props;
+const img = resolveImage(image);
+---
+
+{img?.kind === 'asset' && (
+  <Image
+    class={cls}
+    src={img.meta}
+    alt=""
+    widths={widths}
+    sizes={sizes}
+    loading={eager ? 'eager' : 'lazy'}
+    fetchpriority={eager ? 'high' : undefined}
+  />
+)}
+{img?.kind === 'url' && (
+  <img class={cls} src={img.src} alt="" loading={eager ? 'eager' : 'lazy'} decoding="async" />
+)}

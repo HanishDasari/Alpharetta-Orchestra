@@ -1,86 +1,162 @@
 ---
 import Portal from '../../../layouts/Portal.astro';
-import Placeholder from '../../../components/Placeholder.astro';
-import FeatureBrief from '../../../components/FeatureBrief.astro';
-
-const points = [
-  {
-    what: 'One slide, written in the browser, ready for the projector',
-    why: 'Replaces making a fresh one-slide deck every morning. Same result, but you type it into a box instead of building a file.',
-  },
-  {
-    what: 'A Present button that fills the screen',
-    why: 'No opening a file, no share dialog, no "let me pull this up." One click from the same page you wrote it on.',
-  },
-  {
-    what: 'It posts itself to students at the end of the day',
-    why: 'This is the part slides genuinely cannot do. You write it once for the projector and students get it without you exporting, uploading, or emailing anything.',
-  },
-  {
-    what: 'Absent students can see exactly what they missed',
-    why: 'Instead of "what did I miss?" on the way in, they read the board for that date themselves. Cuts a recurring interruption at the start of class.',
-  },
-  {
-    what: 'Every board is kept and searchable',
-    why: 'Useful when a parent asks what was assigned three weeks ago, or when you want to reuse a warm-up you did last semester.',
-  },
-  {
-    what: 'Reusable templates',
-    why: 'LGPE week, concert week, and sub days each have a starting layout, so a normal morning is filling in three fields rather than starting blank.',
-  },
-];
 ---
 
-<Portal title="Daily Board" role="admin">
-  <h1>Daily Board</h1>
-  <p class="sub">
-    The one slide you put up as students walk in — written here, shown in class,
-    then posted to students automatically.
-  </p>
-
-  <section class="card">
-    <h2>Today&rsquo;s board</h2>
-    <Placeholder
-      label="Board editor goes here"
-      note="Title, agenda, materials needed, and homework — laid out as one slide you can put straight on the projector."
-      height="260px"
-    />
-  </section>
-
-  <FeatureBrief points={points} />
-
-  <section class="card">
-    <h2>How it would work</h2>
-    <ol class="how">
-      <li>You type the day&rsquo;s board here before class.</li>
-      <li>Hit <b>Present</b> and it fills the screen for the projector.</li>
-      <li>At the end of the day it posts itself to the student portal.</li>
-      <li>Students who were absent can scroll back through past boards.</li>
-    </ol>
-    <p class="hint">
-      This replaces making a one-slide deck each morning. The part slides
-      can&rsquo;t do is the last two steps &mdash; posting itself and keeping an
-      archive students can search.
-    </p>
-  </section>
-
-  <section class="card">
-    <h2>Not built yet</h2>
-    <div class="locked">
-      <span aria-hidden="true" style="font-size:1.1rem;line-height:1">🔧</span>
-      <span>
-        <b style="display:block;color:var(--ink);margin-bottom:.25rem">
-          This is a tab, not a feature
-        </b>
-        It&rsquo;s here so you can see where it would live. Nothing on this page
-        saves anything yet.
-      </span>
+<Portal title="Daily Board" roles={['admin']}>
+  <div class="head">
+    <div>
+      <h1>Daily Board</h1>
+      <p class="sub">Write the day&rsquo;s slide, put it on the projector, and students can read it later. Past days post to students automatically.</p>
     </div>
-  </section>
+    <button class="pbtn pbtn--primary" type="button" id="present">Present</button>
+  </div>
+
+  <div class="split split--board">
+    <section class="card" aria-labelledby="form-h">
+      <h2 id="form-h">Board</h2>
+      <form id="form" novalidate>
+        <div class="row2">
+          <div class="fld">
+            <label for="day">Date</label>
+            <input class="inp" id="day" name="day" type="date" required />
+          </div>
+          <div class="fld">
+            <label for="title">Title</label>
+            <input class="inp" id="title" name="title" placeholder="Tuesday, Oct 21" />
+          </div>
+        </div>
+        <div class="fld">
+          <label for="body">On the board</label>
+          <textarea class="inp inp--area inp--tall" id="body" name="body" rows="14" placeholder="## Warm-up&#10;- D major scale, 2 octaves&#10;&#10;## Rehearsal&#10;- Holst, mm. 40–88"></textarea>
+          <p class="hint">## for a heading, - for a bullet, **bold** for bold.</p>
+        </div>
+        <label class="check fld"><input type="checkbox" id="published" name="published" /> Show to students now <span class="opt">(otherwise they see it tomorrow)</span></label>
+        <div class="actions">
+          <button class="pbtn pbtn--primary" type="submit" id="save">Save</button>
+          <span class="spacer"></span>
+          <button class="pbtn pbtn--danger" type="button" id="del" hidden>Delete</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card" aria-labelledby="past-h">
+      <h2 id="past-h">Earlier boards</h2>
+      <ul class="list" id="list"><li><p class="empty">Loading&hellip;</p></li></ul>
+    </section>
+  </div>
+
+  <div class="slide" id="slide" hidden>
+    <div class="slide__inner">
+      <p class="slide__date" id="slide-date"></p>
+      <h1 id="slide-title"></h1>
+      <div class="slide__body" id="slide-body"></div>
+    </div>
+    <p class="slide__exit">Press Esc to close</p>
+  </div>
 </Portal>
 
-<style is:global>
-  .how { margin: 0 0 1rem; padding-left: 1.3rem; }
-  .how li { margin-bottom: .5rem; font-size: .93rem; }
-  .how b { font-weight: 600; }
+<style>
+  .split--board { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
+  .opt { color: var(--ink-soft); font-size: .82rem; }
+  @media (max-width: 1000px) { .split--board { grid-template-columns: 1fr; } }
+
+  /* Projector view: big type, high contrast, nothing else on screen. */
+  .slide {
+    position: fixed; inset: 0; z-index: 50; background: #fff; color: var(--ink);
+    display: grid; place-items: center; padding: 4vw; overflow: auto;
+  }
+  .slide__inner { width: min(1400px, 100%); }
+  .slide__date { color: var(--maroon); font-weight: 600; font-size: clamp(1rem, 2vw, 1.6rem); margin: 0 0 .5rem; }
+  .slide h1 { font-size: clamp(2.2rem, 5vw, 4.4rem); line-height: 1.1; margin: 0 0 3vh; }
+  .slide__body { font-size: clamp(1.3rem, 2.6vw, 2.4rem); line-height: 1.45; }
+  .slide__body h2 { font-size: 1.15em; color: var(--maroon); margin: 1.2em 0 .3em; }
+  .slide__body ul { margin: 0; padding-left: 1.2em; }
+  .slide__body p { margin: 0 0 .6em; }
+  .slide__exit { position: fixed; right: 1.5rem; bottom: 1rem; color: var(--ink-soft); font-size: .85rem; margin: 0; }
 </style>
+
+<script>
+  import { renderMarkdown } from '../../../lib/markdown';
+  import { whenReady, esc, toast, explain, fmtDay, schoolToday } from '../../../portal/client';
+
+  const { db } = await whenReady();
+  const form = document.getElementById('form') as HTMLFormElement;
+  const list = document.getElementById('list')!;
+  const f = (n: string) => form.elements.namedItem(n) as HTMLInputElement;
+  const body = () => form.elements.namedItem('body') as HTMLTextAreaElement;
+
+  let boards: any[] = [];
+
+  async function load() {
+    const { data, error } = await db.from('boards').select('*').order('board_date', { ascending: false }).limit(60);
+    if (error) return toast(explain(error), 'error');
+    boards = data;
+    list.innerHTML = boards.length
+      ? boards.map((b) => `<li><button type="button" data-day="${b.board_date}" aria-current="${b.board_date === f('day').value}">
+          <b>${esc(b.title || fmtDay(b.board_date))}</b><small>${fmtDay(b.board_date)}</small></button></li>`).join('')
+      : '<li><p class="empty">No boards yet. Today&rsquo;s will be the first.</p></li>';
+  }
+
+  function show(day: string) {
+    const b = boards.find((x) => x.board_date === day);
+    f('day').value = day;
+    f('title').value = b?.title ?? '';
+    body().value = b?.body ?? '';
+    f('published').checked = b?.published ?? false;
+    document.getElementById('del')!.hidden = !b;
+    document.getElementById('form-h')!.textContent = day === schoolToday() ? 'Today' : fmtDay(day, { weekday: 'long', month: 'long', day: 'numeric' });
+    list.querySelectorAll('button').forEach((x) => x.setAttribute('aria-current', String(x.dataset.day === day)));
+  }
+
+  list.addEventListener('click', (e) => {
+    const d = (e.target as HTMLElement).closest('button')?.dataset.day;
+    if (d) show(d);
+  });
+  f('day').addEventListener('change', () => show(f('day').value));
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!f('day').value) return toast('Pick a date.', 'error');
+    if (!body().value.trim() && !f('title').value.trim()) return toast('The board is empty.', 'error');
+    const btn = document.getElementById('save') as HTMLButtonElement;
+    btn.disabled = true;
+    const { error } = await db.from('boards').upsert({
+      board_date: f('day').value,
+      title: f('title').value.trim(),
+      body: body().value,
+      published: f('published').checked,
+    }, { onConflict: 'board_date' });
+    btn.disabled = false;
+    if (error) return toast(explain(error), 'error');
+    toast(f('published').checked ? 'Saved. Students can see it now.' : 'Saved. Students see it from tomorrow.');
+    const day = f('day').value;
+    await load();
+    show(day);
+  });
+
+  document.getElementById('del')!.addEventListener('click', async () => {
+    if (!confirm('Delete this board? Students won’t be able to see it.')) return;
+    const { error } = await db.from('boards').delete().eq('board_date', f('day').value);
+    if (error) return toast(explain(error), 'error');
+    toast('Deleted.');
+    await load();
+    show(schoolToday());
+  });
+
+  // Present: the board as typed (saved or not), full screen.
+  const slide = document.getElementById('slide')!;
+  document.getElementById('present')!.addEventListener('click', async () => {
+    document.getElementById('slide-date')!.textContent = fmtDay(f('day').value || schoolToday(), { weekday: 'long', month: 'long', day: 'numeric' });
+    document.getElementById('slide-title')!.textContent = f('title').value || 'Today';
+    document.getElementById('slide-body')!.innerHTML = renderMarkdown(body().value);
+    slide.hidden = false;
+    try { await slide.requestFullscreen(); } catch { /* still shown as an overlay */ }
+  });
+  const close = () => { slide.hidden = true; if (document.fullscreenElement) document.exitFullscreen(); };
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !slide.hidden) close(); });
+  document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) slide.hidden = true; });
+  slide.addEventListener('click', close);
+
+  await load();
+  show(schoolToday());
+</script>

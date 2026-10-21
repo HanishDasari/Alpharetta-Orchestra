@@ -1,12 +1,19 @@
-import { getCollection, type CollectionEntry } from 'astro:content';
+import { getEvents, type SiteEvent } from './content';
 
-export type EventEntry = CollectionEntry<'events'>;
+export type EventEntry = SiteEvent;
+
+/**
+ * Time zone to display an event's dates in. Timed events are shown in
+ * Eastern time. All-day events are written as bare dates (2027-03-14),
+ * which parse as midnight UTC — read back in Eastern time that becomes
+ * the evening before, so they're displayed in UTC instead.
+ */
+export function displayZone(allDay: boolean): string {
+  return allDay ? 'UTC' : 'America/New_York';
+}
 
 /** Every published event, oldest first. */
-export async function allEvents(): Promise<EventEntry[]> {
-  const events = await getCollection('events', ({ data }) => !data.draft);
-  return events.sort((a, b) => a.data.start.getTime() - b.data.start.getTime());
-}
+export const allEvents = getEvents;
 
 /**
  * An event counts as "past" once its end time (or its start, if no end

@@ -1,73 +1,304 @@
 ---
 import Portal from '../../../layouts/Portal.astro';
-import Placeholder from '../../../components/Placeholder.astro';
-import FeatureBrief from '../../../components/FeatureBrief.astro';
-
-const points = [
-  {
-    what: 'Build a form without leaving the site',
-    why: 'Short answer, multiple choice, checkboxes, file upload — the same building blocks as Google Forms, in the same place you manage everything else.',
-  },
-  {
-    what: 'A QR code for any form in one click',
-    why: 'Drop it straight onto the daily board. Students scan it off the projector instead of typing a link or waiting for an email.',
-  },
-  {
-    what: 'Responses land next to the roster',
-    why: 'A uniform-size form already knows who is in which ensemble, so you get answers attached to students rather than a spreadsheet you have to match up by hand.',
-  },
-  {
-    what: 'You can see who has not answered',
-    why: 'The gap in a Google Forms sheet is invisible — you only see who replied. Here you can chase the eleven students who have not.',
-  },
-  {
-    what: 'Reusable every year',
-    why: 'Medical forms, photo releases, and trip permissions get duplicated and re-dated instead of rebuilt each August.',
-  },
-  {
-    what: 'Honest caveat: Google Forms is free and already works',
-    why: 'The reason to build our own is the QR-onto-the-board flow and responses tied to the roster. If those two do not matter to you, Google Forms is the better answer and we should skip this.',
-  },
-];
 ---
 
-<Portal title="Forms" role="admin">
-  <h1>Forms</h1>
-  <p class="sub">Build a form, get a link and a QR code for the board.</p>
-
-  <section class="card">
-    <h2>Form builder</h2>
-    <Placeholder
-      label="Form builder goes here"
-      note="Add questions — short answer, multiple choice, checkboxes, file upload — the same way you would in Google Forms."
-      height="240px"
-    />
-  </section>
-
-  <section class="card">
-    <h2>QR codes</h2>
-    <Placeholder
-      label="QR code goes here"
-      note="One click turns any form into a QR code you can drop straight onto the daily board. Students scan it off the projector."
-      height="200px"
-    />
-  </section>
-
-  <FeatureBrief points={points} />
-
-  <section class="card">
-    <h2>Not built yet</h2>
-    <div class="locked">
-      <span aria-hidden="true" style="font-size:1.1rem;line-height:1">🔧</span>
-      <span>
-        <b style="display:block;color:var(--ink);margin-bottom:.25rem">
-          This is a tab, not a feature
-        </b>
-        Worth saying out loud: Google Forms already does most of this and is
-        free. The reason to build our own is that responses would land in the
-        same place as everything else &mdash; and the QR could go straight onto
-        the daily board without leaving the site.
-      </span>
+<Portal title="Forms" roles={['admin']}>
+  <div class="head">
+    <div>
+      <h1>Forms</h1>
+      <p class="sub">Permission slips, sign-ups, surveys. Students and families answer in their portal; you see who hasn&rsquo;t.</p>
     </div>
-  </section>
+    <button class="pbtn pbtn--primary" type="button" id="new">New form</button>
+  </div>
+
+  <div class="split">
+    <section class="card" aria-labelledby="list-h">
+      <h2 id="list-h">Forms</h2>
+      <ul class="list" id="list"><li><p class="empty">Loading&hellip;</p></li></ul>
+    </section>
+
+    <div>
+      <section class="card" aria-labelledby="form-h">
+        <h2 id="form-h">New form</h2>
+        <form id="form" novalidate>
+          <div class="fld">
+            <label for="title">Title</label>
+            <input class="inp" id="title" name="title" required maxlength="120" placeholder="Winter concert permission slip" />
+          </div>
+          <div class="fld">
+            <label for="description">Instructions <span class="opt">(optional)</span></label>
+            <textarea class="inp inp--area" id="description" name="description"></textarea>
+          </div>
+          <div class="row3">
+            <div class="fld">
+              <label for="audience">Who answers</label>
+              <select class="inp" id="audience" name="audience">
+                <option value="family">Families</option>
+                <option value="student">Students</option>
+                <option value="both">Students and families</option>
+              </select>
+            </div>
+            <div class="fld">
+              <label for="closes">Closes <span class="opt">(optional)</span></label>
+              <input class="inp" id="closes" name="closes" type="date" />
+            </div>
+            <div class="fld">
+              <label>&nbsp;</label>
+              <label class="check"><input type="checkbox" id="open" name="open" checked /> Accepting answers</label>
+            </div>
+          </div>
+
+          <fieldset class="fld">
+            <legend>Questions</legend>
+            <ol class="qs" id="qs"></ol>
+            <button class="pbtn pbtn--ghost" type="button" id="addq">Add a question</button>
+          </fieldset>
+
+          <div class="actions">
+            <button class="pbtn pbtn--primary" type="submit" id="save">Save</button>
+            <span class="spacer"></span>
+            <button class="pbtn pbtn--danger" type="button" id="del" hidden>Delete form</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card" id="share" hidden aria-labelledby="share-h">
+        <h2 id="share-h">Share</h2>
+        <div class="share">
+          <img id="qr" alt="QR code for this form" width="180" height="180" />
+          <div>
+            <p class="hint" style="margin-top:0">Put the QR code on a slide or a flyer, or send the link. People sign in, then land on the form.</p>
+            <input class="inp" id="link" readonly />
+            <div class="actions">
+              <button class="pbtn pbtn--ghost" type="button" id="copy">Copy link</button>
+              <a class="pbtn pbtn--ghost" id="qrdl" download="form-qr.png">Download QR code</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" id="answers" hidden aria-labelledby="ans-h">
+        <h2 id="ans-h">Answers</h2>
+        <p class="hint" id="ans-summary" style="margin-top:0"></p>
+        <div class="tblwrap"><table class="tbl" id="ans-table"></table></div>
+        <details class="missing">
+          <summary id="missing-h">Haven&rsquo;t answered</summary>
+          <ul id="missing"></ul>
+        </details>
+        <div class="actions"><button class="pbtn pbtn--ghost" type="button" id="csv">Download as spreadsheet (CSV)</button></div>
+      </section>
+    </div>
+  </div>
 </Portal>
+
+<style>
+  .opt { text-transform: none; letter-spacing: 0; font-weight: 400; }
+  .qs { list-style: none; margin: 0 0 .75rem; padding: 0; display: grid; gap: .75rem; }
+  .q { border: 1px solid #E3E6E8; border-radius: 8px; padding: .8rem; display: grid; gap: .5rem; background: #FBFBFC; }
+  .q__row { display: grid; grid-template-columns: 1fr 170px; gap: .5rem; }
+  .q__foot { display: flex; align-items: center; gap: 1rem; font-size: .85rem; }
+  .q__foot .spacer { flex: 1; }
+  .q__rm { background: none; border: 0; color: #8A2B29; font: inherit; font-size: .82rem; cursor: pointer; }
+  .share { display: grid; grid-template-columns: 180px 1fr; gap: 1.25rem; align-items: start; }
+  .share img { border: 1px solid #E3E6E8; border-radius: 8px; background: #fff; }
+  .tblwrap { overflow-x: auto; }
+  .missing { margin-top: 1rem; font-size: .9rem; }
+  .missing summary { cursor: pointer; font-weight: 500; }
+  .missing ul { columns: 2; margin: .6rem 0 0; padding-left: 1.1rem; color: var(--ink-soft); }
+  @media (max-width: 700px) { .share, .q__row { grid-template-columns: 1fr; } .missing ul { columns: 1; } }
+</style>
+
+<script>
+  import QRCode from 'qrcode';
+  import { whenReady, esc, toast, explain, fmtDate, fmtDay } from '../../../portal/client';
+
+  type Field = { id: string; label: string; type: 'text' | 'textarea' | 'choice' | 'checkbox'; options?: string[]; required: boolean };
+
+  const { db } = await whenReady();
+  const form = document.getElementById('form') as HTMLFormElement;
+  const list = document.getElementById('list')!;
+  const qs = document.getElementById('qs')!;
+  const f = (n: string) => form.elements.namedItem(n) as HTMLInputElement;
+  const byId = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+
+  let forms: any[] = [];
+  let current: any = null;
+  let lastCsv = '';
+
+  const newId = () => Math.random().toString(36).slice(2, 9);
+
+  async function load() {
+    const { data, error } = await db.from('forms').select('*').order('created_at', { ascending: false });
+    if (error) return toast(explain(error), 'error');
+    forms = data;
+    list.innerHTML = forms.length
+      ? forms.map((x) => `<li><button type="button" data-id="${x.id}" aria-current="${current?.id === x.id}">
+          <b>${esc(x.title)}</b><small>${x.audience === 'both' ? 'Students & families' : x.audience === 'student' ? 'Students' : 'Families'}${x.closes_on ? ` · closes ${fmtDay(x.closes_on, { month: 'short', day: 'numeric' })}` : ''}</small>
+          ${x.open ? '<span class="pill pill--live">Open</span>' : '<span class="pill pill--draft">Closed</span>'}</button></li>`).join('')
+      : '<li><p class="empty">No forms yet.</p></li>';
+  }
+
+  // Question builder ------------------------------------------------
+  function qRow(q: Field) {
+    const li = document.createElement('li');
+    li.className = 'q';
+    li.dataset.id = q.id;
+    li.innerHTML = `
+      <div class="q__row">
+        <input class="inp" data-k="label" placeholder="Question" value="${esc(q.label)}" aria-label="Question" />
+        <select class="inp" data-k="type" aria-label="Answer type">
+          <option value="text">Short answer</option>
+          <option value="textarea">Paragraph</option>
+          <option value="choice">Pick one</option>
+          <option value="checkbox">Yes / I agree box</option>
+        </select>
+      </div>
+      <input class="inp" data-k="options" placeholder="Choices, separated by commas" value="${esc((q.options ?? []).join(', '))}" aria-label="Choices" ${q.type === 'choice' ? '' : 'hidden'} />
+      <div class="q__foot">
+        <label class="check"><input type="checkbox" data-k="required" ${q.required ? 'checked' : ''} /> Required</label>
+        <span class="spacer"></span>
+        <button type="button" class="q__rm">Remove</button>
+      </div>`;
+    (li.querySelector('[data-k="type"]') as HTMLSelectElement).value = q.type;
+    li.querySelector('[data-k="type"]')!.addEventListener('change', (e) => {
+      (li.querySelector('[data-k="options"]') as HTMLElement).hidden = (e.target as HTMLSelectElement).value !== 'choice';
+    });
+    li.querySelector('.q__rm')!.addEventListener('click', () => li.remove());
+    qs.append(li);
+  }
+
+  function readQuestions(): Field[] {
+    return [...qs.querySelectorAll<HTMLElement>('.q')].map((li) => {
+      const get = (k: string) => li.querySelector(`[data-k="${k}"]`) as HTMLInputElement;
+      const type = get('type').value as Field['type'];
+      return {
+        id: li.dataset.id!,
+        label: get('label').value.trim(),
+        type,
+        options: type === 'choice' ? get('options').value.split(',').map((s) => s.trim()).filter(Boolean) : undefined,
+        required: get('required').checked,
+      };
+    });
+  }
+
+  byId('addq').addEventListener('click', () => qRow({ id: newId(), label: '', type: 'text', required: false }));
+
+  // Edit ------------------------------------------------------------
+  async function fill(x: any | null) {
+    current = x;
+    form.reset();
+    qs.innerHTML = '';
+    byId('form-h').textContent = x ? 'Edit form' : 'New form';
+    byId('del').hidden = !x;
+    byId('share').hidden = !x;
+    byId('answers').hidden = !x;
+    if (x) {
+      f('title').value = x.title;
+      (form.elements.namedItem('description') as HTMLTextAreaElement).value = x.description;
+      (form.elements.namedItem('audience') as HTMLSelectElement).value = x.audience;
+      f('closes').value = x.closes_on ?? '';
+      f('open').checked = x.open;
+      (x.fields as Field[]).forEach(qRow);
+      const url = `${location.origin}/portal/form?id=${x.id}`;
+      byId<HTMLInputElement>('link').value = url;
+      const png = await QRCode.toDataURL(url, { width: 360, margin: 1, color: { dark: '#101820', light: '#ffffff' } });
+      byId<HTMLImageElement>('qr').src = png;
+      byId<HTMLAnchorElement>('qrdl').href = png;
+      loadAnswers(x);
+    } else {
+      (form.elements.namedItem('audience') as HTMLSelectElement).value = 'family';
+      qRow({ id: newId(), label: 'Student name', type: 'text', required: true });
+    }
+    list.querySelectorAll('button').forEach((b) => b.setAttribute('aria-current', String(b.dataset.id === x?.id)));
+  }
+
+  async function loadAnswers(x: any) {
+    const roles = x.audience === 'both' ? ['student', 'family'] : [x.audience];
+    const [r, p] = await Promise.all([
+      db.from('form_responses').select('*').eq('form_id', x.id).order('submitted_at'),
+      db.from('profiles').select('id, full_name, email, role').in('role', roles),
+    ]);
+    if (r.error || p.error) return toast(explain(r.error ?? p.error), 'error');
+    const people = new Map(p.data!.map((u) => [u.id, u]));
+    const fields: Field[] = x.fields;
+    const answered = new Set(r.data!.map((a) => a.profile_id));
+    const missing = p.data!.filter((u) => !answered.has(u.id));
+
+    byId('ans-summary').textContent = `${r.data!.length} answered, ${missing.length} still to answer.`;
+    const show = (v: unknown) => (v === true ? 'Yes' : v === false || v == null ? '' : String(v));
+    const head = ['Name', 'Email', 'Answered', ...fields.map((q) => q.label)];
+    const body = r.data!.map((a) => {
+      const u = people.get(a.profile_id);
+      return [u?.full_name ?? '', u?.email ?? '', fmtDate(a.submitted_at), ...fields.map((q) => show(a.answers[q.id]))];
+    });
+    byId('ans-table').innerHTML = body.length
+      ? `<thead><tr>${head.map((h) => `<th>${esc(h)}</th>`).join('')}</tr></thead>
+         <tbody>${body.map((row) => `<tr>${row.map((c) => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody>`
+      : '<tbody><tr><td class="empty">No answers yet.</td></tr></tbody>';
+    byId('missing-h').textContent = `Haven’t answered (${missing.length})`;
+    byId('missing').innerHTML = missing.map((u) => `<li>${esc(u.full_name || u.email)}</li>`).join('') || '<li>Everyone has answered.</li>';
+
+    // Answers are typed by families; a leading = + - @ would run as a
+    // formula when the file is opened in Excel, so neutralise it.
+    const cell = (s: string) => `"${(/^[=+\-@]/.test(s) ? `'${s}` : s).replace(/"/g, '""')}"`;
+    lastCsv = [head, ...body].map((row) => row.map(cell).join(',')).join('\r\n');
+  }
+
+  list.addEventListener('click', (e) => {
+    const id = (e.target as HTMLElement).closest('button')?.dataset.id;
+    if (id) fill(forms.find((x) => x.id === id));
+  });
+  byId('new').addEventListener('click', () => { fill(null); f('title').focus(); });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const title = f('title').value.trim();
+    const fields = readQuestions();
+    if (!title) return toast('Give the form a title.', 'error');
+    if (!fields.length) return toast('Add at least one question.', 'error');
+    if (fields.some((q) => !q.label)) return toast('One of the questions is blank.', 'error');
+    if (fields.some((q) => q.type === 'choice' && (q.options?.length ?? 0) < 2)) return toast('A “Pick one” question needs at least two choices.', 'error');
+    const v = {
+      title, fields,
+      description: (form.elements.namedItem('description') as HTMLTextAreaElement).value.trim(),
+      audience: (form.elements.namedItem('audience') as HTMLSelectElement).value,
+      closes_on: f('closes').value || null,
+      open: f('open').checked,
+    };
+    const btn = byId<HTMLButtonElement>('save');
+    btn.disabled = true;
+    const res = current
+      ? await db.from('forms').update(v).eq('id', current.id).select().single()
+      : await db.from('forms').insert(v).select().single();
+    btn.disabled = false;
+    if (res.error) return toast(explain(res.error), 'error');
+    toast(current ? 'Saved.' : 'Form created. Share the link or QR code below.');
+    await load();
+    fill(forms.find((x) => x.id === res.data.id));
+  });
+
+  byId('del').addEventListener('click', async () => {
+    if (!current || !confirm(`Delete “${current.title}” and all its answers?`)) return;
+    const { error } = await db.from('forms').delete().eq('id', current.id);
+    if (error) return toast(explain(error), 'error');
+    toast('Deleted.');
+    fill(null);
+    load();
+  });
+
+  byId('copy').addEventListener('click', async () => {
+    await navigator.clipboard.writeText(byId<HTMLInputElement>('link').value);
+    toast('Link copied.');
+  });
+
+  byId('csv').addEventListener('click', () => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['﻿' + lastCsv], { type: 'text/csv' }));
+    a.download = `${current?.title ?? 'form'} answers.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  fill(null);
+  load();
+</script>

@@ -2,6 +2,8 @@
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import '../styles/global.css';
+import { getSettings } from '../lib/content';
+import { resolveDesign, fontsHref } from '../lib/design';
 
 interface Props {
   title: string;
@@ -24,6 +26,17 @@ const fullTitle = title === 'home'
   ? 'Alpharetta High School Orchestras'
   : `${title} — Alpharetta High School Orchestras`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
+
+// Colours, fonts and header size chosen under Design & Appearance in
+// the portal. Applied at build time, so there's no flash on load.
+const design = resolveDesign(await getSettings());
+const themeVars = [
+  `--maroon:${design.colors.maroon}`,
+  `--maroon-bright:${design.colors.maroonBright}`,
+  `--ink:${design.colors.ink}`,
+  `--font-display:'${design.fontDisplay}', var(--font-fallback)`,
+  `--font-body:'${design.fontBody}', var(--font-fallback)`,
+].join(';');
 ---
 
 <html lang="en">
@@ -42,15 +55,13 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&family=Archivo:wght@500;600&display=swap"
-      rel="stylesheet"
-    />
+    <link href={fontsHref([design.fontBody, design.fontDisplay])} rel="stylesheet" />
+    <style is:inline set:html={`:root{${themeVars}}`}></style>
 
     <link rel="alternate" type="text/calendar" href="/events.ics" title="AHS Orchestra Events" />
   </head>
 
-  <body>
+  <body data-header={design.headerSize}>
     <Header />
     <main id="main" class:list={[!flushHeader && 'main--offset']}>
       <slot />

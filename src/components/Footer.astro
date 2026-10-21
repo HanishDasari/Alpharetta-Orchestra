@@ -1,25 +1,31 @@
 ---
-/* Duplicates the current site's footer: gray band, three columns.
-   NOTE: the live site uses dark text (#101820) on this gray, which
-   fails contrast. Kept faithful for the demo — flagged in the README. */
+import { getNav } from '../lib/content';
+
+/* Same gray band and three columns as the current site's footer. The
+   live site sets dark text (#101820) on this gray, which fails contrast
+   (2.6:1); this uses white, which passes at 7.5:1.
+
+   Everything in it is edited in the portal under Menu & footer. */
+const { footer } = await getNav();
+const addressLines = footer.address.split(/\r?\n/);
 ---
 
 <footer class="ftr">
   <div class="wrap ftr__grid">
     <div>
-      <h4>Alpharetta High School Orchestras</h4>
-      <p>3595 Webb Bridge Road<br />Alpharetta, GA 30005</p>
+      <h4>{footer.name}</h4>
+      <p>{addressLines.map((line, i) => <>{i > 0 && <br />}{line}</>)}</p>
+      {footer.email && <p class="ftr__mail"><a href={`mailto:${footer.email}`}>{footer.email}</a></p>}
     </div>
 
     <div>
       <p class="ftr__head">About</p>
-      <p><a href="/about">The Program</a></p>
+      {footer.about.map((l) => <p><a href={l.url}>{l.label}</a></p>)}
     </div>
 
     <div>
       <p class="ftr__head">Donate</p>
-      <p><a href="/support">Support Us</a></p>
-      <p><a href="/portal">Sign in</a></p>
+      {footer.support.map((l) => <p><a href={l.url}>{l.label}</a></p>)}
     </div>
   </div>
 </footer>
@@ -27,7 +33,7 @@
 <style>
   .ftr {
     background: #53565A;
-    color: var(--ink);
+    color: #fff;
     padding-block: 3.2rem;
     margin-top: auto;
   }
@@ -46,8 +52,10 @@
     margin: 0 0 .75rem;
   }
   .ftr p { font-size: 16px; font-weight: 300; line-height: 28.8px; margin: 0; max-width: none; }
-  .ftr a { color: var(--maroon); text-decoration: none; }
-  .ftr a:hover { text-decoration: underline; }
+  .ftr__mail { margin-top: 1rem !important; }
+  .ftr a { color: #fff; text-decoration: underline; text-decoration-color: rgb(255 255 255 / .35); text-underline-offset: .2em; }
+  .ftr a:hover { text-decoration-color: #fff; }
+  .ftr :focus-visible { outline-color: #fff; }
 
   @media (max-width: 800px) {
     .ftr__grid { grid-template-columns: 1fr; gap: 2rem; }

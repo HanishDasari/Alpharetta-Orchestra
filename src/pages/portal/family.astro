@@ -1,160 +1,101 @@
 ---
 import Portal from '../../layouts/Portal.astro';
-import FeatureBrief from '../../components/FeatureBrief.astro';
-
-const points = [
-  {
-    what: 'Parents can check their balance without emailing anyone',
-    why: '"Did we pay the participation fee?" is the most common question the treasurer gets. This answers it at 11pm without involving a person.',
-  },
-  {
-    what: 'Pay online instead of sending a cheque in a folder',
-    why: 'Fewer envelopes lost in a backpack, and the payment records itself the moment it goes through.',
-  },
-  {
-    what: 'Outstanding forms in the same place as fees',
-    why: 'Medical, photo release, trip permission. Parents see everything they still owe on one screen instead of across five emails.',
-  },
-  {
-    what: 'A receipt they can find later',
-    why: 'Useful at tax time, and it ends the "we already paid that" conversation with a date attached.',
-  },
-  {
-    what: 'They only ever see their own student',
-    why: 'Enforced in the database, not by hiding a page. One family cannot reach another family’s record even by guessing the address.',
-  },
-  {
-    what: 'Payment details never touch our database',
-    why: 'Stripe takes the card directly. We store that a payment happened, not the card number — which is what keeps this safe to run at all.',
-  },
-];
-
-const charges = [
-  { label: 'Student Participation Fee 2026–27', due: 'Sep 15, 2026', amount: '$195.00', status: 'due' },
-  { label: 'Concert Uniform — dress, size 8', due: 'Sep 15, 2026', amount: '$0.00', status: 'paid' },
-  { label: 'Patron Program (optional)', due: '—', amount: '$0.00', status: 'paid' },
-];
-
-const forms = [
-  { label: 'Medical / emergency contact', status: 'Complete' },
-  { label: 'Photo release', status: 'Complete' },
-  { label: 'Spring trip permission', status: 'Not started' },
-];
+import { store, contact } from '../../lib/links';
 ---
 
-<Portal title="Overview" role="family">
-  <h1>Anh Nguyen</h1>
-  <p class="sub">Symphony Orchestra &middot; 4th period &middot; Class of 2028</p>
+<Portal title="Overview" roles={['family', 'admin']}>
+  <p class="viewas" id="viewas" hidden>You&rsquo;re viewing this as a family. Real families see their own students here, and their fees, which the director&rsquo;s account can&rsquo;t.</p>
 
-  <FeatureBrief points={points} />
+  <h1 id="hello">Overview</h1>
+  <p class="sub">Your student, forms to fill, and fees.</p>
 
-  <!-- Balance ------------------------------------------------------->
-  <section class="card" id="fees">
-    <h2>Fees</h2>
-    <div style="overflow-x:auto">
+  <section class="card" aria-labelledby="kids-h">
+    <h2 id="kids-h">Your student</h2>
+    <div class="kids" id="kids"><p class="empty">Loading&hellip;</p></div>
+  </section>
+
+  <section class="card" id="forms" aria-labelledby="forms-h">
+    <h2 id="forms-h">Forms to fill</h2>
+    <ul class="list" id="formlist"><li><p class="empty">Loading&hellip;</p></li></ul>
+  </section>
+
+  <section class="card" id="fees" aria-labelledby="fees-h">
+    <h2 id="fees-h">Fees</h2>
+    <p>Dues, the patron program and program book ads are paid through the Orchestra Association store for now.</p>
+    <div class="actions" style="margin:0 0 1.25rem">
+      <a class="pbtn pbtn--primary" href={store.dues}>Pay dues in the store</a>
+      <a class="pbtn pbtn--ghost" href={`mailto:${contact.treasurer.email}`}>Email the treasurer</a>
+    </div>
+    <div class="demo">
+      <p class="demo__tag">Coming later: sample only, not your account</p>
       <table class="tbl">
-        <thead>
-          <tr><th>Item</th><th>Due</th><th class="num">Amount</th><th>Status</th></tr>
-        </thead>
+        <thead><tr><th>Item</th><th class="num">Amount</th><th>Status</th></tr></thead>
         <tbody>
-          {charges.map((c) => (
-            <tr>
-              <td>{c.label}</td>
-              <td>{c.due}</td>
-              <td class="num">{c.amount}</td>
-              <td>
-                <span class:list={['pill', c.status === 'paid' ? 'pill--paid' : 'pill--due']}>
-                  {c.status === 'paid' ? 'Paid' : 'Due'}
-                </span>
-              </td>
-            </tr>
-          ))}
+          <tr><td>Participation fee 2026&ndash;27</td><td class="num">$195.00</td><td><span class="pill pill--due">Due Sep 15</span></td></tr>
+          <tr><td>Winter concert field trip</td><td class="num">$25.00</td><td><span class="pill pill--paid">Paid</span></td></tr>
         </tbody>
       </table>
-    </div>
-
-    <div class="total">
-      <span>Balance due</span>
-      <b>$195.00</b>
+      <p class="hint">Once the booster board signs off, balances and online payment will show here, and only to your family.</p>
     </div>
   </section>
 
-  <!-- Stripe placeholder -------------------------------------------->
-  <section class="card">
-    <h2>Payment</h2>
-    <div class="stripe-slot">
-      <p class="stripe-slot__label">Stripe will go here</p>
-      <p class="stripe-slot__note">
-        Card entry and checkout, handled by Stripe. Card numbers never touch
-        this site or our database — Stripe takes them directly.
-      </p>
-    </div>
-    <p class="gate">
-      <b>Not built yet.</b> This needs a Stripe account owned by the Orchestra
-      Association — its EIN, its bank account, the treasurer as account owner.
-      Stripe requires account owners to be 18+, so it cannot be in a
-      student&rsquo;s name.
-    </p>
-  </section>
-
-  <!-- Forms --------------------------------------------------------->
-  <section class="card" id="forms">
-    <h2>Forms</h2>
-    <table class="tbl">
-      <thead><tr><th>Form</th><th>Status</th></tr></thead>
-      <tbody>
-        {forms.map((f) => (
-          <tr>
-            <td>{f.label}</td>
-            <td>
-              <span class:list={['pill', f.status === 'Complete' ? 'pill--paid' : 'pill--due']}>
-                {f.status}
-              </span>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </section>
-
-  <section class="card">
-    <h2>Privacy</h2>
-    <div class="locked">
-      <span aria-hidden="true" style="font-size:1.1rem;line-height:1">🔒</span>
-      <span>
-        <b style="display:block;color:var(--ink);margin-bottom:.25rem">
-          You only ever see your own student
-        </b>
-        Other families&rsquo; records aren&rsquo;t hidden from view — the database
-        won&rsquo;t return them for this account at all.
-      </span>
-    </div>
+  <section class="card" aria-labelledby="news-h">
+    <h2 id="news-h">Announcements</h2>
+    <div id="news"></div>
   </section>
 </Portal>
 
-<style is:global>
-  .total {
-    display: flex; align-items: baseline; justify-content: space-between;
-    margin-top: 1.1rem; padding-top: 1rem; border-top: 2px solid var(--ink);
-  }
-  .total span { font-size: .78rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); }
-  .total b { font-size: 1.45rem; font-variant-numeric: tabular-nums; }
-
-  .stripe-slot {
-    display: grid; place-items: center; gap: .5rem; text-align: center;
-    min-height: 190px; padding: 2rem 1.25rem;
-    border: 2px dashed #C9CFD3; border-radius: 8px;
-    background: repeating-linear-gradient(-45deg, #F4F5F6 0 10px, transparent 10px 20px);
-  }
-  .stripe-slot__label {
-    margin: 0; font-size: 1.15rem; font-weight: 600;
-    letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft);
-  }
-  .stripe-slot__note { margin: 0; max-width: 44ch; font-size: .86rem; color: var(--ink-faint); }
-
-  .gate {
-    margin: 1rem 0 0; font-size: .85rem; color: var(--ink-soft);
-    background: #FBF7F7; border: 1px solid #E4D2D1; border-radius: 7px; padding: .85rem 1rem;
-  }
-  .gate b { color: var(--maroon); }
+<style>
+  .viewas { background: #FFF6E5; color: #6B4A00; border-radius: 8px; padding: .6rem .9rem; font-size: .88rem; margin: 0 0 1rem; }
+  .kids { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .75rem; }
+  .kid { border: 1px solid #E3E6E8; border-radius: 8px; padding: .9rem 1rem; }
+  .kid b { display: block; font-size: 1rem; }
+  .kid small { color: var(--ink-soft); }
+  .demo { border: 1px dashed #CFD5D9; border-radius: 8px; padding: 1rem; background: #FAFBFB; }
+  .demo__tag { margin: 0 0 .6rem; font-size: .78rem; font-weight: 600; color: #6B4A00; }
+  .demo .tbl { opacity: .75; }
+  .md p { margin: 0 0 .6rem; }
+  .news + .news { border-top: 1px solid #EDEFF1; padding-top: 1rem; margin-top: 1rem; }
+  .news small { color: var(--ink-soft); }
 </style>
+
+<script>
+  import { renderMarkdown } from '../../lib/markdown';
+  import { whenReady, esc, toast, explain, fmtDay, schoolToday } from '../../portal/client';
+  import { contact } from '../../lib/links';
+
+  const { db, profile } = await whenReady();
+  const asAdmin = profile.role === 'admin';
+  const today = schoolToday();
+  const byId = (x: string) => document.getElementById(x)!;
+  byId('viewas').hidden = !asAdmin;
+  if (!asAdmin && profile.full_name) byId('hello').textContent = `Hi, ${profile.full_name.split(' ')[0]}`;
+
+  const [kids, forms, mine, news] = await Promise.all([
+    // RLS returns only students linked to this account (for admin: everyone, so skip).
+    asAdmin ? Promise.resolve({ data: [], error: null }) : db.from('students').select('*').order('first_name'),
+    db.from('forms').select('*').in('audience', ['family', 'both']).order('created_at', { ascending: false }),
+    db.from('form_responses').select('form_id').eq('profile_id', profile.id),
+    db.from('news').select('*').eq('draft', false).order('date', { ascending: false }).limit(3),
+  ]);
+  const err = kids.error ?? forms.error ?? mine.error ?? news.error;
+  if (err) toast(explain(err), 'error');
+
+  byId('kids').innerHTML = (kids.data ?? []).length
+    ? kids.data!.map((s: any) => `<div class="kid"><b>${esc(s.first_name)} ${esc(s.last_name)}</b>
+        <small>${[s.ensemble, s.period && `${s.period} period`, s.grad_year && `Class of ${s.grad_year}`].filter(Boolean).map(esc).join(' · ') || 'Not placed yet'}</small></div>`).join('')
+    : `<p class="empty">${asAdmin ? 'Families see their own students here.' : `No student is linked to this account yet. Email <a href="mailto:${contact.director.email}">Mr. Hood</a> to have it set up.`}</p>`;
+
+  const done = new Set((mine.data ?? []).map((r) => r.form_id));
+  const open = (forms.data ?? []).filter((x) => x.open && (!x.closes_on || x.closes_on >= today));
+  byId('formlist').innerHTML = open.length
+    ? open.map((x) => `<li><a class="row" href="/portal/form?id=${x.id}"><b>${esc(x.title)}</b>
+        <small>${x.closes_on ? `Due ${fmtDay(x.closes_on, { month: 'short', day: 'numeric' })}` : 'No deadline'}</small>
+        ${done.has(x.id) ? '<span class="pill pill--paid">Done</span>' : '<span class="pill pill--due">To do</span>'}</a></li>`).join('')
+    : '<li><p class="empty">Nothing to fill in right now.</p></li>';
+
+  byId('news').innerHTML = (news.data ?? []).length
+    ? news.data!.map((n) => `<article class="news"><b>${esc(n.title)}</b> <small>${fmtDay(n.date, { month: 'short', day: 'numeric' })}</small>
+        <div class="md">${renderMarkdown(n.body)}</div></article>`).join('')
+    : '<p class="empty">No announcements.</p>';
+</script>

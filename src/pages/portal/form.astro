@@ -1,0 +1,102 @@
+---
+import Portal from '../../layouts/Portal.astro';
+---
+
+<Portal title="Form" roles={['student', 'family', 'admin']}>
+  <section class="card fill" aria-live="polite">
+    <h1 id="title">Loading&hellip;</h1>
+    <p class="sub" id="desc"></p>
+    <p class="note" id="note" hidden></p>
+    <form id="form" novalidate hidden>
+      <div id="fields"></div>
+      <div class="actions">
+        <button class="pbtn pbtn--primary" type="submit" id="send">Submit</button>
+        <a class="pbtn pbtn--ghost" id="back" href="/portal">Back</a>
+      </div>
+    </form>
+  </section>
+</Portal>
+
+<style>
+  .fill { max-width: 680px; }
+  .fill h1 { margin-bottom: .4rem; }
+  .fill .sub { white-space: pre-line; }
+  .note { background: #EEF4F1; color: #1F5B3F; border-radius: 6px; padding: .7rem .9rem; font-size: .9rem; }
+  .note.warn { background: #FBEDEC; color: #8A2B29; }
+  .opts { display: grid; gap: .35rem; }
+  .req { color: #8A2B29; }
+</style>
+
+<script>
+  import { whenReady, esc, toast, explain, fmtDay, schoolToday, HOME } from '../../portal/client';
+
+  const { db, profile } = await whenReady();
+  const id = new URLSearchParams(location.search).get('id') ?? '';
+  const form = document.getElementById('form') as HTMLFormElement;
+  const note = document.getElementById('note')!;
+  const byId = (x: string) => document.getElementById(x)!;
+  (byId('back') as HTMLAnchorElement).href = HOME[profile.role];
+
+  const say = (msg: string, warn = false) => { note.textContent = msg; note.hidden = false; note.classList.toggle('warn', warn); };
+
+  const { data: fm, error } = await db.from('forms').select('*').eq('id', id).maybeSingle();
+  if (error || !fm) {
+    byId('title').textContent = 'Form not found';
+    say('This form doesn’t exist, or it isn’t meant for your account.', true);
+  } else {
+    byId('title').textContent = fm.title;
+    byId('desc').textContent = fm.description;
+    const closed = !fm.open || (fm.closes_on && fm.closes_on < schoolToday());
+    const { data: mine } = await db.from('form_responses').select('*').eq('form_id', id).eq('profile_id', profile.id).maybeSingle();
+    const prev = mine?.answers ?? {};
+
+    byId('fields').innerHTML = fm.fields.map((q: any) => {
+      const name = `q_${q.id}`;
+      const label = `${esc(q.label)}${q.required ? ' <span class="req" aria-hidden="true">*</span>' : ''}`;
+      const req = q.required ? 'required' : '';
+      const val = prev[q.id];
+      if (q.type === 'textarea') return `<div class="fld"><label for="${name}">${label}</label><textarea class="inp inp--area" id="${name}" name="${name}" ${req}>${esc(val ?? '')}</textarea></div>`;
+      if (q.type === 'checkbox') return `<div class="fld"><label class="check"><input type="checkbox" name="${name}" ${val ? 'checked' : ''} ${req} /> ${label}</label></div>`;
+      if (q.type === 'choice') return `<fieldset class="fld"><legend>${label}</legend><div class="opts">${q.options.map((o: string) =>
+        `<label class="check"><input type="radio" name="${name}" value="${esc(o)}" ${val === o ? 'checked' : ''} ${req} /> ${esc(o)}</label>`).join('')}</div></fieldset>`;
+      return `<div class="fld"><label for="${name}">${label}</label><input class="inp" id="${name}" name="${name}" value="${esc(val ?? '')}" ${req} /></div>`;
+    }).join('');
+
+    form.hidden = false;
+    if (profile.role === 'admin') {
+      say('Preview: this is what students and families see. You can’t submit answers as the director.');
+      (byId('send') as HTMLButtonElement).disabled = true;
+    } else if (closed) {
+      say(fm.closes_on && fm.closes_on < schoolToday() ? `This form closed on ${fmtDay(fm.closes_on, { month: 'long', day: 'numeric' })}.` : 'This form isn’t accepting answers right now.', true);
+      form.querySelectorAll('input, textarea, button[type="submit"]').forEach((el) => ((el as HTMLInputElement).disabled = true));
+    } else if (mine) {
+      say('You’ve already answered. You can change your answers and submit again until the form closes.');
+      byId('send').textContent = 'Update answers';
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const answers: Record<string, unknown> = {};
+      for (const q of fm.fields) {
+        const name = `q_${q.id}`;
+        let v: unknown;
+        if (q.type === 'checkbox') v = (form.elements.namedItem(name) as HTMLInputElement).checked;
+        else if (q.type === 'choice') v = (form.querySelector(`[name="${name}"]:checked`) as HTMLInputElement | null)?.value ?? '';
+        else v = (form.elements.namedItem(name) as HTMLInputElement).value.trim();
+        if (q.required && (v === '' || v === false)) return toast(`“${q.label}” needs an answer.`, 'error');
+        answers[q.id] = v;
+      }
+      const btn = byId('send') as HTMLButtonElement;
+      btn.disabled = true;
+      const { error } = await db.from('form_responses').upsert(
+        { form_id: id, profile_id: profile.id, answers, submitted_at: new Date().toISOString() },
+        { onConflict: 'form_id,profile_id' },
+      );
+      btn.disabled = false;
+      if (error) return toast(explain(error), 'error');
+      say('Thanks, your answers are in. You can come back and change them until the form closes.');
+      btn.textContent = 'Update answers';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+</script>

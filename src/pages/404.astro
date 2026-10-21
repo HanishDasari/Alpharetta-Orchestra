@@ -1,0 +1,26 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Page not found" noindex>
+  <section class="section">
+    <div class="wrap">
+      <h1>That page isn&rsquo;t here</h1>
+      <p class="lede">
+        It may have moved when the site was rebuilt. These are the pages most
+        people are looking for:
+      </p>
+      <p class="links">
+        <a href="/calendar">Calendar</a>
+        <a href="/students">Student Resources</a>
+        <a href="/support">Support &amp; dues</a>
+        <a href="/contact">Contact</a>
+        <a href="/">Home</a>
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .links { display: flex; flex-wrap: wrap; gap: .5rem 1.75rem; margin-top: 2rem; font-weight: 500; }
+</style>

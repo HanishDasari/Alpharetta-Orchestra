@@ -1,33 +1,5 @@
 ---
 import Portal from '../../layouts/Portal.astro';
-import FeatureBrief from '../../components/FeatureBrief.astro';
-
-const points = [
-  {
-    what: 'One list of who owes what',
-    why: 'Replaces the spreadsheet that gets emailed around and forked into three versions. Everyone is looking at the same numbers.',
-  },
-  {
-    what: 'Payments reconcile themselves',
-    why: 'When a family pays, the row updates. No ticking names off a printout, and no gap between "they paid" and "we recorded it."',
-  },
-  {
-    what: 'Chase only the families who still owe',
-    why: 'Filter to outstanding, export, send. Currently that means comparing a payment list against a roster by hand.',
-  },
-  {
-    what: 'CSV exports for the books',
-    why: 'Outstanding balances and payments, in a format that drops straight into whatever the boosters use for bookkeeping.',
-  },
-  {
-    what: 'Stripe stays the system of record',
-    why: 'This is a view onto the money, not a replacement for it. If the two ever disagree, Stripe is right — that matters for an audit.',
-  },
-  {
-    what: 'The director cannot see any of this',
-    why: 'Separation of duties, enforced in the database rather than by hiding menu items. Money is the boosters’ responsibility, not the teacher’s.',
-  },
-];
 
 const tiles = [
   { n: '87', label: 'Families paid', sub: 'of 128' },
@@ -50,7 +22,11 @@ const charges = [
 ];
 ---
 
-<Portal title="Dashboard" role="treasurer">
+<Portal title="Dashboard" roles={['treasurer']}>
+  <p class="demo-note">
+    <b>Payments aren&rsquo;t live yet.</b> Everything below is sample data showing how this will work.
+    Real records wait for the booster board&rsquo;s written sign-off (see the setup guide).
+  </p>
   <h1>Dashboard</h1>
   <p class="sub">Fees, payments, and reporting for the Orchestra Association.</p>
 
@@ -63,8 +39,6 @@ const charges = [
       </div>
     ))}
   </div>
-
-  <FeatureBrief points={points} />
 
   <section class="card" id="families">
     <h2>Families &amp; payments</h2>
@@ -117,15 +91,15 @@ const charges = [
       </tbody>
     </table>
     <div style="margin-top:1rem">
-      <button class="pbtn pbtn--primary" type="button">Add a charge</button>
+      <button class="pbtn pbtn--primary" type="button" disabled title="Available once payments are switched on">Add a charge</button>
     </div>
   </section>
 
   <section class="card" id="reports">
     <h2>Reports</h2>
     <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-      <button class="pbtn pbtn--ghost" type="button">Export outstanding (CSV)</button>
-      <button class="pbtn pbtn--ghost" type="button">Export payments (CSV)</button>
+      <button class="pbtn pbtn--ghost" type="button" disabled title="Available once payments are switched on">Export outstanding (CSV)</button>
+      <button class="pbtn pbtn--ghost" type="button" disabled title="Available once payments are switched on">Export payments (CSV)</button>
     </div>
     <p style="margin:1rem 0 0;font-size:.85rem;color:var(--ink-soft)">
       Stripe stays the system of record for money. These exports are for
@@ -136,7 +110,6 @@ const charges = [
   <section class="card">
     <h2>Who else can see this</h2>
     <div class="locked">
-      <span aria-hidden="true" style="font-size:1.1rem;line-height:1">🔒</span>
       <span>
         <b style="display:block;color:var(--ink);margin-bottom:.25rem">
           Nobody but the treasurer
@@ -147,3 +120,8 @@ const charges = [
     </div>
   </section>
 </Portal>
+
+<style>
+  .demo-note { background: #FFF6E5; color: #6B4A00; border-radius: 8px; padding: .7rem 1rem; font-size: .9rem; margin: 0 0 1.25rem; }
+  .demo-note b { color: #4D3500; }
+</style>

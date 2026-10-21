@@ -18,6 +18,11 @@ npm run dev
 
 Then open http://localhost:4321
 
+To connect the portal and the editable content, copy `.env.example` to
+`.env` and fill in the Supabase project URL and publishable key. Without
+it, the public site still builds from the Markdown files and the portal
+says it isn't connected. See [docs/portals-setup.md](docs/portals-setup.md).
+
 Other commands:
 
 ```bash
@@ -29,14 +34,20 @@ npm run preview   # preview that build locally
 
 ## How content works
 
-Right now all content lives as Markdown files in `src/content/`. Each folder
-is a content type with a defined shape (see `src/content/config.ts`):
+**With Supabase connected (the normal setup), content is edited in the
+portal** at `/portal`: concerts, announcements, pages, orchestras, ring
+photos and design. The site rebuilds when something changes. The
+Markdown in `src/content/` is the fallback when Supabase isn't
+configured, and the starting point that `npm run seed` loads into a new
+database. After seeding, edit in the portal, not the files.
+
+The Markdown folders, each with a defined shape (see `src/content/config.ts`):
 
 | Folder | What it holds |
 | --- | --- |
 | `events/` | Concerts, festivals, trips |
 | `ensembles/` | The six orchestras |
-| `news/` | Announcements |
+| `news/` | Announcements (shown on `/news`) |
 | `pages/` | Static pages (About, Director, etc.) |
 
 ### The important idea: events are entered once
@@ -49,8 +60,7 @@ A single file in `src/content/events/` automatically drives:
 - the event's own page at `/events/<file-name>`
 - the **`/events.ics` feed** families subscribe to
 
-The homepage doesn't show events yet; it has a placeholder where a
-"Next up" block will go.
+- the **Coming up** block on the homepage (next three)
 
 **"On its own" needs a nightly rebuild.** The site is static, so upcoming
 vs. past is decided when the site is built. Without a rebuild, a concert
@@ -60,7 +70,8 @@ secret named `DEPLOY_HOOK_URL` (setup steps are in that file).
 
 ### Adding a concert
 
-Create a new file in `src/content/events/`, for example
+In the portal: **Concerts & Events > New event**. Without Supabase,
+create a new file in `src/content/events/`, for example
 `spring-concert-2027.md`:
 
 ```markdown
@@ -94,12 +105,12 @@ allDay: true
 
 ## Roadmap
 
-- [ ] **Phase 1 — content site.** Homepage, orchestras, calendar, about,
-      student resources. Markdown-backed. _(in progress)_
-- [ ] **Phase 2 — CMS.** Add Sanity Studio so the director edits in a
-      browser instead of Markdown. The schemas in `src/content/config.ts`
-      are shaped to map onto Sanity directly, so this swaps the data
-      source, not the templates.
+- [x] **Phase 1 — content site.** Homepage, orchestras, calendar, about,
+      student resources, contact, news.
+- [x] **Phase 2 — editing and portals.** Supabase-backed portal: the
+      director and webmaster edit content in the browser; roster, daily
+      board, forms; student and family portals. See
+      [docs/portals-setup.md](docs/portals-setup.md).
 - [ ] **Phase 3 — deploy.** Cloudflare Pages or Netlify, then point the
       domain over. Add the `DEPLOY_HOOK_URL` secret so the nightly rebuild
       runs.
@@ -115,13 +126,16 @@ allDay: true
 - [x] **Chamber Orchestra is still running.** Included as the sixth
       ensemble. Still to confirm: current roster size, and whether Chamber
       members also play in Symphony.
-- [ ] **Contact email.** The current site has no email address anywhere.
-      Get one to publish — this is the biggest gap for people outside the
-      school trying to reach the program.
-- [ ] Replace the placeholder social links in `src/components/Footer.astro`
-      with the real Instagram and YouTube URLs.
-- [ ] Sample events in `src/content/events/` are placeholders. Swap in the
-      real season calendar.
+- [x] **Contact email.** Mr. Hood's school address is on `/contact` and
+      in the footer. All contact details and off-site links live in
+      `src/lib/links.ts`.
+- [x] Instagram and YouTube links in the footer and on `/contact`.
+- [ ] The three sample events are placeholders. Replace them with the
+      real season calendar in the portal.
+- [ ] Audition materials: the Student Resources card says "posted here
+      each spring" until there's something to link to.
+- [ ] The handbook PDF, program book PDF and store still live on
+      Squarespace (`src/lib/links.ts`). Move them before the domain does.
 
 ### Deferred until the site is done
 

@@ -1,9 +1,9 @@
 ---
 import Base from '../layouts/Base.astro';
+import { contact, store, docs } from '../lib/links';
 
 /* Payments intentionally stay on the existing Squarespace store for now.
    These link out rather than processing anything here — see README. */
-const STORE = 'https://www.alpharettaorchestra.com/store';
 
 const ways = [
   {
@@ -11,21 +11,25 @@ const ways = [
     amount: '$195',
     body: 'The program’s primary source of funding. Covers concert uniforms, participation dues, graduation honor cords, Spring Honors Banquet tickets, and field trips.',
     cta: 'Pay dues',
-    href: `${STORE}`,
+    href: store.dues,
+    id: 'dues',
   },
   {
     title: 'Patron Program',
     amount: 'From $50',
     body: 'Support the program directly and have your name listed in the concert program book. Open to families, alumni, and anyone in the community who wants to help.',
     cta: 'Become a patron',
-    href: `${STORE}/patron-program`,
+    href: store.patron,
+    id: 'patron',
   },
   {
     title: 'Program Book Advertising',
     amount: 'Varies',
     body: 'Place a personal message or a business ad in the program handed out at every concert. A good fit for local businesses looking to reach orchestra families.',
     cta: 'Buy an ad',
-    href: `${STORE}/program-book`,
+    href: store.programBookAds,
+    id: 'program-book',
+    extra: { label: 'View the 2025–2026 program book', href: docs.programBook },
   },
 ];
 ---
@@ -51,11 +55,12 @@ const ways = [
     <div class="wrap">
       <div class="ways">
         {ways.map((w) => (
-          <article class="way">
+          <article class="way" id={w.id}>
             <p class="way__amount">{w.amount}</p>
             <h2>{w.title}</h2>
             <p class="way__body">{w.body}</p>
             <a href={w.href} class="btn btn--ghost">{w.cta}</a>
+            {w.extra && <a href={w.extra.href} class="way__extra">{w.extra.label}</a>}
           </article>
         ))}
       </div>
@@ -69,7 +74,8 @@ const ways = [
       <p>
         For questions about payments, payment plans, or anything else
         financial, contact the Orchestra Booster Treasurer at
-        <a href="mailto:treasurerahsorchestra@gmail.com">treasurerahsorchestra@gmail.com</a>.
+        <a href={`mailto:${contact.treasurer.email}`}>{contact.treasurer.email}</a>.
+        Anything else goes to <a href="/contact">Mr. Hood</a>.
       </p>
       <p class="fine">
         The AHS Orchestra Association is a member of the Alpharetta High
@@ -95,6 +101,7 @@ const ways = [
   .way h2 { font-size: var(--step-1); margin-bottom: 0.6rem; }
   .way__body { font-size: 0.925rem; color: var(--ink-soft); flex: 1; }
   .way .btn { margin-top: 0.5rem; }
+  .way__extra { font-size: 0.875rem; margin-top: 0.9rem; }
 
   .narrow { max-width: 680px; }
   .fine { font-size: 0.85rem; color: var(--ink-soft); margin-top: 1.5rem; }

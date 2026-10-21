@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import logo from '../assets/logo.png';
+import { store } from '../lib/links';
 
 /* Same maroon band, logo and full nav as the live site — but shorter at
    rest, and it collapses to just the logo once you scroll past the hero.
@@ -8,19 +9,19 @@ import logo from '../assets/logo.png';
    The logo is self-hosted (src/assets/logo.png) rather than pulled from
    the Squarespace CDN, so it survives the account being cancelled. */
 const nav = [
-  { label: 'Uniforms', href: '/students' },
-  { label: 'Orchestra 101', href: '/students' },
+  { label: 'Uniforms', href: '/students#uniforms' },
+  { label: 'Orchestra 101', href: '/orchestras' },
   { label: 'About', href: '/about' },
   { label: 'Calendar', href: '/calendar' },
-  { label: 'Store', href: '/support' },
-  { label: 'Program Book', href: '/support' },
-  { label: 'Orchestra Memories', href: '/calendar' },
-  { label: 'Past Events', href: '/calendar' },
+  { label: 'Store', href: store.home },
+  { label: 'Program Book', href: '/support#program-book' },
+  { label: 'Orchestra Memories', href: '/#memories' },
+  { label: 'Past Events', href: '/calendar#past' },
   { label: 'Student Resources', href: '/students' },
-  { label: 'Orchestra Opportunities', href: '/students' },
-  { label: 'Contact', href: '/about' },
+  { label: 'Orchestra Opportunities', href: '/students#summer' },
+  { label: 'Contact', href: '/contact' },
   { label: 'Donate', href: '/support' },
-  { label: 'Patron Program', href: '/support' },
+  { label: 'Patron Program', href: '/support#patron' },
 ];
 ---
 
@@ -116,6 +117,10 @@ const nav = [
   .hdr.is-shrunk .hdr__nav { max-height: 0; opacity: 0; }
 
   .burger { display: none; }
+
+  /* Design & Appearance → Header size: Compact */
+  :global([data-header="compact"]) .hdr__logo img { width: 240px; height: 80px; }
+  :global([data-header="compact"]) .hdr__nav a { font-size: 14px; line-height: 24px; }
 
   @media (max-width: 900px) {
     .hdr { padding-bottom: 0; }

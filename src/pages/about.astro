@@ -1,13 +1,10 @@
 ---
 import Base from '../layouts/Base.astro';
 import Prose from '../components/Prose.astro';
-import { getEntry } from 'astro:content';
+import { getPage } from '../lib/content';
 
-const about = await getEntry('pages', 'about');
-const director = await getEntry('pages', 'director');
-
-const { Content: About } = await about.render();
-const { Content: Director } = await director.render();
+const about = await getPage('about');
+const director = await getPage('director');
 ---
 
 <Base
@@ -17,16 +14,16 @@ const { Content: Director } = await director.render();
   <section class="section">
     <div class="wrap">
       <p class="eyebrow">About</p>
-      <h1>{about.data.title}</h1>
-      <Prose><About /></Prose>
+      <h1>{about.title}</h1>
+      <Prose><Fragment set:html={about.html} /></Prose>
     </div>
   </section>
 
-  <section class="section section--alt">
+  <section class="section section--alt" id="director">
     <div class="wrap">
       <p class="eyebrow">Leadership</p>
-      <h2>{director.data.title}</h2>
-      <Prose><Director /></Prose>
+      <h2>{director.title}</h2>
+      <Prose><Fragment set:html={director.html} /></Prose>
     </div>
   </section>
 </Base>

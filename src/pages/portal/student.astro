@@ -1,76 +1,94 @@
 ---
 import Portal from '../../layouts/Portal.astro';
-import Placeholder from '../../components/Placeholder.astro';
-import FeatureBrief from '../../components/FeatureBrief.astro';
-
-const points = [
-  {
-    what: 'Today’s board, without asking anyone',
-    why: 'The same slide that was on the projector. A student who walked in late or sat in the back can read it again on their phone.',
-  },
-  {
-    what: 'Every past day, by date',
-    why: 'Absent students catch up themselves instead of asking Mr. Hood at the start of the next class. That question is the single most repeated interruption in a rehearsal room.',
-  },
-  {
-    what: 'Forms they still owe, in one list',
-    why: 'Right now a student has no way to know they missed a form until someone chases them. This shows what is outstanding.',
-  },
-  {
-    what: 'Their own concert dates',
-    why: 'Filtered to their ensemble, so a Concert Orchestra freshman is not scrolling past Chamber events that do not apply to them.',
-  },
-  {
-    what: 'Works on a phone',
-    why: 'This is the only screen students will actually open, and they will open it on a phone in the hallway. It is designed for that first.',
-  },
-];
 ---
 
-<Portal title="Today" role="student">
-  <h1>Today</h1>
-  <p class="sub">Symphony Orchestra &middot; 4th period</p>
+<Portal title="Today" roles={['student', 'admin']}>
+  <p class="viewas" id="viewas" hidden>You&rsquo;re viewing this as a student. Students see the same boards and forms, but not unpublished ones.</p>
 
-  <section class="card" id="today">
-    <h2>Today&rsquo;s board</h2>
-    <Placeholder
-      label="Today's board goes here"
-      note="Whatever Mr. Hood put on the projector this morning, posted here automatically at the end of the day."
-      height="260px"
-    />
+  <h1 id="hello">Today</h1>
+  <p class="sub" id="today-date"></p>
+
+  <section class="card board" aria-labelledby="board-h">
+    <h2 id="board-h">Today&rsquo;s board</h2>
+    <div id="board"><p class="empty">Loading&hellip;</p></div>
   </section>
 
-  <section class="card" id="past">
-    <h2>Past boards</h2>
-    <Placeholder
-      label="Past boards go here"
-      note="Every previous day, so if you were absent you can see exactly what you missed."
-      height="180px"
-    />
+  <section class="card" id="forms" aria-labelledby="forms-h">
+    <h2 id="forms-h">Forms to fill</h2>
+    <ul class="list" id="formlist"><li><p class="empty">Loading&hellip;</p></li></ul>
   </section>
 
-  <section class="card" id="forms">
-    <h2>Forms to fill</h2>
-    <Placeholder
-      label="Forms go here"
-      note="Anything assigned to you that still needs answering."
-      height="160px"
-    />
+  <section class="card" id="past" aria-labelledby="past-h">
+    <h2 id="past-h">Past boards</h2>
+    <p class="hint" style="margin-top:-.4rem">Missed a day? Everything from class is here.</p>
+    <div id="pastlist"></div>
   </section>
 
-  <FeatureBrief points={points} />
-
-  <section class="card">
-    <h2>Not built yet</h2>
-    <div class="locked">
-      <span aria-hidden="true" style="font-size:1.1rem;line-height:1">🔧</span>
-      <span>
-        <b style="display:block;color:var(--ink);margin-bottom:.25rem">
-          These are tabs, not features
-        </b>
-        They show where the daily board and forms would appear for students
-        once those are built.
-      </span>
-    </div>
+  <section class="card" aria-labelledby="news-h">
+    <h2 id="news-h">Announcements</h2>
+    <div id="news"></div>
   </section>
 </Portal>
+
+<style>
+  .viewas { background: #FFF6E5; color: #6B4A00; border-radius: 8px; padding: .6rem .9rem; font-size: .88rem; margin: 0 0 1rem; }
+  .board .md { font-size: 1.05rem; }
+  .md h2 { font-size: 1.05rem; color: var(--maroon); margin: 1rem 0 .3rem; border: 0; padding: 0; }
+  .md ul { margin: 0 0 .75rem; padding-left: 1.2rem; }
+  .md p { margin: 0 0 .75rem; }
+  .md h3 { font-size: 1.1rem; margin: 0 0 .4rem; }
+  details.day { border-top: 1px solid #EDEFF1; padding: .6rem 0; }
+  details.day summary { cursor: pointer; font-weight: 500; }
+  details.day .md { margin-top: .6rem; }
+  .news + .news { border-top: 1px solid #EDEFF1; padding-top: 1rem; margin-top: 1rem; }
+  .news small { color: var(--ink-soft); }
+</style>
+
+<script>
+  import { renderMarkdown } from '../../lib/markdown';
+  import { whenReady, esc, toast, explain, fmtDay, schoolToday } from '../../portal/client';
+
+  const { db, profile } = await whenReady();
+  const today = schoolToday();
+  const asAdmin = profile.role === 'admin';
+  const byId = (x: string) => document.getElementById(x)!;
+
+  byId('viewas').hidden = !asAdmin;
+  byId('today-date').textContent = fmtDay(today, { weekday: 'long', month: 'long', day: 'numeric' });
+  if (!asAdmin && profile.full_name) byId('hello').textContent = `Hi, ${profile.full_name.split(' ')[0]}`;
+
+  const [boards, forms, mine, news] = await Promise.all([
+    db.from('boards').select('*').order('board_date', { ascending: false }).limit(60),
+    db.from('forms').select('*').in('audience', ['student', 'both']).order('created_at', { ascending: false }),
+    db.from('form_responses').select('form_id').eq('profile_id', profile.id),
+    db.from('news').select('*').eq('draft', false).order('date', { ascending: false }).limit(3),
+  ]);
+  const err = boards.error ?? forms.error ?? mine.error ?? news.error;
+  if (err) toast(explain(err), 'error');
+
+  // What a student can see: published boards, and every board from an earlier day.
+  const visible = (boards.data ?? []).filter((b) => b.published || b.board_date < today);
+  const todays = visible.find((b) => b.board_date === today);
+  byId('board').innerHTML = todays
+    ? `${todays.title ? `<h3>${esc(todays.title)}</h3>` : ''}<div class="md">${renderMarkdown(todays.body)}</div>`
+    : '<p class="empty">Nothing posted for today yet. Check back after class.</p>';
+
+  const past = visible.filter((b) => b.board_date < today);
+  byId('pastlist').innerHTML = past.length
+    ? past.map((b) => `<details class="day"><summary>${fmtDay(b.board_date, { weekday: 'short', month: 'short', day: 'numeric' })}${b.title ? ` · ${esc(b.title)}` : ''}</summary>
+        <div class="md">${renderMarkdown(b.body)}</div></details>`).join('')
+    : '<p class="empty">No earlier boards yet.</p>';
+
+  const done = new Set((mine.data ?? []).map((r) => r.form_id));
+  const open = (forms.data ?? []).filter((x) => x.open && (!x.closes_on || x.closes_on >= today));
+  byId('formlist').innerHTML = open.length
+    ? open.map((x) => `<li><a class="row" href="/portal/form?id=${x.id}"><b>${esc(x.title)}</b>
+        <small>${x.closes_on ? `Due ${fmtDay(x.closes_on, { month: 'short', day: 'numeric' })}` : 'No deadline'}</small>
+        ${done.has(x.id) ? '<span class="pill pill--paid">Done</span>' : '<span class="pill pill--due">To do</span>'}</a></li>`).join('')
+    : '<li><p class="empty">Nothing to fill in right now.</p></li>';
+
+  byId('news').innerHTML = (news.data ?? []).length
+    ? news.data!.map((n) => `<article class="news"><b>${esc(n.title)}</b> <small>${fmtDay(n.date, { month: 'short', day: 'numeric' })}</small>
+        <div class="md">${renderMarkdown(n.body)}</div></article>`).join('')
+    : '<p class="empty">No announcements.</p>';
+</script>

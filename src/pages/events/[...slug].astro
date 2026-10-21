@@ -8,7 +8,6 @@ export async function getStaticPaths() {
 }
 
 const { entry } = Astro.props;
-const { Content } = await entry.render();
 const { title, start, end, allDay, location, address, ensembles, summary, link, gallery } = entry.data;
 const timeZone = displayZone(allDay);
 
@@ -41,7 +40,7 @@ const isPast = (end ?? start).getTime() < Date.now();
 
       {link && <a href={link.url} class="btn btn--primary">{link.label}</a>}
 
-      <div class="prose"><Content /></div>
+      <div class="prose" set:html={entry.html} />
 
       {gallery.length > 0 && (
         <section class="gallery">

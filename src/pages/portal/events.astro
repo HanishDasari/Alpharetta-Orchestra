@@ -1,0 +1,275 @@
+---
+import Portal from '../../layouts/Portal.astro';
+
+const ENSEMBLES = ['Concert', 'Silver', 'Philharmonia', 'Sinfonia', 'Symphony', 'Chamber', 'Full Orchestra'];
+---
+
+<Portal title="Concerts & Events" roles={['admin', 'webmaster']}>
+  <div class="head">
+    <div>
+      <h1>Concerts &amp; Events</h1>
+      <p class="sub">Add a concert once: it appears on the homepage, the calendar, and families&rsquo; subscribed calendars.</p>
+    </div>
+    <button class="pbtn pbtn--primary" type="button" id="new">New event</button>
+  </div>
+
+  <div class="split">
+    <section class="card" aria-labelledby="list-h">
+      <h2 id="list-h">Events</h2>
+      <ul class="list" id="list"><li><p class="empty">Loading&hellip;</p></li></ul>
+    </section>
+
+    <section class="card" aria-labelledby="form-h">
+      <h2 id="form-h">New event</h2>
+      <form id="form" novalidate>
+        <div class="fld">
+          <label for="title">Title</label>
+          <input class="inp" id="title" name="title" required maxlength="120" />
+        </div>
+        <div class="fld">
+          <label for="slug">Web address</label>
+          <input class="inp" id="slug" name="slug" required pattern="[a-z0-9]+(-[a-z0-9]+)*" />
+          <p class="hint">alpharettaorchestra.com/events/<b id="slug-preview">…</b>. Filled in from the title; change it only if you need to.</p>
+        </div>
+
+        <label class="check fld"><input type="checkbox" id="allDay" name="allDay" /> All day (a trip, a festival day)</label>
+
+        <div class="row3">
+          <div class="fld">
+            <label for="day">Date</label>
+            <input class="inp" id="day" name="day" type="date" required />
+          </div>
+          <div class="fld" data-timed>
+            <label for="start">Starts</label>
+            <input class="inp" id="start" name="start" type="time" value="19:00" />
+          </div>
+          <div class="fld" data-timed>
+            <label for="end">Ends <span class="opt">(optional)</span></label>
+            <input class="inp" id="end" name="end" type="time" />
+          </div>
+          <div class="fld" data-allday hidden>
+            <label for="endDay">Last day <span class="opt">(optional)</span></label>
+            <input class="inp" id="endDay" name="endDay" type="date" />
+          </div>
+        </div>
+
+        <div class="row2">
+          <div class="fld">
+            <label for="location">Location</label>
+            <input class="inp" id="location" name="location" value="AHS Performing Arts Center" required />
+          </div>
+          <div class="fld">
+            <label for="address">Address <span class="opt">(optional)</span></label>
+            <input class="inp" id="address" name="address" />
+          </div>
+        </div>
+
+        <fieldset class="fld">
+          <legend>Who&rsquo;s performing</legend>
+          <div class="checks">
+            {ENSEMBLES.map((e) => (
+              <label class="check"><input type="checkbox" name="ensembles" value={e} /> {e}</label>
+            ))}
+          </div>
+        </fieldset>
+
+        <div class="fld">
+          <label for="summary">One-line summary</label>
+          <input class="inp" id="summary" name="summary" maxlength="200" />
+          <p class="hint">Shown on the calendar and homepage. <span id="summary-count">0</span>/200</p>
+        </div>
+
+        <div class="fld">
+          <label for="body">Full description <span class="opt">(optional)</span></label>
+          <textarea class="inp inp--area inp--tall" id="body" name="body"></textarea>
+          <p class="hint">Leave a blank line between paragraphs. **bold** for bold, ## for a heading.</p>
+        </div>
+
+        <div class="row2">
+          <div class="fld">
+            <label for="linkLabel">Button text <span class="opt">(optional)</span></label>
+            <input class="inp" id="linkLabel" name="linkLabel" placeholder="Buy tickets" />
+          </div>
+          <div class="fld">
+            <label for="linkUrl">Button link</label>
+            <input class="inp" id="linkUrl" name="linkUrl" type="url" placeholder="https://" />
+          </div>
+        </div>
+
+        <label class="check fld"><input type="checkbox" id="draft" name="draft" /> Hidden from the website (draft)</label>
+
+        <div class="actions">
+          <button class="pbtn pbtn--primary" type="submit" id="save">Save</button>
+          <a class="pbtn pbtn--ghost" id="view" target="_blank" rel="noopener" hidden>View on site</a>
+          <span class="spacer"></span>
+          <button class="pbtn pbtn--danger" type="button" id="del" hidden>Delete</button>
+        </div>
+      </form>
+    </section>
+  </div>
+</Portal>
+
+<style>
+  .checks { display: flex; flex-wrap: wrap; gap: .4rem 1.1rem; }
+  .opt { text-transform: none; letter-spacing: 0; font-weight: 400; }
+</style>
+
+<script>
+  import {
+    whenReady, esc, slugify, toast, explain, fmtDate,
+    easternToIso, isoToEastern, dayToIso, isoToDay,
+  } from '../../portal/client';
+
+  const { db, profile } = await whenReady();
+  const form = document.getElementById('form') as HTMLFormElement;
+  const list = document.getElementById('list')!;
+  const $ = <T extends HTMLElement = HTMLInputElement>(id: string) => document.getElementById(id) as T;
+  const f = (name: string) => form.elements.namedItem(name) as HTMLInputElement;
+
+  let rows: any[] = [];
+  let current: any = null;     // row being edited, or null for new
+  let slugTouched = false;
+
+  async function load() {
+    const { data, error } = await db.from('events').select('*').order('start_at', { ascending: false });
+    if (error) return toast(explain(error), 'error');
+    rows = data;
+    render();
+  }
+
+  function render() {
+    if (!rows.length) {
+      list.innerHTML = '<li><p class="empty">No events yet. Use New event to add the first one.</p></li>';
+      return;
+    }
+    const now = Date.now();
+    list.innerHTML = rows.map((r) => {
+      const past = new Date(r.end_at ?? r.start_at).getTime() < now;
+      const when = r.all_day ? fmtDate(r.start_at, { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' }) : fmtDate(r.start_at);
+      const tag = r.draft ? '<span class="pill pill--draft">Draft</span>' : past ? '<span class="pill pill--draft">Past</span>' : '';
+      return `<li><button type="button" data-id="${r.id}" aria-current="${current?.id === r.id}">
+        <b>${esc(r.title)}</b><small>${when}</small> ${tag}</button></li>`;
+    }).join('');
+  }
+
+  function setAllDay(on: boolean) {
+    form.querySelectorAll<HTMLElement>('[data-timed]').forEach((el) => (el.hidden = on));
+    form.querySelectorAll<HTMLElement>('[data-allday]').forEach((el) => (el.hidden = !on));
+  }
+
+  function fill(r: any | null) {
+    current = r;
+    form.reset();
+    slugTouched = Boolean(r);
+    $('form-h').textContent = r ? 'Edit event' : 'New event';
+    $('del').hidden = !r;
+    const view = $<HTMLAnchorElement>('view');
+    view.hidden = !r || r.draft;
+    if (r) {
+      view.href = `/events/${r.slug}`;
+      f('title').value = r.title;
+      f('slug').value = r.slug;
+      f('allDay').checked = r.all_day;
+      if (r.all_day) {
+        f('day').value = isoToDay(r.start_at);
+        f('endDay').value = r.end_at ? isoToDay(r.end_at) : '';
+      } else {
+        const s = isoToEastern(r.start_at);
+        f('day').value = s.day;
+        f('start').value = s.time;
+        f('end').value = r.end_at ? isoToEastern(r.end_at).time : '';
+      }
+      f('location').value = r.location ?? '';
+      f('address').value = r.address ?? '';
+      form.querySelectorAll<HTMLInputElement>('[name="ensembles"]').forEach((c) => (c.checked = r.ensembles.includes(c.value)));
+      f('summary').value = r.summary ?? '';
+      (form.elements.namedItem('body') as HTMLTextAreaElement).value = r.body ?? '';
+      f('linkLabel').value = r.link_label ?? '';
+      f('linkUrl').value = r.link_url ?? '';
+      f('draft').checked = r.draft;
+    }
+    setAllDay(f('allDay').checked);
+    $('slug-preview').textContent = f('slug').value || '…';
+    $('summary-count').textContent = String(f('summary').value.length);
+    render();
+  }
+
+  function collect() {
+    const allDay = f('allDay').checked;
+    const day = f('day').value;
+    let start_at: string, end_at: string | null = null;
+    if (allDay) {
+      start_at = dayToIso(day);
+      if (f('endDay').value) end_at = dayToIso(f('endDay').value);
+    } else {
+      start_at = easternToIso(day, f('start').value || '19:00');
+      if (f('end').value) end_at = easternToIso(day, f('end').value);
+    }
+    return {
+      title: f('title').value.trim(),
+      slug: f('slug').value.trim(),
+      all_day: allDay,
+      start_at, end_at,
+      location: f('location').value.trim() || 'Alpharetta High School',
+      address: f('address').value.trim() || null,
+      ensembles: [...form.querySelectorAll<HTMLInputElement>('[name="ensembles"]:checked')].map((c) => c.value),
+      summary: f('summary').value.trim() || null,
+      body: (form.elements.namedItem('body') as HTMLTextAreaElement).value,
+      link_label: f('linkLabel').value.trim() || null,
+      link_url: f('linkUrl').value.trim() || null,
+      draft: f('draft').checked,
+      updated_by: profile.id,
+    };
+  }
+
+  function validate(v: ReturnType<typeof collect>): string | null {
+    if (!v.title) return 'Give the event a title.';
+    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(v.slug)) return 'The web address can only use lowercase letters, numbers and dashes.';
+    if (!f('day').value) return 'Pick a date.';
+    if (v.end_at && v.end_at < v.start_at) return 'The end is before the start. Check the times.';
+    if (v.link_url && !/^https?:\/\//.test(v.link_url)) return 'The button link needs to start with https://';
+    if (v.link_url && !v.link_label) return 'Add button text for the link, like “Buy tickets”.';
+    return null;
+  }
+
+  list.addEventListener('click', (e) => {
+    const id = (e.target as HTMLElement).closest('button')?.dataset.id;
+    if (id) fill(rows.find((r) => r.id === id));
+  });
+  $('new').addEventListener('click', () => { fill(null); f('title').focus(); });
+  f('allDay').addEventListener('change', () => setAllDay(f('allDay').checked));
+  f('title').addEventListener('input', () => {
+    if (!slugTouched) f('slug').value = slugify(f('title').value);
+    $('slug-preview').textContent = f('slug').value || '…';
+  });
+  f('slug').addEventListener('input', () => { slugTouched = true; $('slug-preview').textContent = f('slug').value || '…'; });
+  f('summary').addEventListener('input', () => ($('summary-count').textContent = String(f('summary').value.length)));
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const v = collect();
+    const problem = validate(v);
+    if (problem) return toast(problem, 'error');
+    const btn = $<HTMLButtonElement>('save');
+    btn.disabled = true;
+    const q = current ? db.from('events').update(v).eq('id', current.id) : db.from('events').insert(v);
+    const { data, error } = await q.select().single();
+    btn.disabled = false;
+    if (error) return toast(explain(error), 'error');
+    toast(v.draft ? 'Saved as a draft. It won’t show on the website.' : 'Saved. The website shows it after its next update, usually within a few minutes.');
+    await load();
+    fill(rows.find((r) => r.id === data.id));
+  });
+
+  $('del').addEventListener('click', async () => {
+    if (!current || !confirm(`Delete “${current.title}”? This can’t be undone.`)) return;
+    const { error } = await db.from('events').delete().eq('id', current.id);
+    if (error) return toast(explain(error), 'error');
+    toast('Deleted.');
+    fill(null);
+    load();
+  });
+
+  fill(null);
+  load();
+</script>

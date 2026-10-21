@@ -1,0 +1,138 @@
+---
+import Portal from '../../layouts/Portal.astro';
+---
+
+<Portal title="Orchestras" roles={['admin', 'webmaster']}>
+  <div class="head">
+    <div>
+      <h1>Orchestras</h1>
+      <p class="sub">The six ensembles on the Our Orchestras page, in the order shown here.</p>
+    </div>
+  </div>
+
+  <div class="split">
+    <section class="card" aria-labelledby="list-h">
+      <h2 id="list-h">Ensembles</h2>
+      <ul class="list" id="list"><li><p class="empty">Loading&hellip;</p></li></ul>
+    </section>
+
+    <section class="card" aria-labelledby="form-h">
+      <h2 id="form-h">Pick an ensemble to edit</h2>
+      <form id="form" novalidate hidden>
+        <div class="row2">
+          <div class="fld">
+            <label for="name">Name</label>
+            <input class="inp" id="name" name="name" required />
+          </div>
+          <div class="fld">
+            <label for="sort">Position on the page</label>
+            <input class="inp" id="sort" name="sort" type="number" min="1" max="20" />
+          </div>
+        </div>
+        <div class="row3">
+          <div class="fld">
+            <label for="grades">Grades</label>
+            <input class="inp" id="grades" name="grades" placeholder="9th grade" />
+          </div>
+          <div class="fld">
+            <label for="period">Period</label>
+            <input class="inp" id="period" name="period" placeholder="2nd period, daily" />
+          </div>
+          <div class="fld">
+            <label for="gmea">GMEA level</label>
+            <input class="inp" id="gmea" name="gmea" placeholder="IV–V" />
+          </div>
+        </div>
+        <div class="fld">
+          <label for="requirements">Placement requirements</label>
+          <textarea class="inp inp--area" id="requirements" name="requirements"></textarea>
+        </div>
+        <div class="fld">
+          <label for="body">Description</label>
+          <textarea class="inp inp--area inp--tall" id="body" name="body"></textarea>
+          <p class="hint">Blank line between paragraphs.</p>
+        </div>
+        <label class="check fld"><input type="checkbox" id="draft" name="draft" /> Hide this ensemble from the website</label>
+        <div class="actions">
+          <button class="pbtn pbtn--primary" type="submit" id="save">Save</button>
+          <a class="pbtn pbtn--ghost" id="view" target="_blank" rel="noopener">View on site</a>
+        </div>
+      </form>
+    </section>
+  </div>
+</Portal>
+
+<script>
+  import { whenReady, esc, toast, explain } from '../../portal/client';
+
+  const { db, profile } = await whenReady();
+  const form = document.getElementById('form') as HTMLFormElement;
+  const list = document.getElementById('list')!;
+  const f = (n: string) => form.elements.namedItem(n) as HTMLInputElement | HTMLTextAreaElement;
+
+  let rows: any[] = [];
+  let current: any = null;
+
+  async function load() {
+    const { data, error } = await db.from('ensembles').select('*').order('sort');
+    if (error) return toast(explain(error), 'error');
+    rows = data;
+    render();
+  }
+
+  function render() {
+    list.innerHTML = rows.map((r) => `<li><button type="button" data-id="${esc(r.id)}" aria-current="${current?.id === r.id}">
+      <b>${esc(r.name)}</b><small>${esc(r.period ?? '')}</small>
+      ${r.draft ? '<span class="pill pill--draft">Hidden</span>' : ''}</button></li>`).join('')
+      || '<li><p class="empty">No ensembles in the database yet.</p></li>';
+  }
+
+  function fill(r: any) {
+    current = r;
+    form.hidden = false;
+    document.getElementById('form-h')!.textContent = `Edit: ${r.name}`;
+    f('name').value = r.name;
+    f('sort').value = String(r.sort);
+    f('grades').value = r.grades ?? '';
+    f('period').value = r.period ?? '';
+    f('gmea').value = r.gmea_level ?? '';
+    f('requirements').value = r.requirements ?? '';
+    f('body').value = r.body;
+    (f('draft') as HTMLInputElement).checked = r.draft;
+    (document.getElementById('view') as HTMLAnchorElement).href = `/orchestras#${r.id}`;
+    render();
+  }
+
+  list.addEventListener('click', (e) => {
+    const id = (e.target as HTMLElement).closest('button')?.dataset.id;
+    if (id) fill(rows.find((r) => r.id === id));
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!current) return;
+    const name = f('name').value.trim();
+    if (!name) return toast('The ensemble needs a name.', 'error');
+    const opt = (n: string) => f(n).value.trim() || null;
+    const btn = document.getElementById('save') as HTMLButtonElement;
+    btn.disabled = true;
+    const { error } = await db.from('ensembles').update({
+      name,
+      sort: Number(f('sort').value) || current.sort,
+      grades: opt('grades'),
+      period: opt('period'),
+      gmea_level: opt('gmea'),
+      requirements: opt('requirements'),
+      body: f('body').value,
+      draft: (f('draft') as HTMLInputElement).checked,
+      updated_by: profile.id,
+    }).eq('id', current.id);
+    btn.disabled = false;
+    if (error) return toast(explain(error), 'error');
+    toast('Saved. The website shows it after its next update.');
+    await load();
+    fill(rows.find((r) => r.id === current.id));
+  });
+
+  load();
+</script>

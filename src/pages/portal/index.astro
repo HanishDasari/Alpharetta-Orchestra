@@ -1,160 +1,103 @@
 ---
-import '../../styles/global.css';
+import AuthShell from '../../components/AuthShell.astro';
 
-/* Sign-in screen. The form is intentionally inert — real auth arrives
-   with Supabase (see docs/portals-setup.md). The role buttons below it
-   exist so the portals can be demoed without accounts. */
-
-const roles = [
-  {
-    key: 'admin',
-    name: 'Director',
-    who: 'Mr. Hood',
-    blurb: 'Edits the whole website and sees the roster. No access to fees or payment records.',
-    href: '/portal/admin',
-  },
-  {
-    key: 'treasurer',
-    name: 'Treasurer',
-    who: 'Booster board',
-    blurb: 'The only role that sees money — who owes what, who has paid, and reporting.',
-    href: '/portal/treasurer',
-  },
-  {
-    key: 'webmaster',
-    name: 'Webmaster',
-    who: 'Student',
-    blurb: 'Edits site content. Cannot see families, payments, or user accounts.',
-    href: '/portal/webmaster',
-  },
-  {
-    key: 'student',
-    name: 'Student',
-    who: 'In the class',
-    blurb: 'Today’s board, past boards if they were absent, and forms to fill.',
-    href: '/portal/student',
-  },
-  {
-    key: 'family',
-    name: 'Family',
-    who: 'Parent',
-    blurb: 'Sees only their own student — fees owed, forms, and payment history.',
-    href: '/portal/family',
-  },
-];
+/* Sign in. Accounts are invite-only: there's no sign-up form, because
+   every account needs a role, and roles are set by the director or the
+   booster board in Supabase (see docs/portals-setup.md). */
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Sign in — AHS Orchestras</title>
-    <meta name="robots" content="noindex, nofollow" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Archivo:wght@500;600&display=swap"
-      rel="stylesheet"
-    />
-  </head>
+<AuthShell title="Sign in">
+  <h1>Sign in</h1>
+  <p class="lede">For the director, booster board, students and families.</p>
 
-  <body class="login">
-    <main class="box">
-      <a class="back" href="/">&larr; Back to the website</a>
+  <form id="signin" novalidate>
+    <div class="fld">
+      <label for="email">Email</label>
+      <input class="inp" id="email" name="email" type="email" autocomplete="username" required />
+    </div>
+    <div class="fld">
+      <label for="pw">Password</label>
+      <input class="inp" id="pw" name="password" type="password" autocomplete="current-password" required />
+    </div>
+    <p class="err" id="err" role="alert" hidden></p>
+    <button class="pbtn pbtn--primary pbtn--wide" type="submit">Sign in</button>
+  </form>
 
-      <h1>Sign in</h1>
-      <p class="sub">Alpharetta High School Orchestras</p>
-
-      <form class="form" aria-describedby="inert-note">
-        <div class="fld">
-          <label for="email">Email</label>
-          <input class="inp" id="email" type="email" placeholder="you@example.com" disabled />
-        </div>
-        <div class="fld">
-          <label for="pw">Password</label>
-          <input class="inp" id="pw" type="password" placeholder="••••••••" disabled />
-        </div>
-        <button class="pbtn pbtn--primary full" type="button" disabled>Sign in</button>
-      </form>
-
-      <p class="note" id="inert-note">
-        Real sign-in isn&rsquo;t built yet. Pick a role below to preview what each
-        person would see.
-      </p>
-
-      <div class="roles">
-        {roles.map((r) => (
-          <a class="role" href={r.href} data-role={r.key}>
-            <span class="role__top">
-              <b>{r.name}</b>
-              <small>{r.who}</small>
-            </span>
-            <span class="role__blurb">{r.blurb}</span>
-          </a>
-        ))}
+  <details class="forgot">
+    <summary>Forgot your password?</summary>
+    <form id="reset" novalidate>
+      <p>We&rsquo;ll email you a link to choose a new one.</p>
+      <div class="fld">
+        <label for="reset-email">Email</label>
+        <input class="inp" id="reset-email" type="email" autocomplete="username" required />
       </div>
-    </main>
+      <p class="err" id="reset-msg" role="status" hidden></p>
+      <button class="pbtn pbtn--ghost" type="submit">Send reset link</button>
+    </form>
+  </details>
 
-    <script is:inline>
-      // Demo only — remembers which role you picked so the portal chrome
-      // can show the right name. Not authentication.
-      document.querySelectorAll('[data-role]').forEach(function (el) {
-        el.addEventListener('click', function () {
-          try { localStorage.setItem('ahs-demo-role', el.dataset.role); } catch (e) {}
-        });
-      });
-    </script>
-  </body>
-</html>
+  <p class="fine">
+    No account? Accounts are set up by the program, not self-service.
+    Students and families: ask <a href="/contact">Mr. Hood</a>.
+  </p>
+</AuthShell>
 
-<style is:global>
-  .login {
-    display: grid; place-items: center; min-height: 100vh;
-    background: var(--ink); padding: 2rem 1rem; font-weight: 400; line-height: 1.6;
-  }
-  .box {
-    width: 100%; max-width: 430px; background: #fff;
-    border-radius: 12px; padding: 2.25rem;
-  }
-  .back { font-size: .82rem; color: var(--ink-soft); text-decoration: none; }
-  .back:hover { color: var(--maroon); }
-  .box h1 { font-size: 1.7rem; margin: 1.25rem 0 .2rem; }
-  .box .sub { color: var(--ink-soft); font-size: .9rem; margin: 0 0 1.75rem; }
+<script>
+  import { supabase } from '../../lib/supabase';
+  import { HOME, type Role } from '../../portal/client';
 
-  .form .fld { margin-bottom: .9rem; }
-  .form .fld label {
-    display: block; font-size: .72rem; font-weight: 600; letter-spacing: .06em;
-    text-transform: uppercase; color: var(--ink-soft); margin-bottom: .3rem;
-  }
-  .form .inp {
-    width: 100%; border: 1px solid #D8DDE0; border-radius: 6px;
-    padding: .6rem .7rem; font: inherit; font-size: .92rem; background: #F7F8F9;
-  }
-  .full { width: 100%; justify-content: center; margin-top: .3rem; }
-  .pbtn {
-    display: inline-flex; align-items: center; padding: .65rem 1.15rem;
-    border-radius: 6px; border: 1px solid transparent; font: inherit;
-    font-size: .9rem; font-weight: 500; cursor: pointer;
-  }
-  .pbtn--primary { background: var(--maroon); color: #fff; }
-  .pbtn:disabled { opacity: .45; cursor: not-allowed; }
+  const db = supabase();
+  const form = document.getElementById('signin') as HTMLFormElement;
+  const err = document.getElementById('err')!;
 
-  .note {
-    font-size: .84rem; color: var(--ink-soft);
-    background: #F4F7F8; border: 1px solid #DCE6E9; border-radius: 7px;
-    padding: .8rem .9rem; margin: 1.5rem 0 1.1rem;
+  function show(el: HTMLElement, msg: string) { el.textContent = msg; el.hidden = !msg; }
+
+  // Only same-site paths, so a crafted ?next= can't bounce people elsewhere.
+  function nextPath(): string | null {
+    const n = new URLSearchParams(location.search).get('next');
+    return n && n.startsWith('/portal/') && !n.startsWith('//') ? n : null;
   }
 
-  .roles { display: grid; gap: .6rem; }
-  .role {
-    display: grid; gap: .25rem; padding: .9rem 1rem;
-    border: 1px solid #E3E6E8; border-radius: 8px;
-    text-decoration: none; color: var(--ink);
-    transition: border-color .18s ease, background-color .18s ease;
+  async function goHome() {
+    const { data: { user } } = await db!.auth.getUser();
+    if (!user) return;
+    const { data } = await db!.from('profiles').select('role').eq('id', user.id).single();
+    location.replace(nextPath() ?? (data ? HOME[data.role as Role] : '/portal/admin'));
   }
-  .role:hover { border-color: var(--maroon); background: #FCFAFA; }
-  .role__top { display: flex; align-items: baseline; gap: .5rem; }
-  .role__top b { font-size: .95rem; font-weight: 600; }
-  .role__top small { color: var(--ink-soft); font-size: .78rem; }
-  .role__blurb { font-size: .82rem; color: var(--ink-soft); line-height: 1.45; }
-</style>
+
+  if (!db) {
+    show(err, 'The portal isn’t connected to its database yet. See docs/portals-setup.md.');
+    form.querySelector('button')!.disabled = true;
+  } else {
+    // Already signed in? Skip the form.
+    db.auth.getSession().then(({ data }) => { if (data.session) goHome(); });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = (form.email as HTMLInputElement).value.trim();
+      const password = (form.password as HTMLInputElement).value;
+      if (!email || !password) return show(err, 'Enter your email and password.');
+      const btn = form.querySelector('button')!;
+      btn.disabled = true; btn.textContent = 'Signing in…';
+      const { error } = await db.auth.signInWithPassword({ email, password });
+      if (error) {
+        btn.disabled = false; btn.textContent = 'Sign in';
+        return show(err, /invalid/i.test(error.message)
+          ? 'That email and password don’t match. Check them, or reset your password below.'
+          : error.message);
+      }
+      goHome();
+    });
+
+    const reset = document.getElementById('reset') as HTMLFormElement;
+    const msg = document.getElementById('reset-msg')!;
+    reset.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = (document.getElementById('reset-email') as HTMLInputElement).value.trim();
+      if (!email) return show(msg, 'Enter the email you sign in with.');
+      await db.auth.resetPasswordForEmail(email, { redirectTo: `${location.origin}/portal/reset` });
+      // Same message either way, so this can't be used to find out who has an account.
+      show(msg, 'If that email has an account, a reset link is on its way.');
+    });
+  }
+</script>

@@ -1,84 +1,62 @@
 ---
 import '../styles/global.css';
 import logo from '../assets/logo.png';
+import type { Role } from '../portal/client';
 
 /* Portal chrome. Looks like an app rather than the public site, because
    that's what it is.
 
-   DEMO ONLY: role comes from localStorage so the screens can be clicked
-   through without a Supabase project. This is not authentication and
-   provides no security whatsoever — see docs/portals-setup.md for what
-   replaces it. */
+   Every page lists the roles allowed to open it. The script below signs
+   the user in and sends anyone else to their own portal. That only
+   picks the screen; Row Level Security in the database decides what
+   data each role can actually read or change. */
 
 interface Props {
   title: string;
-  role: 'admin' | 'treasurer' | 'webmaster' | 'student' | 'family';
+  roles: Role[];
 }
-const { title, role } = Astro.props;
+const { title, roles } = Astro.props;
 
-const NAV = {
-  admin: {
-    who: 'Mr. Hood',
-    label: 'Director',
-    items: [
-      { label: 'Dashboard', href: '/portal/admin', icon: '▤' },
-      { label: 'Daily Board', href: '/portal/admin/board', icon: '▦' },
-      { label: 'Forms', href: '/portal/admin/forms', icon: '☑' },
-      { label: 'Concerts & Events', href: '/portal/admin#events', icon: '♪' },
-      { label: 'Orchestras', href: '/portal/admin#ensembles', icon: '❖' },
-      { label: 'Announcements', href: '/portal/admin#news', icon: '✎' },
-      { label: 'Pages', href: '/portal/admin#pages', icon: '▭' },
-      { label: 'Photos', href: '/portal/admin#photos', icon: '▣' },
-      { label: 'Design & Appearance', href: '/portal/admin/design', icon: '◐' },
-      { label: 'Roster', href: '/portal/admin#roster', icon: '◍' },
-      { label: 'View as…', href: '/portal/admin#viewas', icon: '◎' },
-    ],
-  },
-  treasurer: {
-    who: 'Booster Treasurer',
-    label: 'Treasurer',
-    items: [
-      { label: 'Dashboard', href: '/portal/treasurer', icon: '▤' },
-      { label: 'Families & Payments', href: '/portal/treasurer#families', icon: '$' },
-      { label: 'Charges', href: '/portal/treasurer#charges', icon: '▭' },
-      { label: 'Reports', href: '/portal/treasurer#reports', icon: '▤' },
-    ],
-  },
-  webmaster: {
-    who: 'Hanish',
-    label: 'Webmaster',
-    items: [
-      { label: 'Dashboard', href: '/portal/webmaster', icon: '▤' },
-      { label: 'Concerts & Events', href: '/portal/webmaster#events', icon: '♪' },
-      { label: 'Orchestras', href: '/portal/webmaster#ensembles', icon: '❖' },
-      { label: 'Announcements', href: '/portal/webmaster#news', icon: '✎' },
-      { label: 'Pages', href: '/portal/webmaster#pages', icon: '▭' },
-      { label: 'Photos', href: '/portal/webmaster#photos', icon: '▣' },
-    ],
-  },
-  student: {
-    who: 'Anh Nguyen',
-    label: 'Student',
-    items: [
-      { label: 'Today', href: '/portal/student', icon: '▦' },
-      { label: 'Past boards', href: '/portal/student#past', icon: '▤' },
-      { label: 'Forms to fill', href: '/portal/student#forms', icon: '☑' },
-      { label: 'Calendar', href: '/calendar', icon: '♪' },
-    ],
-  },
-  family: {
-    who: 'The Nguyen family',
-    label: 'Family',
-    items: [
-      { label: 'Overview', href: '/portal/family', icon: '▤' },
-      { label: 'Fees & Payments', href: '/portal/family#fees', icon: '$' },
-      { label: 'Forms', href: '/portal/family#forms', icon: '▭' },
-      { label: 'Calendar', href: '/calendar', icon: '♪' },
-    ],
-  },
-} as const;
-
-const nav = NAV[role];
+const NAV: Record<Role, { label: string; href: string }[]> = {
+  admin: [
+    { label: 'Dashboard', href: '/portal/admin' },
+    { label: 'Concerts & Events', href: '/portal/events' },
+    { label: 'Announcements', href: '/portal/news' },
+    { label: 'Pages', href: '/portal/pages' },
+    { label: 'Orchestras', href: '/portal/ensembles' },
+    { label: 'Photos', href: '/portal/photos' },
+    { label: 'Roster', href: '/portal/roster' },
+    { label: 'Daily Board', href: '/portal/admin/board' },
+    { label: 'Forms', href: '/portal/admin/forms' },
+    { label: 'Design & Appearance', href: '/portal/admin/design' },
+    { label: 'View as student', href: '/portal/student' },
+    { label: 'View as family', href: '/portal/family' },
+  ],
+  webmaster: [
+    { label: 'Dashboard', href: '/portal/webmaster' },
+    { label: 'Concerts & Events', href: '/portal/events' },
+    { label: 'Announcements', href: '/portal/news' },
+    { label: 'Pages', href: '/portal/pages' },
+    { label: 'Orchestras', href: '/portal/ensembles' },
+    { label: 'Photos', href: '/portal/photos' },
+  ],
+  treasurer: [
+    { label: 'Dashboard', href: '/portal/treasurer' },
+  ],
+  student: [
+    { label: 'Today', href: '/portal/student' },
+    { label: 'Past boards', href: '/portal/student#past' },
+    { label: 'Forms', href: '/portal/student#forms' },
+    { label: 'Calendar', href: '/calendar' },
+  ],
+  family: [
+    { label: 'Overview', href: '/portal/family' },
+    { label: 'Forms', href: '/portal/family#forms' },
+    { label: 'Fees', href: '/portal/family#fees' },
+    { label: 'Calendar', href: '/calendar' },
+  ],
+};
+const path = Astro.url.pathname.replace(/\/$/, '');
 ---
 
 <html lang="en">
@@ -95,43 +73,67 @@ const nav = NAV[role];
     />
   </head>
 
-  <body class="pbody">
-    <p class="demo-bar">
-      <strong>Demo</strong> — this is a preview of the portals. There is no real
-      login yet; roles are simulated.
-      <a href="/portal">Switch role</a>
-    </p>
-
+  <body class="pbody" data-state="loading" data-roles={roles.join(',')}>
     <div class="shell">
       <aside class="side">
         <a class="side__brand" href="/">
           <span>AHS Orchestras</span>
-          <small>Back to website ↗</small>
+          <small>Back to website</small>
         </a>
 
-        <nav class="side__nav" aria-label="Portal">
-          {nav.items.map((i) => (
-            <a href={i.href}>
-              <span class="side__icon" aria-hidden="true">{i.icon}</span>
-              {i.label}
-            </a>
-          ))}
-        </nav>
+        {Object.entries(NAV).map(([role, items]) => (
+          <nav class="side__nav" aria-label="Portal" data-nav={role} hidden>
+            {items.map((i) => (
+              <a href={i.href} aria-current={i.href === path ? 'page' : undefined}>{i.label}</a>
+            ))}
+          </nav>
+        ))}
 
         <div class="side__me">
-          <span class="side__avatar" aria-hidden="true">{nav.who.charAt(0)}</span>
+          <span class="side__avatar" aria-hidden="true" data-me-initial></span>
           <span>
-            <b>{nav.who}</b>
-            <small>{nav.label}</small>
+            <b data-me-name></b>
+            <small data-me-role></small>
           </span>
+          <button type="button" class="side__out" data-signout>Sign out</button>
         </div>
       </aside>
 
       <main class="content">
         <img class="watermark" src={logo.src} alt="" aria-hidden="true" />
+        <p class="state state--loading" role="status">Loading&hellip;</p>
+        <div class="state state--offline">
+          <h1>The portal isn&rsquo;t connected yet</h1>
+          <p>This copy of the site has no Supabase project configured. See <code>docs/portals-setup.md</code>.</p>
+        </div>
+        <div class="state state--noprofile">
+          <h1>Your account isn&rsquo;t set up</h1>
+          <p>You&rsquo;re signed in, but there&rsquo;s no role on your account yet. Ask Mr. Hood to set one up.</p>
+          <p><button type="button" class="pbtn pbtn--ghost" data-signout>Sign out</button></p>
+        </div>
         <div class="content__inner"><slot /></div>
+        <p id="toast" class="toast" role="status" aria-live="polite" hidden></p>
       </main>
     </div>
+
+    <script>
+      import { boot, whenReady, signOut, ROLE_LABEL, type Role } from '../portal/client';
+
+      const roles = (document.body.dataset.roles ?? '').split(',') as Role[];
+      document.querySelectorAll('[data-signout]').forEach((b) => b.addEventListener('click', signOut));
+
+      whenReady().then(({ profile }) => {
+        const name = profile.full_name || profile.email || 'Signed in';
+        document.querySelector('[data-me-name]')!.textContent = name;
+        document.querySelector('[data-me-role]')!.textContent = ROLE_LABEL[profile.role];
+        document.querySelector('[data-me-initial]')!.textContent = name.charAt(0).toUpperCase();
+        document.querySelector<HTMLElement>(`[data-nav="${profile.role}"]`)!.hidden = false;
+        document.body.dataset.role = profile.role;
+        document.body.dataset.state = 'ready';
+      });
+
+      boot(roles);
+    </script>
   </body>
 </html>
 
@@ -144,14 +146,29 @@ const nav = NAV[role];
     font-size: 15px;
   }
 
-  .demo-bar {
-    margin: 0; padding: .6rem 1rem; text-align: center;
-    background: #2F6B7A; color: #fff; font-size: .82rem;
-  }
-  .demo-bar strong { font-weight: 600; }
-  .demo-bar a { color: #fff; margin-left: .5rem; }
+  .shell { display: grid; grid-template-columns: 248px 1fr; min-height: 100vh; }
 
-  .shell { display: grid; grid-template-columns: 248px 1fr; min-height: calc(100vh - 34px); }
+  /* Signed-in states. Nothing from the page shows until the layout has
+     confirmed who you are. */
+  .state { display: none; position: relative; z-index: 1; max-width: 560px; }
+  .content__inner { display: none; }
+  [data-state="loading"] .state--loading,
+  [data-state="offline"] .state--offline,
+  [data-state="noprofile"] .state--noprofile { display: block; }
+  [data-state="ready"] .content__inner { display: block; }
+  .state--loading { color: var(--ink-soft); }
+  [data-state="loading"] .side__me, [data-state="offline"] .side__me { visibility: hidden; }
+
+  .toast {
+    position: fixed; z-index: 20; right: 1.25rem; bottom: 1.25rem;
+    max-width: min(420px, calc(100vw - 2.5rem));
+    margin: 0; padding: .8rem 1.1rem; border-radius: 8px;
+    background: var(--ink); color: #fff; font-size: .9rem;
+    box-shadow: 0 10px 30px -10px rgb(16 24 32 / .45);
+  }
+  .toast[data-kind="error"] { background: #8A2B29; }
+
+  ::selection { background: rgb(98 27 29 / .18); }
 
   /* Sidebar ----------------------------------------------------- */
   .side {
@@ -172,7 +189,9 @@ const nav = NAV[role];
     color: #EBDCDC; text-decoration: none; font-size: .9rem;
   }
   .side__nav a:hover { background: rgba(255,255,255,.12); color: #fff; }
-  .side__icon { width: 1.1rem; text-align: center; color: rgba(255,255,255,.55); font-size: .85rem; }
+  .side__nav a[aria-current="page"] { background: rgba(255,255,255,.16); color: #fff; font-weight: 500; }
+  .side__nav[hidden] { display: none; }
+  .side :focus-visible { outline-color: #fff; }
 
   .side__me {
     display: flex; align-items: center; gap: .7rem;
@@ -186,6 +205,13 @@ const nav = NAV[role];
   }
   .side__me b { display: block; color: #fff; font-size: .875rem; font-weight: 500; }
   .side__me small { display: block; color: rgba(255,255,255,.6); font-size: .74rem; }
+  .side__me > span:nth-child(2) { min-width: 0; flex: 1; }
+  .side__me b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .side__out {
+    flex: none; background: none; border: 1px solid rgba(255,255,255,.3); border-radius: 6px;
+    color: #fff; font: inherit; font-size: .75rem; padding: .3rem .55rem; cursor: pointer;
+  }
+  .side__out:hover { background: rgba(255,255,255,.12); }
 
   /* Content ----------------------------------------------------- */
   .content {
@@ -234,7 +260,36 @@ const nav = NAV[role];
     width: 100%; border: 1px solid #D8DDE0; border-radius: 6px;
     padding: .55rem .7rem; background: #fff; font: inherit; font-size: .92rem; color: var(--ink);
   }
-  .inp--area { min-height: 76px; }
+  .inp--area { min-height: 76px; resize: vertical; line-height: 1.55; }
+  .inp--tall { min-height: 220px; }
+  .inp:focus { outline: 2px solid var(--maroon); outline-offset: 1px; border-color: transparent; }
+  .hint { font-size: .8rem; color: var(--ink-soft); margin: .3rem 0 0; }
+  .check { display: flex; align-items: center; gap: .5rem; font-size: .9rem; cursor: pointer; }
+  .check input { width: 1rem; height: 1rem; accent-color: var(--maroon); }
+  fieldset.fld { border: 0; padding: 0; margin: 0 0 1rem; }
+  fieldset.fld legend {
+    font-size: .72rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--ink-soft); margin-bottom: .35rem; padding: 0;
+  }
+  .row3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: .8rem; }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin-top: .5rem; }
+  .actions .spacer { flex: 1; }
+  .empty { color: var(--ink-soft); font-size: .9rem; margin: 0; }
+  .head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
+  .head .sub { margin: 0; }
+  .split { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 1.25rem; align-items: start; }
+  .list { list-style: none; margin: 0; padding: 0; }
+  .list li + li { border-top: 1px solid #EDEFF1; }
+  .list button, .list a.row {
+    display: block; width: 100%; text-align: left; background: none; border: 0; font: inherit;
+    padding: .7rem .5rem; cursor: pointer; color: var(--ink); text-decoration: none; border-radius: 6px;
+  }
+  .list button:hover, .list a.row:hover { background: #F4F5F6; }
+  .list button[aria-current="true"] { background: #F7EEEE; }
+  .list b { display: block; font-weight: 500; font-size: .92rem; }
+  .list small { color: var(--ink-soft); font-size: .8rem; }
+  .pill--draft { background: #EEF0F2; color: #4A5056; }
+  .pill--live { background: #E8F2EC; color: #1F6B45; }
   .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
 
   .chips { display: flex; flex-wrap: wrap; gap: .35rem; }
@@ -252,6 +307,12 @@ const nav = NAV[role];
   .pbtn--primary { background: var(--maroon); color: #fff; }
   .pbtn--primary:hover { background: var(--maroon-bright); }
   .pbtn--ghost { border-color: #D8DDE0; color: var(--ink); background: #fff; }
+  .pbtn--ghost:hover { border-color: var(--ink-soft); }
+  .pbtn--danger { border-color: #E6C3C2; color: #8A2B29; background: #fff; }
+  .pbtn--danger:hover { background: #FBEDEC; }
+  .pbtn:active { transform: scale(0.97); }
+  .pbtn[disabled] { opacity: .55; cursor: not-allowed; transform: none; }
+  .pbtn { transition: background-color .15s ease, border-color .15s ease, transform .12s ease; }
 
   table.tbl { width: 100%; border-collapse: collapse; font-size: .9rem; }
   .tbl th {
@@ -281,6 +342,7 @@ const nav = NAV[role];
     .side__brand { border: 0; padding: 0; margin: 0; }
     .side__nav { flex-direction: row; flex-wrap: wrap; padding: 0; flex-basis: 100%; }
     .side__me { border: 0; padding: 0; margin: 0; }
-    .row2 { grid-template-columns: 1fr; }
+    .row2, .row3, .split { grid-template-columns: 1fr; }
+    .side__me { flex-basis: 100%; }
   }
 </style>

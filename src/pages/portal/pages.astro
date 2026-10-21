@@ -1,0 +1,119 @@
+---
+import Portal from '../../layouts/Portal.astro';
+---
+
+<Portal title="Pages" roles={['admin', 'webmaster']}>
+  <div class="head">
+    <div>
+      <h1>Pages</h1>
+      <p class="sub">The written pages of the website. Edit the words; the layout takes care of itself.</p>
+    </div>
+  </div>
+
+  <div class="split">
+    <section class="card" aria-labelledby="list-h">
+      <h2 id="list-h">Pages</h2>
+      <ul class="list" id="list"><li><p class="empty">Loading&hellip;</p></li></ul>
+    </section>
+
+    <section class="card" aria-labelledby="form-h">
+      <h2 id="form-h">Pick a page to edit</h2>
+      <form id="form" novalidate hidden>
+        <div class="fld">
+          <label for="title">Heading</label>
+          <input class="inp" id="title" name="title" required maxlength="120" />
+        </div>
+        <div class="fld">
+          <label for="description">Search engine description <span class="opt">(optional)</span></label>
+          <input class="inp" id="description" name="description" maxlength="200" />
+          <p class="hint">The line Google shows under the page title.</p>
+        </div>
+        <div class="fld">
+          <label for="body">Page text</label>
+          <textarea class="inp inp--area inp--tall" id="body" name="body" rows="18"></textarea>
+          <p class="hint">Blank line between paragraphs. ## Heading for a section heading, - at the start of a line for a bullet, **bold** for bold.</p>
+        </div>
+        <div class="actions">
+          <button class="pbtn pbtn--primary" type="submit" id="save">Save</button>
+          <a class="pbtn pbtn--ghost" id="view" target="_blank" rel="noopener">View on site</a>
+        </div>
+      </form>
+    </section>
+  </div>
+</Portal>
+
+<style>
+  .opt { text-transform: none; letter-spacing: 0; font-weight: 400; }
+  #body { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .85rem; }
+</style>
+
+<script>
+  import { whenReady, esc, toast, explain } from '../../portal/client';
+
+  // Where each page shows up on the public site.
+  const WHERE: Record<string, string> = {
+    about: '/about',
+    director: '/about#director',
+    instruments: '/students',
+  };
+
+  const { db, profile } = await whenReady();
+  const form = document.getElementById('form') as HTMLFormElement;
+  const list = document.getElementById('list')!;
+  const f = (n: string) => form.elements.namedItem(n) as HTMLInputElement;
+
+  let rows: any[] = [];
+  let current: any = null;
+
+  async function load() {
+    const { data, error } = await db.from('pages').select('*').order('sort');
+    if (error) return toast(explain(error), 'error');
+    rows = data;
+    render();
+  }
+
+  function render() {
+    list.innerHTML = rows.length
+      ? rows.map((r) => `<li><button type="button" data-id="${esc(r.id)}" aria-current="${current?.id === r.id}">
+          <b>${esc(r.title)}</b><small>${esc(WHERE[r.id] ?? '')}</small></button></li>`).join('')
+      : '<li><p class="empty">No pages in the database yet. Run the setup seed (docs/portals-setup.md).</p></li>';
+  }
+
+  function fill(r: any) {
+    current = r;
+    form.hidden = false;
+    document.getElementById('form-h')!.textContent = `Edit: ${r.title}`;
+    f('title').value = r.title;
+    f('description').value = r.description ?? '';
+    (form.elements.namedItem('body') as HTMLTextAreaElement).value = r.body;
+    (document.getElementById('view') as HTMLAnchorElement).href = WHERE[r.id] ?? '/';
+    render();
+  }
+
+  list.addEventListener('click', (e) => {
+    const id = (e.target as HTMLElement).closest('button')?.dataset.id;
+    if (id) fill(rows.find((r) => r.id === id));
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!current) return;
+    const title = f('title').value.trim();
+    if (!title) return toast('The page needs a heading.', 'error');
+    const btn = document.getElementById('save') as HTMLButtonElement;
+    btn.disabled = true;
+    const { error } = await db.from('pages').update({
+      title,
+      description: f('description').value.trim() || null,
+      body: (form.elements.namedItem('body') as HTMLTextAreaElement).value,
+      updated_by: profile.id,
+    }).eq('id', current.id);
+    btn.disabled = false;
+    if (error) return toast(explain(error), 'error');
+    toast('Saved. The website shows it after its next update.');
+    await load();
+    fill(rows.find((r) => r.id === current.id));
+  });
+
+  load();
+</script>

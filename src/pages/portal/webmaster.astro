@@ -1,95 +1,53 @@
 ---
 import Portal from '../../layouts/Portal.astro';
-import FeatureBrief from '../../components/FeatureBrief.astro';
-
-const points = [
-  {
-    what: 'A student can help without being given the keys',
-    why: 'The webmaster keeps the site current — concerts, photos, announcements — with no access to families, payments, or accounts.',
-  },
-  {
-    what: 'Mr. Hood is not the bottleneck',
-    why: 'Photos from Friday’s concert can go up Saturday without waiting on him to find time.',
-  },
-  {
-    what: 'Access ends cleanly',
-    why: 'When a webmaster graduates, one switch removes them. No shared password to change and re-share with everyone.',
-  },
-  {
-    what: 'Restrictions are enforced, not trusted',
-    why: 'The database returns nothing for the tables this role should not see. It is not a hidden menu item someone could navigate around.',
-  },
-  {
-    what: 'Same editor, so training carries over',
-    why: 'Whoever takes over next year learns one interface, and Mr. Hood can help them because it is the screen he uses too.',
-  },
-];
-
-const tiles = [
-  { n: '3', label: 'Upcoming concerts', sub: 'Next: Oct 15' },
-  { n: '6', label: 'Orchestras', sub: 'All published' },
-  { n: '1', label: 'Announcements', sub: 'Last posted Aug 1' },
-  { n: '5', label: 'Pages', sub: 'About, Students, Support…' },
-];
 ---
 
-<Portal title="Dashboard" role="webmaster">
-  <h1>Dashboard</h1>
-  <p class="sub">Same editor Mr. Hood uses, without the family and payment data.</p>
+<Portal title="Dashboard" roles={['webmaster']}>
+  <h1 id="hello">Dashboard</h1>
+  <p class="sub">Keep the website current. Everything you change goes live on the site&rsquo;s next update.</p>
 
   <div class="tiles">
-    {tiles.map((t) => (
-      <div class="tile">
-        <span class="tile__n">{t.n}</span>
-        <b>{t.label}</b>
-        <small>{t.sub}</small>
-      </div>
-    ))}
+    <a class="tile" href="/portal/events"><span class="tile__n" id="t-events">&ndash;</span><b>Upcoming concerts</b><small id="t-events-sub">&nbsp;</small></a>
+    <a class="tile" href="/portal/news"><span class="tile__n" id="t-news">&ndash;</span><b>Announcements</b><small id="t-news-sub">&nbsp;</small></a>
+    <a class="tile" href="/portal/photos"><span class="tile__n" id="t-photos">&ndash;</span><b>Ring photos</b><small>On the homepage</small></a>
   </div>
 
-  <FeatureBrief points={points} />
-
-  <section class="card" id="events">
-    <h2>Add a concert</h2>
-    <div class="fld">
-      <label for="t">Title</label>
-      <input class="inp" id="t" value="Winter Concert 2026" readonly />
-    </div>
-    <div class="row2">
-      <div class="fld">
-        <label for="d">Date</label>
-        <input class="inp" id="d" value="December 10, 2026" readonly />
-      </div>
-      <div class="fld">
-        <label for="tm">Start time</label>
-        <input class="inp" id="tm" value="7:00 PM" readonly />
-      </div>
-    </div>
-    <div class="fld">
-      <label>Who&rsquo;s performing</label>
-      <div class="chips">
-        {['Concert','Silver','Philharmonia','Sinfonia','Symphony','Chamber'].map((e) => (
-          <span class="chip on">{e}</span>
-        ))}
-      </div>
-    </div>
-    <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-      <button class="pbtn pbtn--primary" type="button">Publish</button>
-      <button class="pbtn pbtn--ghost" type="button">Save as draft</button>
-    </div>
+  <section class="card">
+    <h2>What you can edit</h2>
+    <ul class="list">
+      <li><a class="row" href="/portal/events"><b>Concerts &amp; Events</b><small>The calendar, homepage and subscribe feed</small></a></li>
+      <li><a class="row" href="/portal/news"><b>Announcements</b></a></li>
+      <li><a class="row" href="/portal/pages"><b>Pages</b><small>About, Director, Instruments</small></a></li>
+      <li><a class="row" href="/portal/ensembles"><b>Orchestras</b></a></li>
+      <li><a class="row" href="/portal/photos"><b>Photos</b></a></li>
+    </ul>
   </section>
 
   <section class="card">
-    <h2>What this role can&rsquo;t reach</h2>
+    <h2>What this account can&rsquo;t reach</h2>
     <div class="locked">
-      <span aria-hidden="true" style="font-size:1.1rem;line-height:1">🔒</span>
-      <span>
-        <b style="display:block;color:var(--ink);margin-bottom:.25rem">
-          Families, payments, and user accounts are hidden
-        </b>
-        Not just hidden in the menu — the database refuses to return those rows
-        for this role. A webmaster who went looking still wouldn&rsquo;t find them.
-      </span>
+      <span>The roster, the daily board, forms and their answers, the site&rsquo;s design settings, and anything to do with money.
+      That&rsquo;s enforced by the database, so it holds even if someone shares this login. When you graduate, Mr. Hood switches this account off.</span>
     </div>
   </section>
 </Portal>
+
+<script>
+  import { whenReady, fmtDate, fmtDay } from '../../portal/client';
+
+  const { db, profile } = await whenReady();
+  const set = (id: string, v: string) => (document.getElementById(id)!.textContent = v);
+  if (profile.full_name) set('hello', `Hi, ${profile.full_name.split(' ')[0]}`);
+
+  const [ev, news, photos] = await Promise.all([
+    db.from('events').select('title, start_at, all_day', { count: 'exact' }).eq('draft', false).gte('start_at', new Date().toISOString()).order('start_at').limit(1),
+    db.from('news').select('date', { count: 'exact' }).eq('draft', false).order('date', { ascending: false }).limit(1),
+    db.from('ring_photos').select('id', { count: 'exact', head: true }),
+  ]);
+  set('t-events', String(ev.count ?? 0));
+  const next = ev.data?.[0];
+  set('t-events-sub', next ? `Next: ${fmtDate(next.start_at, next.all_day ? { timeZone: 'UTC', month: 'short', day: 'numeric' } : { month: 'short', day: 'numeric' })}` : 'Nothing scheduled');
+  set('t-news', String(news.count ?? 0));
+  set('t-news-sub', news.data?.[0] ? `Last posted ${fmtDay(news.data[0].date, { month: 'short', day: 'numeric' })}` : 'None yet');
+  set('t-photos', String(photos.count ?? 0));
+</script>

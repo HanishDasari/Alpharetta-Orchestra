@@ -1,0 +1,149 @@
+---
+import Portal from '../../layouts/Portal.astro';
+---
+
+<Portal title="Announcements" roles={['admin', 'webmaster']}>
+  <div class="head">
+    <div>
+      <h1>Announcements</h1>
+      <p class="sub">News for families and the community. Shows on the website&rsquo;s News page, newest first.</p>
+    </div>
+    <button class="pbtn pbtn--primary" type="button" id="new">New announcement</button>
+  </div>
+
+  <div class="split">
+    <section class="card" aria-labelledby="list-h">
+      <h2 id="list-h">Posted</h2>
+      <ul class="list" id="list"><li><p class="empty">Loading&hellip;</p></li></ul>
+    </section>
+
+    <section class="card" aria-labelledby="form-h">
+      <h2 id="form-h">New announcement</h2>
+      <form id="form" novalidate>
+        <div class="fld">
+          <label for="title">Headline</label>
+          <input class="inp" id="title" name="title" required maxlength="140" />
+        </div>
+        <div class="row2">
+          <div class="fld">
+            <label for="date">Date</label>
+            <input class="inp" id="date" name="date" type="date" required />
+          </div>
+          <div class="fld">
+            <label for="author">Posted by</label>
+            <input class="inp" id="author" name="author" value="AHS Orchestras" />
+          </div>
+        </div>
+        <div class="fld">
+          <label for="summary">One-line summary <span class="opt">(optional)</span></label>
+          <input class="inp" id="summary" name="summary" maxlength="200" />
+        </div>
+        <div class="fld">
+          <label for="body">Announcement</label>
+          <textarea class="inp inp--area inp--tall" id="body" name="body" required></textarea>
+          <p class="hint">Leave a blank line between paragraphs. **bold** for bold, [text](https://link) for a link.</p>
+        </div>
+        <label class="check fld"><input type="checkbox" id="draft" name="draft" /> Hidden from the website (draft)</label>
+        <div class="actions">
+          <button class="pbtn pbtn--primary" type="submit" id="save">Save</button>
+          <span class="spacer"></span>
+          <button class="pbtn pbtn--danger" type="button" id="del" hidden>Delete</button>
+        </div>
+      </form>
+    </section>
+  </div>
+</Portal>
+
+<style>
+  .opt { text-transform: none; letter-spacing: 0; font-weight: 400; }
+</style>
+
+<script>
+  import { whenReady, esc, slugify, toast, explain, fmtDay, schoolToday } from '../../portal/client';
+
+  const { db, profile } = await whenReady();
+  const form = document.getElementById('form') as HTMLFormElement;
+  const list = document.getElementById('list')!;
+  const f = (n: string) => form.elements.namedItem(n) as HTMLInputElement;
+  const byId = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+
+  let rows: any[] = [];
+  let current: any = null;
+
+  async function load() {
+    const { data, error } = await db.from('news').select('*').order('date', { ascending: false });
+    if (error) return toast(explain(error), 'error');
+    rows = data;
+    render();
+  }
+
+  function render() {
+    list.innerHTML = rows.length
+      ? rows.map((r) => `<li><button type="button" data-id="${r.id}" aria-current="${current?.id === r.id}">
+          <b>${esc(r.title)}</b><small>${fmtDay(r.date, { month: 'short', day: 'numeric', year: 'numeric' })}</small>
+          ${r.draft ? '<span class="pill pill--draft">Draft</span>' : ''}</button></li>`).join('')
+      : '<li><p class="empty">Nothing posted yet.</p></li>';
+  }
+
+  function fill(r: any | null) {
+    current = r;
+    form.reset();
+    byId('form-h').textContent = r ? 'Edit announcement' : 'New announcement';
+    byId('del').hidden = !r;
+    f('date').value = r?.date ?? schoolToday();
+    if (r) {
+      f('title').value = r.title;
+      f('author').value = r.author;
+      f('summary').value = r.summary ?? '';
+      (form.elements.namedItem('body') as HTMLTextAreaElement).value = r.body;
+      f('draft').checked = r.draft;
+    }
+    render();
+  }
+
+  list.addEventListener('click', (e) => {
+    const id = (e.target as HTMLElement).closest('button')?.dataset.id;
+    if (id) fill(rows.find((r) => r.id === id));
+  });
+  byId('new').addEventListener('click', () => { fill(null); f('title').focus(); });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const title = f('title').value.trim();
+    const body = (form.elements.namedItem('body') as HTMLTextAreaElement).value.trim();
+    if (!title) return toast('Add a headline.', 'error');
+    if (!body) return toast('Write the announcement before saving.', 'error');
+    const v = {
+      title, body,
+      date: f('date').value || schoolToday(),
+      author: f('author').value.trim() || 'AHS Orchestras',
+      summary: f('summary').value.trim() || null,
+      draft: f('draft').checked,
+      updated_by: profile.id,
+    };
+    const btn = byId<HTMLButtonElement>('save');
+    btn.disabled = true;
+    // New posts get a web address from the headline and date; it never changes after.
+    const q = current
+      ? db.from('news').update(v).eq('id', current.id)
+      : db.from('news').insert({ ...v, slug: `${slugify(title)}-${v.date}` });
+    const { data, error } = await q.select().single();
+    btn.disabled = false;
+    if (error) return toast(explain(error), 'error');
+    toast(v.draft ? 'Saved as a draft.' : 'Posted. It shows on the website after its next update.');
+    await load();
+    fill(rows.find((r) => r.id === data.id));
+  });
+
+  byId('del').addEventListener('click', async () => {
+    if (!current || !confirm(`Delete “${current.title}”? This can’t be undone.`)) return;
+    const { error } = await db.from('news').delete().eq('id', current.id);
+    if (error) return toast(explain(error), 'error');
+    toast('Deleted.');
+    fill(null);
+    load();
+  });
+
+  fill(null);
+  load();
+</script>

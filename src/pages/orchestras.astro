@@ -1,13 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
-import { getCollection } from 'astro:content';
+import { getEnsembles } from '../lib/content';
 
-const ensembles = (await getCollection('ensembles', ({ data }) => !data.draft))
-  .sort((a, b) => a.data.order - b.data.order);
-
-const rendered = await Promise.all(
-  ensembles.map(async (e) => ({ ...e, Content: (await e.render()).Content }))
-);
+const ensembles = await getEnsembles();
 ---
 
 <Base
@@ -28,8 +23,8 @@ const rendered = await Promise.all(
 
   <section class="section" style="padding-top:0">
     <div class="wrap">
-      {rendered.map(({ data, slug, Content }) => (
-        <article class="ens" id={slug}>
+      {ensembles.map((data) => (
+        <article class="ens" id={data.id}>
           <div class="ens__head">
             <h2>{data.name}</h2>
             <dl class="ens__facts">
@@ -39,7 +34,7 @@ const rendered = await Promise.all(
             </dl>
           </div>
           <div class="ens__body">
-            <Content />
+            <Fragment set:html={data.html} />
             {data.requirements && (
               <p class="req"><strong>Placement requirements:</strong> {data.requirements}</p>
             )}

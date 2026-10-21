@@ -1,0 +1,35 @@
+---
+import Base from '../layouts/Base.astro';
+import Prose from '../components/Prose.astro';
+import { getNews } from '../lib/content';
+
+const news = await getNews();
+const fmt = (d: Date) => d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' });
+---
+
+<Base
+  title="News"
+  description="Announcements from the Alpharetta High School Orchestras."
+>
+  <section class="section">
+    <div class="wrap narrow">
+      <h1>News</h1>
+      {news.length === 0 && <p class="lede">Nothing posted yet.</p>}
+      {news.map((n) => (
+        <article class="post" id={n.slug}>
+          <h2>{n.title}</h2>
+          <p class="meta"><time datetime={n.date.toISOString().slice(0, 10)}>{fmt(n.date)}</time> &middot; {n.author}</p>
+          <Prose><Fragment set:html={n.html} /></Prose>
+        </article>
+      ))}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .narrow { max-width: 760px; }
+  .post { padding-block: 2.5rem; border-top: 1px solid var(--rule); }
+  .post:first-of-type { border-top: 0; padding-top: 1.5rem; }
+  .post h2 { font-size: var(--step-2); line-height: 1.2; margin-bottom: .4rem; }
+  .meta { color: var(--ink-soft); font-size: .9rem; margin-bottom: 1.25rem; }
+</style>

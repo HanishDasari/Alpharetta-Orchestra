@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { allEvents } from '../../lib/events';
+import { allEvents, displayZone } from '../../lib/events';
 
 export async function getStaticPaths() {
   const events = await allEvents();
@@ -9,15 +9,18 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await entry.render();
-const { title, start, end, location, address, ensembles, summary, link, gallery } = entry.data;
+const { title, start, end, allDay, location, address, ensembles, summary, link, gallery } = entry.data;
+const timeZone = displayZone(allDay);
 
-const dateLong = start.toLocaleDateString('en-US', {
-  weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
-  timeZone: 'America/New_York',
+// Multi-day all-day events (a trip, a festival weekend) show a date range.
+const dateFmt = new Intl.DateTimeFormat('en-US', {
+  weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', timeZone,
 });
-const timeStr = start.toLocaleTimeString('en-US', {
-  hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York',
-});
+const dateLong = allDay && end ? dateFmt.formatRange(start, end) : dateFmt.format(start);
+
+// "7:00 – 9:00 PM" when an end time was entered, otherwise just the start.
+const timeFmt = new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit', timeZone });
+const timeStr = allDay ? null : end ? timeFmt.formatRange(start, end) : timeFmt.format(start);
 const isPast = (end ?? start).getTime() < Date.now();
 ---
 
@@ -31,7 +34,7 @@ const isPast = (end ?? start).getTime() < Date.now();
 
       <dl class="facts">
         <div><dt>Date</dt><dd><time datetime={start.toISOString()}>{dateLong}</time></dd></div>
-        <div><dt>Time</dt><dd>{timeStr}</dd></div>
+        {timeStr && <div><dt>Time</dt><dd>{timeStr}</dd></div>}
         {location && <div><dt>Location</dt><dd>{location}{address && <><br />{address}</>}</dd></div>}
         {ensembles.length > 0 && <div><dt>Performing</dt><dd>{ensembles.join(', ')}</dd></div>}
       </dl>

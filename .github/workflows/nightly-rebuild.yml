@@ -1,0 +1,34 @@
+# The site is static, so "upcoming" vs "past" events, the Past event
+# badge, and /events.ics are all decided when the site is built. Without
+# a rebuild, a concert stays under Upcoming forever after it happens.
+#
+# This triggers a fresh deploy every night so events move to Past on
+# their own. It does nothing until a deploy hook is set up:
+#
+#   1. In Cloudflare Pages (Settings > Builds > Deploy hooks) or Netlify
+#      (Site configuration > Build & deploy > Build hooks), create a hook
+#      for the production branch and copy its URL.
+#   2. In this GitHub repo: Settings > Secrets and variables > Actions >
+#      New repository secret, named DEPLOY_HOOK_URL.
+
+name: Nightly rebuild
+
+on:
+  schedule:
+    # 09:00 UTC = 4–5 AM Eastern, after the previous evening's concert.
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy hook
+        env:
+          DEPLOY_HOOK_URL: ${{ secrets.DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$DEPLOY_HOOK_URL" ]; then
+            echo "::notice::DEPLOY_HOOK_URL is not set; skipping. See the comment at the top of this file."
+            exit 0
+          fi
+          curl --fail --silent --show-error -X POST "$DEPLOY_HOOK_URL"

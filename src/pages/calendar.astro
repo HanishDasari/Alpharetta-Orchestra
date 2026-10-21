@@ -34,6 +34,7 @@ const past = await pastEvents(12);
             <EventCard
               title={e.data.title}
               start={e.data.start}
+              allDay={e.data.allDay}
               location={e.data.location}
               ensembles={e.data.ensembles}
               summary={e.data.summary}
@@ -57,6 +58,7 @@ const past = await pastEvents(12);
             <EventCard
               title={e.data.title}
               start={e.data.start}
+              allDay={e.data.allDay}
               location={e.data.location}
               ensembles={e.data.ensembles}
               summary={e.data.summary}

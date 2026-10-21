@@ -150,24 +150,69 @@ alter table guardians enable row level security;
 alter table charges  enable row level security;
 alter table payments enable row level security;
 
+-- security definer so it can read profiles past RLS. The pinned
+-- search_path stops anyone shadowing `profiles` with their own table.
 create or replace function current_role_is(target user_role)
-returns boolean language sql stable security definer as $$
+returns boolean language sql stable security definer
+set search_path = public as $$
   select exists (
     select 1 from profiles
     where id = auth.uid() and role = target
   );
 $$;
 
+-- Profiles ---------------------------------------------------------
+-- Everyone can read their own profile (the app needs it to know the
+-- role). The treasurer reads all of them to put names to payments.
+create policy own_profile on profiles
+  for select using (id = auth.uid());
+
+create policy treasurer_read_profiles on profiles
+  for select using (current_role_is('treasurer'));
+
+-- There is deliberately NO update policy on profiles, so nobody can
+-- change their own role. Roles are set in the Supabase dashboard. If you
+-- ever let people edit their name, grant that one column only:
+--   revoke update on profiles from authenticated;
+--   grant update (full_name) on profiles to authenticated;
+-- A plain "update own row" policy would let anyone make themselves
+-- treasurer.
+
+-- Guardians --------------------------------------------------------
+-- A family must be able to see its own links, or every policy below
+-- that checks guardians finds nothing and the family sees zero rows.
+create policy own_guardian_links on guardians
+  for select using (profile_id = auth.uid());
+
+create policy treasurer_read_guardians on guardians
+  for select using (current_role_is('treasurer'));
+
+-- Students ---------------------------------------------------------
+-- The director reads the roster. The treasurer needs names to bill.
+-- A family sees only its own students.
+create policy admin_read_students on students
+  for select using (current_role_is('admin'));
+
+create policy treasurer_read_students on students
+  for select using (current_role_is('treasurer'));
+
+create policy family_own_students on students
+  for select using (
+    exists (
+      select 1 from guardians g
+      where g.profile_id = auth.uid()
+        and g.student_id = students.id
+    )
+  );
+
+-- Charges ----------------------------------------------------------
 -- Treasurer is the ONLY role with full access to money.
 -- Note this is treasurer, not admin. Changing it to admin would hand
 -- the director every family's payment record.
 create policy treasurer_all_charges on charges
-  for all using (current_role_is('treasurer'));
+  for all using (current_role_is('treasurer'))
+  with check (current_role_is('treasurer'));
 
-create policy treasurer_all_payments on payments
-  for all using (current_role_is('treasurer'));
-
--- A family sees only charges for students they're linked to
 create policy family_own_charges on charges
   for select using (
     exists (
@@ -177,9 +222,23 @@ create policy family_own_charges on charges
     )
   );
 
--- The director can read the roster, but no money.
-create policy admin_read_students on students
-  for select using (current_role_is('admin'));
+-- Payments ---------------------------------------------------------
+-- Read-only for everyone. Rows are written only by the Stripe webhook,
+-- which uses the service role key and bypasses RLS. If the treasurer
+-- could insert or edit here, a family could be marked paid without
+-- Stripe ever seeing the money.
+create policy treasurer_read_payments on payments
+  for select using (current_role_is('treasurer'));
+
+create policy family_own_payments on payments
+  for select using (
+    exists (
+      select 1 from charges c
+      join guardians g on g.student_id = c.student_id
+      where c.id = payments.charge_id
+        and g.profile_id = auth.uid()
+    )
+  );
 
 -- No policy naming 'admin' or 'webmaster' exists on charges or payments,
 -- so those roles get zero rows from both tables.
@@ -192,6 +251,10 @@ Log in as each role and confirm:
 - [ ] `admin` gets **zero rows** from `charges` and `payments`
 - [ ] `webmaster` gets zero rows from `charges`, `payments`, and `students`
 - [ ] `family` gets zero rows for a student they are not a guardian of
+- [ ] `family` **does** see their own students, charges, and payments
+      (if this returns nothing, the guardians policy is missing)
+- [ ] `treasurer` can read payments but an insert or update is rejected
+- [ ] No role can change its own `role` in `profiles`
 - [ ] `treasurer` cannot edit site content
 
 The first one is the one people get wrong, because "admin" sounds like it

@@ -11,6 +11,11 @@ function icsDate(d: Date): string {
   return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
 }
 
+/** All-day events are stored as midnight UTC, so the UTC date is the day. */
+function icsDay(d: Date): string {
+  return d.toISOString().slice(0, 10).replace(/-/g, '');
+}
+
 /** RFC 5545 requires escaping these, and folding lines at 75 octets. */
 function esc(s: string): string {
   return s.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
@@ -43,9 +48,20 @@ export const GET: APIRoute = async ({ site }) => {
   ];
 
   for (const e of events) {
-    const { title, start, end, location, summary, ensembles } = e.data;
-    // Default to a 2-hour block when no end time was entered.
-    const finish = end ?? new Date(start.getTime() + 2 * 60 * 60 * 1000);
+    const { title, start, end, allDay, location, summary, ensembles } = e.data;
+    const DAY = 24 * 60 * 60 * 1000;
+    // All-day events use DATE values; DTEND is exclusive, so it's the day
+    // after the last day. Timed events default to a 2-hour block when no
+    // end time was entered.
+    const when = allDay
+      ? [
+          `DTSTART;VALUE=DATE:${icsDay(start)}`,
+          `DTEND;VALUE=DATE:${icsDay(new Date((end ?? start).getTime() + DAY))}`,
+        ]
+      : [
+          `DTSTART:${icsDate(start)}`,
+          `DTEND:${icsDate(end ?? new Date(start.getTime() + 2 * 60 * 60 * 1000))}`,
+        ];
     const desc = [summary, ensembles.length ? `Performing: ${ensembles.join(', ')}` : null]
       .filter(Boolean)
       .join('\n');
@@ -54,8 +70,7 @@ export const GET: APIRoute = async ({ site }) => {
       'BEGIN:VEVENT',
       `UID:${e.slug}@alpharettaorchestra.com`,
       `DTSTAMP:${icsDate(new Date())}`,
-      `DTSTART:${icsDate(start)}`,
-      `DTEND:${icsDate(finish)}`,
+      ...when,
       fold(`SUMMARY:${esc(title)}`),
       location ? fold(`LOCATION:${esc(location)}`) : '',
       desc ? fold(`DESCRIPTION:${esc(desc)}`) : '',

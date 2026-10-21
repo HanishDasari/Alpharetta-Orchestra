@@ -35,7 +35,7 @@ is a content type with a defined shape (see `src/content/config.ts`):
 | Folder | What it holds |
 | --- | --- |
 | `events/` | Concerts, festivals, trips |
-| `ensembles/` | The five orchestras |
+| `ensembles/` | The six orchestras |
 | `news/` | Announcements |
 | `pages/` | Static pages (About, Director, etc.) |
 
@@ -43,11 +43,20 @@ is a content type with a defined shape (see `src/content/config.ts`):
 
 A single file in `src/content/events/` automatically drives:
 
-- the **"Next up"** block on the homepage
 - the **upcoming** list on `/calendar`
 - the **past events** list on `/calendar` — an event moves here on its own
   once its date passes, so nobody ever has to maintain a "past events" page
+- the event's own page at `/events/<file-name>`
 - the **`/events.ics` feed** families subscribe to
+
+The homepage doesn't show events yet; it has a placeholder where a
+"Next up" block will go.
+
+**"On its own" needs a nightly rebuild.** The site is static, so upcoming
+vs. past is decided when the site is built. Without a rebuild, a concert
+stays under Upcoming after it's over. `.github/workflows/nightly-rebuild.yml`
+handles this once you add the hosting provider's deploy hook as a repo
+secret named `DEPLOY_HOOK_URL` (setup steps are in that file).
 
 ### Adding a concert
 
@@ -68,9 +77,18 @@ Longer description goes here. Markdown works.
 ```
 
 Valid `ensembles` values: `Concert`, `Silver`, `Philharmonia`, `Sinfonia`,
-`Symphony`, `Full Orchestra`.
+`Symphony`, `Chamber`, `Full Orchestra`.
 
 Set `draft: true` to keep something unpublished.
+
+For an all-day event (a trip, a festival day), set `allDay: true` and use
+plain dates with no time. Add `end` for events that span several days:
+
+```markdown
+start: 2027-03-12
+end: 2027-03-14
+allDay: true
+```
 
 ---
 
@@ -83,7 +101,8 @@ Set `draft: true` to keep something unpublished.
       are shaped to map onto Sanity directly, so this swaps the data
       source, not the templates.
 - [ ] **Phase 3 — deploy.** Cloudflare Pages or Netlify, then point the
-      domain over.
+      domain over. Add the `DEPLOY_HOOK_URL` secret so the nightly rebuild
+      runs.
 - [ ] **Phase 4 — payments.** Not before the rest is stable. See below.
 
 ---

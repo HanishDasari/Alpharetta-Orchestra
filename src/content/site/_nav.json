@@ -1,0 +1,93 @@
+{
+  "header": [
+    {
+      "label": "Uniforms",
+      "url": "/students#uniforms"
+    },
+    {
+      "label": "Orchestra 101",
+      "url": "/orchestras"
+    },
+    {
+      "label": "About",
+      "url": "/about"
+    },
+    {
+      "label": "Calendar",
+      "url": "/calendar"
+    },
+    {
+      "label": "Store",
+      "url": "https://www.alpharettaorchestra.com/store"
+    },
+    {
+      "label": "Program Book",
+      "url": "/support#donate"
+    },
+    {
+      "label": "Orchestra Memories",
+      "url": "/#memories"
+    },
+    {
+      "label": "Past Events",
+      "url": "/calendar#past"
+    },
+    {
+      "label": "Student Resources",
+      "url": "/students"
+    },
+    {
+      "label": "Orchestra Opportunities",
+      "url": "/students#summer"
+    },
+    {
+      "label": "Contact",
+      "url": "/contact"
+    },
+    {
+      "label": "Donate",
+      "url": "/support"
+    },
+    {
+      "label": "Patron Program",
+      "url": "/support#donate"
+    }
+  ],
+  "footer": {
+    "name": "Alpharetta High School Orchestras",
+    "address": "3595 Webb Bridge Road\nAlpharetta, GA 30005",
+    "email": "hoodj3@fultonschools.org",
+    "about": [
+      {
+        "label": "The Program",
+        "url": "/about"
+      },
+      {
+        "label": "News",
+        "url": "/news"
+      },
+      {
+        "label": "Contact",
+        "url": "/contact"
+      },
+      {
+        "label": "Instagram",
+        "url": "https://www.instagram.com/alpharettaorchestra/"
+      },
+      {
+        "label": "YouTube",
+        "url": "https://www.youtube.com/@AlpharettaHSOrchestras"
+      }
+    ],
+    "support": [
+      {
+        "label": "Support Us",
+        "url": "/support"
+      },
+      {
+        "label": "Sign in",
+        "url": "/portal"
+      }
+    ]
+  }
+}

@@ -2,6 +2,7 @@ import { getCollection } from 'astro:content';
 import type { ImageMetadata } from 'astro';
 import { renderMarkdown } from './markdown';
 import { supabase } from './supabase';
+import type { Block, NavConfig } from './blocks';
 
 /* ---------------------------------------------------------------
    Where the public site's content comes from.
@@ -9,10 +10,11 @@ import { supabase } from './supabase';
    With Supabase configured (PUBLIC_SUPABASE_URL in .env), the
    database is the source of truth: it's what the director and
    webmaster edit in the portal, and the site rebuilds when it
-   changes. Without it, the site reads the Markdown files in
-   src/content/, so it still builds with zero accounts.
+   changes. Without it, the site reads the files in src/content/
+   (Markdown for events, news and ensembles; JSON for page sections
+   and the menu), so it still builds with zero accounts.
 
-   `npm run seed` copies the Markdown into an empty database once.
+   `npm run seed` copies those files into an empty database once.
    After that, edit in the portal, not in the files.
    --------------------------------------------------------------- */
 
@@ -112,25 +114,56 @@ export async function getNews(): Promise<SiteNews[]> {
   return list.sort((a, b) => b.date.getTime() - a.date.getTime());
 }
 
-// Pages -----------------------------------------------------------
+// Pages (sections) ------------------------------------------------
 
 export interface SitePage {
-  id: string;
+  slug: string;
   title: string;
   description?: string;
-  html: string;
+  system: boolean;
+  blocks: Block[];
 }
 
-export async function getPage(id: string): Promise<SitePage> {
-  if (db) {
-    const { data, error } = await db.from('pages').select('*').eq('id', id).maybeSingle();
-    if (error) throw new Error(`Supabase: couldn't read page ${id}: ${error.message}`);
-    if (data) return { id, title: data.title, description: data.description ?? undefined, html: md(data.body) };
-  }
-  // Not in the database (or no database): fall back to the file.
-  const [entry] = await getCollection('pages', (e) => e.slug === id);
-  if (!entry) throw new Error(`No page called "${id}" in Supabase or src/content/pages`);
-  return { id, title: entry.data.title, description: entry.data.description, html: md(entry.body) };
+const pageFiles = import.meta.glob<SitePage>('../content/site/[!_]*.json', { eager: true, import: 'default' });
+const navFile = import.meta.glob<NavConfig>('../content/site/_nav.json', { eager: true, import: 'default' });
+
+let pagesPromise: Promise<SitePage[]> | null = null;
+
+/** Every published page, built-in and custom. */
+export function getSitePages(): Promise<SitePage[]> {
+  pagesPromise ??= (async () => {
+    // Start from the built-in pages in src/content/site/, then let the
+    // database override them by slug and add custom pages. A built-in
+    // page nobody has saved in the portal yet still has its content.
+    const bySlug = new Map(Object.values(pageFiles).map((p) => [p.slug, p]));
+    if (db) {
+      // The build reads anonymously, so RLS returns only published rows:
+      // a custom page saved as a draft simply isn't built.
+      for (const r of await rows<any>('site_pages', 'slug')) {
+        bySlug.set(r.slug, {
+          slug: r.slug, title: r.title, description: r.description ?? undefined,
+          system: r.system, blocks: r.blocks ?? [],
+        });
+      }
+    }
+    return [...bySlug.values()];
+  })();
+  return pagesPromise;
+}
+
+export async function getSitePage(slug: string): Promise<SitePage> {
+  const page = (await getSitePages()).find((p) => p.slug === slug);
+  if (!page) throw new Error(`No page "${slug}" in Supabase site_pages or src/content/site`);
+  return page;
+}
+
+export async function getNav(): Promise<NavConfig> {
+  const fallback = Object.values(navFile)[0];
+  if (!db) return fallback;
+  const { data, error } = await db.from('site_nav').select('nav').eq('id', 1).maybeSingle();
+  if (error) throw new Error(`Supabase: couldn't read site_nav: ${error.message}`);
+  const nav = data?.nav as Partial<NavConfig> | undefined;
+  return nav?.header ? (nav as NavConfig) : fallback;
 }
 
 // Ensembles -------------------------------------------------------

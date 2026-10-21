@@ -1,0 +1,17 @@
+{
+  "slug": "news",
+  "title": "News",
+  "description": "Announcements from the Alpharetta High School Orchestras.",
+  "system": true,
+  "blocks": [
+    {
+      "id": "b023",
+      "type": "heading",
+      "title": "News"
+    },
+    {
+      "id": "b024",
+      "type": "news"
+    }
+  ]
+}

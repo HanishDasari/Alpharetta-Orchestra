@@ -1,32 +1,31 @@
 ---
-import { contact, social } from '../lib/links';
+import { getNav } from '../lib/content';
 
 /* Same gray band and three columns as the current site's footer. The
    live site sets dark text (#101820) on this gray, which fails contrast
-   (2.6:1); this uses white, which passes at 7.5:1. */
+   (2.6:1); this uses white, which passes at 7.5:1.
+
+   Everything in it is edited in the portal under Menu & footer. */
+const { footer } = await getNav();
+const addressLines = footer.address.split(/\r?\n/);
 ---
 
 <footer class="ftr">
   <div class="wrap ftr__grid">
     <div>
-      <h4>Alpharetta High School Orchestras</h4>
-      <p>{contact.school.street}<br />{contact.school.city}</p>
-      <p class="ftr__mail"><a href={`mailto:${contact.director.email}`}>{contact.director.email}</a></p>
+      <h4>{footer.name}</h4>
+      <p>{addressLines.map((line, i) => <>{i > 0 && <br />}{line}</>)}</p>
+      {footer.email && <p class="ftr__mail"><a href={`mailto:${footer.email}`}>{footer.email}</a></p>}
     </div>
 
     <div>
       <p class="ftr__head">About</p>
-      <p><a href="/about">The Program</a></p>
-      <p><a href="/news">News</a></p>
-      <p><a href="/contact">Contact</a></p>
-      <p><a href={social.instagram} rel="noopener">Instagram</a></p>
-      <p><a href={social.youtube} rel="noopener">YouTube</a></p>
+      {footer.about.map((l) => <p><a href={l.url}>{l.label}</a></p>)}
     </div>
 
     <div>
       <p class="ftr__head">Donate</p>
-      <p><a href="/support">Support Us</a></p>
-      <p><a href="/portal">Sign in</a></p>
+      {footer.support.map((l) => <p><a href={l.url}>{l.label}</a></p>)}
     </div>
   </div>
 </footer>

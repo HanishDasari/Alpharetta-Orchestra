@@ -45,12 +45,16 @@ values (${q(n.id)}, ${q(d.title)}, ${q(date)}, ${q(d.author ?? 'AHS Orchestras')
 on conflict (slug) do nothing;`);
 }
 
-for (const p of read('pages')) {
-  const d = p.data;
-  out.push(`insert into public.pages (id, title, description, sort, body, draft)
-values (${q(p.id)}, ${q(d.title)}, ${q(d.description)}, ${d.order ?? 0}, ${q(p.body)}, ${b(d.draft)})
-on conflict (id) do nothing;`);
+// Page sections and the menu (JSON in src/content/site/).
+const siteDir = join(root, 'site');
+for (const f of readdirSync(siteDir).filter((f) => f.endsWith('.json') && !f.startsWith('_'))) {
+  const p = JSON.parse(readFileSync(join(siteDir, f), 'utf8'));
+  out.push(`insert into public.site_pages (slug, title, description, blocks, system)
+values (${q(p.slug)}, ${q(p.title)}, ${q(p.description)}, ${q(JSON.stringify(p.blocks))}::jsonb, ${b(p.system)})
+on conflict (slug) do nothing;`);
 }
+const nav = readFileSync(join(siteDir, '_nav.json'), 'utf8');
+out.push(`update public.site_nav set nav = ${q(JSON.stringify(JSON.parse(nav)))}::jsonb where id = 1 and nav = '{}'::jsonb;`);
 
 for (const e of read('ensembles')) {
   const d = e.data;

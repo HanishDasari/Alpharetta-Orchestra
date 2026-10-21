@@ -66,14 +66,7 @@ const news = defineCollection({
   }),
 });
 
-const pages = defineCollection({
-  type: 'content',
-  schema: z.object({
-    title: z.string(),
-    description: z.string().optional(),
-    order: z.number().default(0),
-    draft: z.boolean().default(false),
-  }),
-});
-
-export const collections = { events, ensembles, news, pages };
+// Page layouts (sections) live as JSON in src/content/site/, read by
+// src/lib/content.ts. They're not a collection because each file is
+// one page's list of sections, not Markdown.
+export const collections = { events, ensembles, news };

@@ -1,0 +1,49 @@
+{
+  "slug": "support",
+  "title": "Support Us",
+  "description": "Support the Alpharetta High School Orchestras through participation fees, the patron program, or program book advertising. AHSOA is a 501(c)(3) non-profit.",
+  "system": true,
+  "blocks": [
+    {
+      "id": "b018",
+      "type": "heading",
+      "eyebrow": "Support us",
+      "title": "Help keep the music going",
+      "lede": "The Alpharetta High School Orchestra Association is a 501(c)(3) non-profit run entirely by parent volunteers. It funds what the school budget doesn't: sheet music, guest clinicians, instrument maintenance, and travel."
+    },
+    {
+      "id": "donate",
+      "type": "cards",
+      "items": [
+        {
+          "kicker": "$195",
+          "title": "Student Participation Fee",
+          "body": "The program's primary source of funding. Covers concert uniforms, participation dues, graduation honor cords, Spring Honors Banquet tickets, and field trips.",
+          "url": "https://www.alpharettaorchestra.com/store/orchestra-dues",
+          "cta": "Pay dues"
+        },
+        {
+          "kicker": "From $50",
+          "title": "Patron Program",
+          "body": "Support the program directly and have your name listed in the concert program book. Open to families, alumni, and anyone in the community who wants to help.",
+          "url": "https://www.alpharettaorchestra.com/store/patron-program",
+          "cta": "Become a patron"
+        },
+        {
+          "kicker": "Varies",
+          "title": "Program Book Advertising",
+          "body": "Place a personal message or a business ad in the program handed out at every concert. A good fit for local businesses looking to reach orchestra families. [View the 2025–2026 program book](https://www.alpharettaorchestra.com/s/books.pdf).",
+          "url": "https://www.alpharettaorchestra.com/store/program-book",
+          "cta": "Buy an ad"
+        }
+      ]
+    },
+    {
+      "id": "b019",
+      "type": "text",
+      "tone": "light",
+      "heading": "Getting in touch",
+      "md": "For questions about payments, payment plans, or anything else financial, contact the Orchestra Booster Treasurer at [treasurerahsorchestra@gmail.com](mailto:treasurerahsorchestra@gmail.com). Anything else goes to [Mr. Hood](/contact).\n\nThe AHS Orchestra Association is a member of the Alpharetta High School Athletic Association and is classified as a 501(c)(3) non-profit organization. Donations may be tax deductible; consult your tax advisor."
+    }
+  ]
+}

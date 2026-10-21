@@ -1,0 +1,142 @@
+---
+import Portal from '../../layouts/Portal.astro';
+---
+
+<Portal title="Menu & footer" roles={['admin', 'webmaster']}>
+  <div class="head">
+    <div>
+      <h1>Menu &amp; footer</h1>
+      <p class="sub">The links across the top of every page, and the grey footer at the bottom.</p>
+    </div>
+  </div>
+
+  <form id="form" novalidate>
+    <section class="card">
+      <h2>Header menu</h2>
+      <div id="header"></div>
+    </section>
+
+    <section class="card">
+      <h2>Footer</h2>
+      <div id="footer"></div>
+    </section>
+
+    <div class="savebar" id="savebar">
+      <span id="dirty">All changes saved.</span>
+      <span class="spacer"></span>
+      <button class="pbtn pbtn--primary" type="submit" id="save">Save</button>
+    </div>
+  </form>
+
+  <datalist id="site-links"></datalist>
+</Portal>
+
+<style is:global>
+  .rep { border: 0; padding: 0; margin: 0; }
+  .rep legend { font-size: .72rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: .35rem; padding: 0; }
+  .rep__list { list-style: none; margin: 0 0 .6rem; padding: 0; display: grid; gap: .5rem; }
+  /* Each link: text and URL side by side, controls across the top */
+  .rep__item { border: 1px solid #E3E6E8; border-radius: 8px; padding: .5rem .75rem .1rem; background: #FBFBFC; display: grid; grid-template-columns: 1fr 1fr; gap: 0 .75rem; align-items: start; }
+  .rep__item .rep__bar { grid-column: 1 / -1; }
+  .rep__bar { display: flex; align-items: center; gap: .35rem; margin-bottom: .35rem; font-size: .8rem; text-transform: capitalize; }
+  .rep__bar .spacer { flex: 1; }
+  .rep__bar button { font: inherit; font-size: .76rem; padding: .2rem .5rem; border: 1px solid #D8DDE0; background: #fff; border-radius: 5px; cursor: pointer; }
+  .rep__bar button[disabled] { opacity: .4; cursor: default; }
+  .rep__bar .danger { color: #8A2B29; }
+  .savebar {
+    position: sticky; bottom: 0; z-index: 5; display: flex; align-items: center; gap: .6rem;
+    background: #fff; border: 1px solid #E3E6E8; border-radius: 10px; padding: .75rem 1rem;
+    box-shadow: 0 -8px 24px -16px rgb(16 24 32 / .35);
+  }
+  .savebar .spacer { flex: 1; }
+  .savebar.is-dirty #dirty { color: #8A2B29; font-weight: 500; }
+  #dirty { font-size: .88rem; color: var(--ink-soft); }
+  @media (max-width: 700px) { .rep__item { grid-template-columns: 1fr; } }
+</style>
+
+<script>
+  import { whenReady, esc, toast, explain } from '../../portal/client';
+  import { renderFields, bindInput, getPath, setPath, type Field } from '../../portal/fields';
+  import DEFAULT_NAV from '../../content/site/_nav.json';
+
+  const { db, profile } = await whenReady();
+  const byId = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
+  const form = byId<HTMLFormElement>('form');
+
+  const LINK: Field[] = [{ key: 'label', label: 'Text', kind: 'text' }, { key: 'url', label: 'Link', kind: 'url' }];
+  const HEADER: Field[] = [{ key: 'header', label: 'Menu links, in order', kind: 'repeat', item: 'link', fields: LINK,
+    hint: 'Keep it short enough to fit on two lines on a laptop.' }];
+  const FOOTER: Field[] = [
+    { key: 'footer.name', label: 'Name', kind: 'text' },
+    { key: 'footer.address', label: 'Address', kind: 'textarea', rows: 2 },
+    { key: 'footer.email', label: 'Contact email', kind: 'text' },
+    { key: 'footer.about', label: 'Middle column links (“About”)', kind: 'repeat', item: 'link', fields: LINK },
+    { key: 'footer.support', label: 'Right column links (“Donate”)', kind: 'repeat', item: 'link', fields: LINK },
+  ];
+
+  let nav: any = null;
+  let saved = '';
+
+  function render() {
+    // Footer fields use dotted keys; renderFields reads obj[key], so give it a flat view.
+    byId('header').innerHTML = renderFields(HEADER, nav, '');
+    byId('footer').innerHTML = renderFields(FOOTER.map((f) => ({ ...f, key: f.key.split('.')[1] })), nav.footer, 'footer');
+    markDirty();
+  }
+  const dirty = () => JSON.stringify(nav) !== saved;
+  function markDirty() {
+    byId('savebar').classList.toggle('is-dirty', dirty());
+    byId('dirty').textContent = dirty() ? 'Unsaved changes' : 'All changes saved.';
+  }
+  window.addEventListener('beforeunload', (e) => { if (nav && dirty()) e.preventDefault(); });
+
+  form.addEventListener('input', (e) => {
+    const el = e.target as HTMLInputElement;
+    if (el.dataset.path) { bindInput(nav, el); markDirty(); }
+  });
+  form.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-act^="rep-"]');
+    if (!b) return;
+    const path = b.dataset.path!, i = Number(b.dataset.i);
+    const arr: any[] = getPath(nav, path) ?? [];
+    if (!Array.isArray(getPath(nav, path))) setPath(nav, path, arr);
+    const act = b.dataset.act;
+    if (act === 'rep-add') arr.push({});
+    if (act === 'rep-rm') arr.splice(i, 1);
+    if (act === 'rep-up') [arr[i - 1], arr[i]] = [arr[i], arr[i - 1]];
+    if (act === 'rep-down') [arr[i + 1], arr[i]] = [arr[i], arr[i + 1]];
+    render();
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const clean = (a: any[]) => (a ?? []).filter((l) => l.label?.trim() && l.url?.trim());
+    nav.header = clean(nav.header);
+    nav.footer.about = clean(nav.footer.about);
+    nav.footer.support = clean(nav.footer.support);
+    if (!nav.header.length) return toast('The menu needs at least one link.', 'error');
+    const btn = byId<HTMLButtonElement>('save');
+    btn.disabled = true;
+    const { error } = await db.from('site_nav').update({ nav, updated_by: profile.id }).eq('id', 1);
+    btn.disabled = false;
+    if (error) return toast(explain(error), 'error');
+    saved = JSON.stringify(nav);
+    render();
+    toast('Saved. The website shows it after its next update.');
+  });
+
+  const [{ data, error }, pages] = await Promise.all([
+    db.from('site_nav').select('nav').eq('id', 1).single(),
+    db.from('site_pages').select('slug, title'),
+  ]);
+  if (error) toast(explain(error), 'error');
+  // Until the menu is first saved here, it's the default from the repo.
+  nav = data?.nav?.header ? data.nav : structuredClone(DEFAULT_NAV);
+  nav.header ??= [];
+  nav.footer ??= {};
+  nav.footer.about ??= [];
+  nav.footer.support ??= [];
+  saved = data?.nav?.header ? JSON.stringify(nav) : '';
+  byId('site-links').innerHTML = (pages.data ?? []).map((p) => `<option value="${p.slug === 'home' ? '/' : `/${esc(p.slug)}`}">${esc(p.title)}</option>`).join('');
+  render();
+</script>

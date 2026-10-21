@@ -15,7 +15,9 @@ Five roles: **admin** (director), **webmaster** (student), **treasurer**
 | Area | Status |
 | --- | --- |
 | Sign in, password reset, role-based portals | **Live** |
-| Concerts & events, announcements, pages, orchestras, ring photos (admin + webmaster) | **Live**: edits publish to the public site on its next build |
+| **Pages**: every page is a stack of sections; add, edit, reorder, remove sections, upload photos, add new pages (admin + webmaster) | **Live** |
+| Header menu and footer (admin + webmaster) | **Live** |
+| Concerts & events, announcements, orchestras, ring photos (admin + webmaster) | **Live**: edits publish to the public site on its next build |
 | Design & Appearance: colours, fonts, header size, homepage sections (admin) | **Live** |
 | Roster, linking student and parent logins (admin) | **Live** |
 | Daily board, with Present mode (admin) and catch-up for students | **Live** |
@@ -44,8 +46,8 @@ are tested; what's missing is the Stripe webhook that writes `payments`
 
 | Role | Who | Can | Can't |
 | --- | --- | --- | --- |
-| `admin` | Mr. Hood | Edit all site content and design; roster; daily board; forms and answers; view as student/family | See fees or payments |
-| `webmaster` | Student | Edit events, announcements, pages, orchestras, photos | Roster, boards, forms, design, money |
+| `admin` | Mr. Hood | Edit every page, the menu and design; roster; daily board; forms and answers; view as student/family | See fees or payments |
+| `webmaster` | Student | Edit every page and the menu; events, announcements, orchestras, photos | Roster, boards, forms, design, money |
 | `treasurer` | Booster board | Fees and payments (when live) | Edit site content |
 | `student` | In the class | Today's board, past boards, their forms, announcements | Other students, money |
 | `family` | Parents | Their own students, family forms, announcements, their own fees (when live) | Other families |
@@ -60,10 +62,17 @@ or change anything their role doesn't allow.
 ## How it fits together
 
 - **Public site**: static pages built by Astro. At build time it reads
-  events, news, pages, ensembles, ring photos and design settings from
-  Supabase (`src/lib/content.ts`). Without Supabase configured, it reads
-  the Markdown in `src/content/` instead, so it still builds with zero
-  accounts.
+  pages, the menu, events, news, ensembles, ring photos and design
+  settings from Supabase (`src/lib/content.ts`). Without Supabase, it
+  reads `src/content/` instead, so it still builds with zero accounts.
+- **Pages are sections, like Squarespace.** Each page is an ordered list
+  of sections (`src/lib/blocks.ts`): banner photo, heading, text, photo
+  and text, image, quote, buttons, cards, list, upcoming concerts, full
+  calendar, photo ring, orchestras, news. Each type has one fixed layout
+  (`src/components/Blocks.astro`), so editors can't break a page on
+  phones. The built-in pages ship as JSON in `src/content/site/`; the
+  first time someone saves one in the portal, the database copy takes
+  over. Custom pages live only in the database, at `/<address>`.
 - **Portal**: static pages under `/portal` whose scripts sign in and
   read/write Supabase directly (`src/portal/client.ts`).
 - **Publishing**: when content changes, a database trigger POSTs to the
@@ -79,9 +88,11 @@ or change anything their role doesn't allow.
 - **Project:** `fpcaeoqfxnjezwkqeqpu` in the "Alpharetta Orchestra"
   organization, owned by `alpharettaorchestras@gmail.com`. Keep it under
   an orchestra-owned account, never a personal one.
-- **Already done:** both migrations applied, existing site content
-  seeded, sign-ups disabled (invite-only), minimum password length 10,
-  and all 47 permission checks passing.
+- **Already done:** all three migrations applied, events, news and
+  ensembles seeded, sign-ups disabled (invite-only), minimum password
+  length 10, and every permission check passing (47 in
+  `rls_check.sql`, 17 in `rls_check_pages.sql`). Pages and the menu
+  don't need seeding: they start from the files in the repo.
 
 ### Local `.env`
 
@@ -146,7 +157,7 @@ Users. Nothing else to change or re-share.
 
 ## Verify before launch, and after any policy change
 
-Paste `supabase/tests/rls_check.sql` into SQL Editor and run it. It
+Paste `supabase/tests/rls_check.sql`, then `supabase/tests/rls_check_pages.sql`, into SQL Editor and run them. It
 creates pretend users and rows, checks what each role can see and do,
 then rolls everything back. Every row should say **PASS**. Among other
 things it confirms:
@@ -158,3 +169,4 @@ things it confirms:
   earlier one
 - nobody can change their own role
 - the treasurer can read payments but can't insert a fake one
+- built-in pages can't be deleted or renamed, and drafts stay off the site

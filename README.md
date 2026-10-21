@@ -35,12 +35,15 @@ npm run preview   # preview that build locally
 ## How content works
 
 **With Supabase connected (the normal setup), content is edited in the
-portal** at `/portal`: concerts, announcements, pages, orchestras, ring
-photos and design. The site rebuilds when something changes. The
+portal** at `/portal`, much like Squarespace: every page is a stack of
+sections that can be edited, reordered, added or removed, new pages can
+be created, and the menu and footer are editable too. Concerts,
+announcements, orchestras, ring photos and design have their own screens. The site rebuilds when something changes. The
 Markdown in `src/content/` is the fallback when Supabase isn't
 configured, and the starting point that `npm run seed` loads into a new
 database. After seeding, edit in the portal, not the files.
 
+The built-in pages' sections and the menu ship as JSON in `src/content/site/`.
 The Markdown folders, each with a defined shape (see `src/content/config.ts`):
 
 | Folder | What it holds |
@@ -48,7 +51,6 @@ The Markdown folders, each with a defined shape (see `src/content/config.ts`):
 | `events/` | Concerts, festivals, trips |
 | `ensembles/` | The six orchestras |
 | `news/` | Announcements (shown on `/news`) |
-| `pages/` | Static pages (About, Director, etc.) |
 
 ### The important idea: events are entered once
 

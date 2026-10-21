@@ -29,3 +29,8 @@ export function supabase(): SupabaseClient | null {
 export function ringPhotoUrl(path: string): string {
   return `${url}/storage/v1/object/public/ring/${path}`;
 }
+
+/** Public URL of an image uploaded for a page section (`site` bucket). */
+export function sitePhotoUrl(path: string): string {
+  return `${url}/storage/v1/object/public/site/${path}`;
+}

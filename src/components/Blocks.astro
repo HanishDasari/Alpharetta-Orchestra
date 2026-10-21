@@ -1,0 +1,366 @@
+---
+import EventCard from './EventCard.astro';
+import PhotoRing from './PhotoRing.astro';
+import Prose from './Prose.astro';
+import SectionImage from './SectionImage.astro';
+import type { Block } from '../lib/blocks';
+import { renderMarkdown as md } from '../lib/markdown';
+import { upcomingEvents, pastEvents } from '../lib/events';
+import { getEnsembles, getNews, getRingPhotoPaths } from '../lib/content';
+import { ringPhotoUrl } from '../lib/supabase';
+import { ringPhotos } from '../lib/photos';
+
+/* Renders a page's sections. Each type has one fixed layout; editors
+   only fill in words, links and images (see src/lib/blocks.ts). */
+
+interface Props { blocks: Block[] }
+const { blocks } = Astro.props;
+
+// Only fetch what this page actually shows.
+const has = (t: Block['type']) => blocks.some((b) => b.type === t);
+const upcoming = has('events') || has('calendar') ? await upcomingEvents() : [];
+const past = has('calendar') ? await pastEvents(12) : [];
+const ensembles = has('ensembles') ? await getEnsembles() : [];
+const news = has('news') ? await getNews() : [];
+const uploaded = has('ring') ? await getRingPhotoPaths() : [];
+const ring = uploaded.length ? uploaded.map(ringPhotoUrl) : ringPhotos;
+
+const tone = (b: Block) => ('tone' in b && b.tone) || 'white';
+const ext = (url?: string) => (url && /^https?:/.test(url) ? { rel: 'noopener' } : {});
+const fmtNews = (d: Date) => d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' });
+---
+
+{blocks.map((b) => {
+  const t = tone(b);
+  switch (b.type) {
+    case 'hero':
+      return (
+        <section class="blk-hero" id={b.id}>
+          <SectionImage image={b.image} widths={[800, 1400, 2000]} sizes="100vw" eager />
+        </section>
+      );
+
+    case 'heading':
+      return (
+        <section class:list={['blk', `tone-${t}`, 'blk--head']} id={b.id}>
+          <div class="wrap">
+            {b.eyebrow && <p class="eyebrow">{b.eyebrow}</p>}
+            <h1>{b.title}</h1>
+            {b.lede && <p class="lede">{b.lede}</p>}
+          </div>
+        </section>
+      );
+
+    case 'text':
+      return (
+        <section class:list={['blk', `tone-${t}`]} id={b.id}>
+          <div class="wrap">
+            {b.heading && <h2 class="blk__h">{b.heading}</h2>}
+            <Prose><Fragment set:html={md(b.md)} /></Prose>
+          </div>
+        </section>
+      );
+
+    case 'split':
+      return (
+        <section class:list={['blk', `tone-${t}`, 'blk--split']} id={b.id}>
+          <div class:list={['wrap', 'duo', b.flip && 'duo--flip']}>
+            <SectionImage class="split__img" image={b.image} widths={[600, 1100]} sizes="(max-width: 900px) 100vw, 560px" />
+            <div>
+              {b.heading && <h2 class="split__h">{b.heading}</h2>}
+              <div class="split__md" set:html={md(b.md)} />
+              {b.button?.label && (
+                <a href={b.button.url} class={t === 'silver' ? 'btn-learn' : 'btn btn--primary'} {...ext(b.button.url)}>{b.button.label}</a>
+              )}
+            </div>
+          </div>
+        </section>
+      );
+
+    case 'image':
+      return (
+        <section class:list={['blk', `tone-${t}`]} id={b.id}>
+          <figure class="wrap blk-figure">
+            <SectionImage image={b.image} widths={[800, 1400, 2000]} sizes="(max-width: 1260px) 100vw, 1190px" />
+            {b.caption && <figcaption>{b.caption}</figcaption>}
+          </figure>
+        </section>
+      );
+
+    case 'quote':
+      return (
+        <section class:list={['blk', `tone-${t}`, 'blk--quote']} id={b.id}>
+          <div class="wrap">
+            <blockquote>
+              <p class="quote__text">&ldquo;{b.text}&rdquo;</p>
+              {b.by && <footer>{b.by}</footer>}
+            </blockquote>
+          </div>
+        </section>
+      );
+
+    case 'buttons':
+      return (
+        <section class:list={['blk', `tone-${t}`, 'blk--tight']} id={b.id}>
+          <div class="wrap btn-row">
+            {b.items.filter((l) => l.label).map((l, i) => (
+              <a href={l.url} class:list={['btn', i === 0 ? 'btn--primary' : 'btn--ghost']} {...ext(l.url)}>{l.label}</a>
+            ))}
+          </div>
+        </section>
+      );
+
+    case 'cards':
+      return (
+        <section class:list={['blk', `tone-${t}`]} id={b.id}>
+          <div class="wrap">
+            {b.heading && <h2 class="blk__h">{b.heading}</h2>}
+            <div class="cards">
+              {b.items.map((c) => (
+                <article class:list={['crd', !c.url && 'crd--plain']}>
+                  {c.kicker && <p class="crd__kicker">{c.kicker}</p>}
+                  <h3>{c.url && !c.cta ? <a href={c.url} {...ext(c.url)}>{c.title}</a> : c.title}</h3>
+                  {c.body && <div class="crd__body" set:html={md(c.body)} />}
+                  {c.url && c.cta && <a class="crd__cta" href={c.url} {...ext(c.url)}>{c.cta}</a>}
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+
+    case 'list':
+      return (
+        <section class:list={['blk', `tone-${t}`]} id={b.id}>
+          <div class="wrap">
+            {b.heading && <h2 class="blk__h">{b.heading}</h2>}
+            {b.intro && <div class="list__intro" set:html={md(b.intro)} />}
+            <ul class:list={['items', b.columns === 2 && 'items--2']}>
+              {b.items.map((i) => (
+                <li>
+                  {i.url ? <a href={i.url} {...ext(i.url)}><strong>{i.title}</strong></a> : <strong>{i.title}</strong>}
+                  {i.detail && <span>{i.detail}</span>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      );
+
+    case 'events': {
+      const list = upcoming.slice(0, b.count ?? 3);
+      return (
+        <section class:list={['blk', `tone-${t}`]} id={b.id}>
+          <div class="wrap">
+            {b.heading && <h2 class="blk__h">{b.heading}</h2>}
+            {list.length > 0 ? (
+              <div class="evlist">
+                {list.map((e) => (
+                  <EventCard title={e.data.title} start={e.data.start} allDay={e.data.allDay} location={e.data.location}
+                    ensembles={e.data.ensembles} summary={e.data.summary} href={`/events/${e.slug}`} />
+                ))}
+              </div>
+            ) : (
+              <p class="muted">No concerts on the calendar right now. Check back soon.</p>
+            )}
+            <p class="links"><a href="/calendar">Full calendar</a> <a href="/events.ics">Add to your calendar</a></p>
+          </div>
+        </section>
+      );
+    }
+
+    case 'calendar':
+      return (
+        <>
+          <section class="blk tone-white blk--flushtop" id={b.id}>
+            <div class="wrap">
+              <a href="/events.ics" class="btn btn--primary">Subscribe to calendar</a>
+              <h2 class="blk__h cal__h">Upcoming</h2>
+              {upcoming.length > 0 ? (
+                <div class="evlist">
+                  {upcoming.map((e) => (
+                    <EventCard title={e.data.title} start={e.data.start} allDay={e.data.allDay} location={e.data.location}
+                      ensembles={e.data.ensembles} summary={e.data.summary} href={`/events/${e.slug}`} />
+                  ))}
+                </div>
+              ) : (
+                <p class="muted">Nothing scheduled at the moment. Check back soon.</p>
+              )}
+            </div>
+          </section>
+          {past.length > 0 && (
+            <section class="blk tone-light" id="past">
+              <div class="wrap">
+                <h2 class="blk__h">Past events</h2>
+                <p class="muted note">Events move here on their own once the date passes.</p>
+                <div class="evlist">
+                  {past.map((e) => (
+                    <EventCard title={e.data.title} start={e.data.start} allDay={e.data.allDay} location={e.data.location}
+                      ensembles={e.data.ensembles} summary={e.data.summary} href={`/events/${e.slug}`} past />
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
+        </>
+      );
+
+    case 'ring':
+      return (
+        <section class:list={['blk', `tone-${t}`, 'blk--ring']} id={b.id}>
+          {b.heading && <div class="wrap"><h2 class="ring__h">{b.heading}</h2></div>}
+          <PhotoRing photos={ring} label="Photos of the Alpharetta High School Orchestras in rehearsal and performance" />
+        </section>
+      );
+
+    case 'ensembles':
+      return (
+        <section class="blk tone-white blk--flushtop" id={b.id}>
+          <div class="wrap">
+            {ensembles.map((e) => (
+              <article class="ens" id={e.id}>
+                <div class="ens__head">
+                  <h2>{e.name}</h2>
+                  <dl class="ens__facts">
+                    {e.grades && <div><dt>Grades</dt><dd>{e.grades}</dd></div>}
+                    {e.period && <div><dt>Period</dt><dd>{e.period}</dd></div>}
+                    {e.gmeaLevel && <div><dt>GMEA level</dt><dd>{e.gmeaLevel}</dd></div>}
+                  </dl>
+                </div>
+                <div class="ens__body">
+                  <Fragment set:html={e.html} />
+                  {e.requirements && <p class="req"><strong>Placement requirements:</strong> {e.requirements}</p>}
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      );
+
+    case 'news':
+      return (
+        <section class="blk tone-white blk--flushtop" id={b.id}>
+          <div class="wrap narrow">
+            {news.length === 0 && <p class="muted">Nothing posted yet.</p>}
+            {news.slice(0, b.count ?? news.length).map((n) => (
+              <article class="post" id={n.slug}>
+                <h2>{n.title}</h2>
+                <p class="post__meta"><time datetime={n.date.toISOString().slice(0, 10)}>{fmtNews(n.date)}</time> &middot; {n.author}</p>
+                <Prose><Fragment set:html={n.html} /></Prose>
+              </article>
+            ))}
+          </div>
+        </section>
+      );
+  }
+})}
+
+<style>
+  /* Section frame and background tones ---------------------------- */
+  .blk { padding-block: clamp(3rem, 7vw, 5.5rem); scroll-margin-top: 88px; }
+  .tone-white { background: var(--paper); }
+  .tone-light { background: var(--paper-alt); }
+  .tone-silver { background: var(--silver); color: #fff; }
+  .tone-silver :global(a:not(.btn-learn)) { color: #fff; }
+  /* Back-to-back sections of the same tone read as one band */
+  .tone-white + .tone-white, .tone-light + .tone-light, .tone-silver + .tone-silver { padding-top: 0; }
+  .blk--head + .blk { padding-top: 0; }
+  .blk--flushtop { padding-top: 0; }
+  .blk--tight { padding-block: 2rem; }
+  .blk__h { font-size: var(--step-2); line-height: 1.2; margin-bottom: 1.5rem; }
+  .tone-silver .blk__h { color: #fff; }
+  .muted { color: var(--ink-soft); font-size: .95rem; }
+  .narrow { max-width: 760px; }
+
+  /* Banner photo -------------------------------------------------- */
+  .blk-hero { height: 528px; overflow: hidden; }
+  .blk-hero :global(img) { width: 100%; height: 100%; object-fit: cover; }
+
+  /* Photo and text ------------------------------------------------ */
+  .blk--split :global(.split__img) { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
+  .split__h { font-size: 34.4px; line-height: 45.9px; margin-bottom: 28px; }
+  .tone-silver .split__h { color: #fff; }
+  .split__md :global(p) { margin-bottom: 1.4em; }
+  .split__md { margin-bottom: 1rem; }
+  .tone-silver.blk--split + .tone-silver.blk--split { padding-top: 0; }
+  .tone-silver.blk--split { padding-block: 60px; }
+
+  /* Image --------------------------------------------------------- */
+  .blk-figure { margin: 0 auto; }
+  .blk-figure :global(img) { width: 100%; height: auto; border-radius: 4px; }
+  .blk-figure figcaption { font-size: .9rem; color: var(--ink-soft); margin-top: .75rem; }
+
+  /* Quote --------------------------------------------------------- */
+  .blk--quote blockquote { margin: 0; max-width: 640px; }
+  .quote__text { font-family: var(--font-display); font-size: 43.6px; line-height: 56.7px; font-weight: 500; margin: 0 0 32px; text-wrap: balance; }
+  .blk--quote footer::before { content: '\2014\00a0'; }
+
+  /* Buttons ------------------------------------------------------- */
+  .btn-row { display: flex; flex-wrap: wrap; gap: .75rem; }
+
+  /* Cards --------------------------------------------------------- */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
+  .crd {
+    display: flex; flex-direction: column; align-items: flex-start;
+    padding: 1.6rem 1.4rem; border: 1px solid var(--rule); border-radius: var(--radius);
+    background: var(--paper); color: var(--ink);
+  }
+  .crd--plain { border-style: dashed; }
+  .crd__kicker { font-size: .72rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--maroon); margin: 0 0 .5rem; }
+  .crd h3 { font-family: var(--font-body); font-size: var(--step-1); font-weight: 600; line-height: 1.3; margin: 0 0 .5rem; }
+  .crd h3 a { color: var(--ink); text-decoration: none; }
+  .crd h3 a::after { content: ''; position: absolute; inset: 0; }
+  .crd:has(h3 a) { position: relative; transition: transform .2s var(--ease), box-shadow .2s var(--ease); }
+  .crd:has(h3 a):hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+  .crd__body { font-size: .925rem; color: var(--ink-soft); flex: 1; }
+  .crd__body :global(p) { margin: 0 0 .75rem; }
+  .crd__cta { margin-top: .5rem; font-weight: 500; font-size: .92rem; overflow-wrap: anywhere; }
+
+  /* List ---------------------------------------------------------- */
+  .list__intro { color: var(--ink-soft); max-width: var(--measure); margin-bottom: 1.75rem; }
+  .items { list-style: none; padding: 0; margin: 0; display: grid; gap: 1.25rem; }
+  .items--2 { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem 2rem; }
+  .items li { display: grid; gap: .2rem; }
+  .items strong { font-weight: 600; }
+  .items a { color: var(--ink); text-decoration-color: var(--rule); }
+  .items a:hover { color: var(--maroon); }
+  .items span { font-size: .925rem; color: var(--ink-soft); }
+  .tone-silver .items span, .tone-silver .list__intro { color: #fff; }
+
+  /* Events and calendar ------------------------------------------- */
+  .evlist { display: grid; gap: 1rem; max-width: 860px; }
+  .links { display: flex; flex-wrap: wrap; gap: .5rem 1.75rem; margin-top: 1.75rem; font-weight: 500; }
+  .cal__h { margin-top: 3rem; }
+  .note { margin-top: -1rem; margin-bottom: 1.75rem; }
+
+  /* Ring ---------------------------------------------------------- */
+  .blk--ring { overflow-x: clip; }
+  .ring__h { margin-bottom: 8px; }
+
+  /* Orchestras ---------------------------------------------------- */
+  .ens {
+    display: grid; grid-template-columns: minmax(0, 320px) minmax(0, 1fr); gap: 2.5rem;
+    padding-block: 3rem; border-top: 1px solid var(--rule); scroll-margin-top: 100px;
+  }
+  .ens:first-child { border-top: 0; padding-top: 0; }
+  .ens__head h2 { font-size: var(--step-2); margin-bottom: 1.25rem; }
+  .ens__facts { margin: 0; display: grid; gap: .9rem; }
+  .ens__facts div { margin: 0; }
+  .ens__facts dt { font-size: .68rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--maroon); }
+  .ens__facts dd { margin: 0; font-size: .95rem; }
+  .req { font-size: .925rem; color: var(--ink-soft); background: var(--paper-alt); padding: 1rem 1.25rem; border-radius: var(--radius); }
+
+  /* News ---------------------------------------------------------- */
+  .post { padding-block: 2.5rem; border-top: 1px solid var(--rule); }
+  .post:first-of-type { border-top: 0; padding-top: 0; }
+  .post h2 { font-size: var(--step-2); line-height: 1.2; margin-bottom: .4rem; }
+  .post__meta { color: var(--ink-soft); font-size: .9rem; margin-bottom: 1.25rem; }
+
+  @media (max-width: 900px) {
+    .blk-hero { height: 300px; }
+    .split__h { font-size: 26px; line-height: 1.3; }
+    .quote__text { font-size: 30px; line-height: 1.3; }
+    .tone-silver.blk--split { padding-block: 40px; }
+    .ens { grid-template-columns: 1fr; gap: 1.5rem; }
+  }
+</style>

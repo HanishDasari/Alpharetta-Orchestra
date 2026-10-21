@@ -132,26 +132,47 @@ Users. Nothing else to change or re-share.
 
 ---
 
-## Going live (when the site is deployed)
+## Hosting
 
-1. **Auth URLs:** Authentication > URL Configuration. Set **Site URL** to
-   the real domain and add `https://<domain>/portal/reset` to the
-   redirect allow list. (They currently point at `localhost:4321`.)
-2. **Email:** Supabase's built-in email is rate-limited to a few messages
+The site is live at **https://alpharetta-orchestra.vercel.app** on
+Vercel (project `alpharetta-orchestra`). It's currently on Hanish's
+personal Hobby account; move it to an orchestra-owned account before
+handing the site on.
+
+**Already set up:**
+
+- **Auto-deploy:** the project is linked to the GitHub repo, so every
+  push to `main` rebuilds and publishes the site.
+- **Build variables:** `PUBLIC_SUPABASE_URL` and
+  `PUBLIC_SUPABASE_ANON_KEY` (the publishable key) for Production and
+  Preview.
+- **Publish on save:** a Vercel deploy hook is stored in Supabase
+  (`private.config`, key `deploy_hook_url`), so any save in the portal
+  rebuilds the site in under a minute. The same URL is the
+  `DEPLOY_HOOK_URL` GitHub secret for the nightly rebuild. Treat it like
+  a password: anyone with it can trigger builds. To replace it, create a
+  new hook in Vercel (Project > Settings > Git > Deploy Hooks), delete the
+  old one, then update both places:
+
+  ```sql
+  insert into private.config values ('deploy_hook_url', 'https://...')
+  on conflict (key) do update set value = excluded.value;
+  ```
+- **Auth URLs:** Supabase's Site URL is the Vercel address, and
+  `/portal/reset` on it (plus `localhost:4321` for testing) is on the
+  redirect allow list, so invite and reset emails link to the live site.
+
+**Still to do:**
+
+1. **Email:** Supabase's built-in email is rate-limited to a few messages
    an hour, fine for testing, not for inviting a whole class. Add an SMTP
    provider under Authentication > Emails before mass invites.
-3. **Deploy hook** (so edits publish within minutes): create a deploy
-   hook in Cloudflare Pages or Netlify, then in SQL Editor:
-
-   ```sql
-   insert into private.config values ('deploy_hook_url', 'https://...')
-   on conflict (key) do update set value = excluded.value;
-   ```
-
-   Also add the same URL as the `DEPLOY_HOOK_URL` GitHub secret for the
-   nightly rebuild.
-4. **Build variables on the host:** `PUBLIC_SUPABASE_URL` and
-   `PUBLIC_SUPABASE_ANON_KEY` (the publishable key).
+2. **Custom domain:** when `alpharettaorchestra.com` moves off
+   Squarespace, add it in Vercel (Project > Settings > Domains), then in
+   Supabase set Site URL to it and add `https://<domain>/portal/reset` to
+   the redirect allow list. Move the handbook, program book and store
+   links in `src/lib/links.ts` and the pages first, since they still
+   point at Squarespace.
 
 ---
 

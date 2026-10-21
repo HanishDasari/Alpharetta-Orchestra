@@ -2,7 +2,7 @@
 
 The website for the AHS Orchestra program. Built with [Astro](https://astro.build).
 
-**Live site:** _not deployed yet_
+**Live site:** https://alpharetta-orchestra.vercel.app (Vercel; deploys on every push to `main`)
 **Repo:** https://github.com/HanishDasari/Alpharetta-Orchestra
 
 ---
@@ -113,9 +113,9 @@ allDay: true
       director and webmaster edit content in the browser; roster, daily
       board, forms; student and family portals. See
       [docs/portals-setup.md](docs/portals-setup.md).
-- [ ] **Phase 3 — deploy.** Cloudflare Pages or Netlify, then point the
-      domain over. Add the `DEPLOY_HOOK_URL` secret so the nightly rebuild
-      runs.
+- [x] **Phase 3 — deploy.** Live on Vercel, auto-deploying from `main`
+      and republishing on every portal save. Pointing the real domain
+      over is still to do; see [docs/portals-setup.md](docs/portals-setup.md#hosting).
 - [ ] **Phase 4 — payments.** Not before the rest is stable. See below.
 
 ---

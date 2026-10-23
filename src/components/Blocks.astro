@@ -3,7 +3,9 @@ import EventCard from './EventCard.astro';
 import PhotoRing from './PhotoRing.astro';
 import Prose from './Prose.astro';
 import SectionImage from './SectionImage.astro';
-import type { Block } from '../lib/blocks';
+import { getImage } from 'astro:assets';
+import { youtubeId, type Block } from '../lib/blocks';
+import { resolveImage } from '../lib/images';
 import { renderMarkdown as md } from '../lib/markdown';
 import { upcomingEvents, pastEvents } from '../lib/events';
 import { getEnsembles, getNews, getRingPhotoPaths } from '../lib/content';
@@ -24,6 +26,24 @@ const ensembles = has('ensembles') ? await getEnsembles() : [];
 const news = has('news') ? await getNews() : [];
 const uploaded = has('ring') ? await getRingPhotoPaths() : [];
 const ring = uploaded.length ? uploaded.map(ringPhotoUrl) : ringPhotos;
+
+// Gallery photos: a small cropped thumbnail for the grid, a large one
+// for the full-size viewer. Uploaded photos were resized before upload.
+const galleries = new Map<string, { thumb: string; full: string }[]>();
+for (const b of blocks) {
+  if (b.type !== 'gallery') continue;
+  const sized = await Promise.all((b.images ?? []).map(async (ref) => {
+    const img = resolveImage(ref);
+    if (!img) return null;
+    if (img.kind === 'url') return { thumb: img.src, full: img.src };
+    const [thumb, full] = await Promise.all([
+      getImage({ src: img.meta, width: 480, height: 360, fit: 'cover', format: 'webp' }),
+      getImage({ src: img.meta, width: 1600, format: 'webp' }),
+    ]);
+    return { thumb: thumb.src, full: full.src };
+  }));
+  galleries.set(b.id, sized.filter((x): x is { thumb: string; full: string } => x !== null));
+}
 
 const tone = (b: Block) => ('tone' in b && b.tone) || 'white';
 const ext = (url?: string) => (url && /^https?:/.test(url) ? { rel: 'noopener' } : {});
@@ -229,10 +249,72 @@ const fmtNews = (d: Date) => d.toLocaleDateString('en-US', { month: 'long', day:
                 </div>
                 <div class="ens__body">
                   <Fragment set:html={e.html} />
-                  {e.requirements && <p class="req"><strong>Placement requirements:</strong> {e.requirements}</p>}
+                  {e.requirements && <p class="req"><strong>Skills:</strong> {e.requirements}</p>}
                 </div>
               </article>
             ))}
+          </div>
+        </section>
+      );
+
+    case 'gallery': {
+      const pics = galleries.get(b.id) ?? [];
+      return (
+        <section class:list={['blk', `tone-${t}`]} id={b.id}>
+          <div class="wrap">
+            {b.heading && <h2 class="blk__h">{b.heading}</h2>}
+            {b.md && <div class="gal__md" set:html={md(b.md)} />}
+            {pics.length > 0 ? (
+              <ul class="gal" data-gallery>
+                {pics.map((p, i) => (
+                  <li><a href={p.full} data-full={p.full} aria-label={`Open photo ${i + 1} of ${pics.length}`}>
+                    <img src={p.thumb} alt="" width="480" height="360" loading="lazy" decoding="async" />
+                  </a></li>
+                ))}
+              </ul>
+            ) : (
+              <p class="muted">Photos coming soon.</p>
+            )}
+          </div>
+        </section>
+      );
+    }
+
+    case 'video': {
+      const vid = youtubeId(b.url);
+      // Honour a start time in the link (…&t=2076 or ?start=2076).
+      const start = b.url?.match(/[?&](?:t|start)=(\d+)/)?.[1];
+      return (
+        <section class:list={['blk', `tone-${t}`]} id={b.id}>
+          <div class="wrap vid">
+            {b.heading && <h2 class="blk__h">{b.heading}</h2>}
+            {b.md && <div class="vid__md" set:html={md(b.md)} />}
+            {vid ? (
+              <button type="button" class="vid__frame" data-yt={vid} data-start={start} aria-label={`Play video${b.heading ? `: ${b.heading}` : ''}`}>
+                <img src={`https://i.ytimg.com/vi/${vid}/hqdefault.jpg`} alt="" loading="lazy" decoding="async" />
+                <span class="vid__play" aria-hidden="true"></span>
+              </button>
+            ) : (
+              b.url && <p><a href={b.url} {...ext(b.url)}>Watch the video</a></p>
+            )}
+          </div>
+        </section>
+      );
+    }
+
+    case 'faq':
+      return (
+        <section class:list={['blk', `tone-${t}`]} id={b.id}>
+          <div class="wrap narrow">
+            {b.heading && <h2 class="blk__h">{b.heading}</h2>}
+            <div class="faq">
+              {b.items.filter((q) => q.q).map((q) => (
+                <details>
+                  <summary>{q.q}</summary>
+                  <div class="faq__a" set:html={md(q.a)} />
+                </details>
+              ))}
+            </div>
           </div>
         </section>
       );
@@ -254,6 +336,73 @@ const fmtNews = (d: Date) => d.toLocaleDateString('en-US', { month: 'long', day:
       );
   }
 })}
+
+{galleries.size > 0 && (
+  <dialog class="viewer" id="viewer" aria-label="Photo viewer">
+    <img alt="" />
+    <button type="button" class="viewer__btn viewer__prev" data-step="-1" aria-label="Previous photo">&#8249;</button>
+    <button type="button" class="viewer__btn viewer__next" data-step="1" aria-label="Next photo">&#8250;</button>
+    <button type="button" class="viewer__close" aria-label="Close">Close</button>
+    <p class="viewer__count" aria-live="polite"></p>
+  </dialog>
+)}
+
+<script>
+  // Gallery: open a photo full size; arrows, swipe and Esc work.
+  const viewer = document.getElementById('viewer') as HTMLDialogElement | null;
+  if (viewer) {
+    const img = viewer.querySelector('img')!;
+    const count = viewer.querySelector('.viewer__count')!;
+    let list: string[] = [];
+    let at = 0;
+    const show = (i: number) => {
+      at = (i + list.length) % list.length;
+      img.src = list[at];
+      count.textContent = `${at + 1} / ${list.length}`;
+    };
+    document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((g) => {
+      g.addEventListener('click', (e) => {
+        const a = (e.target as HTMLElement).closest<HTMLAnchorElement>('a[data-full]');
+        if (!a) return;
+        e.preventDefault();
+        list = [...g.querySelectorAll<HTMLAnchorElement>('a[data-full]')].map((x) => x.dataset.full!);
+        show(list.indexOf(a.dataset.full!));
+        viewer.showModal();
+      });
+    });
+    viewer.addEventListener('click', (e) => {
+      const t = e.target as HTMLElement;
+      if (t.closest('.viewer__close') || t === viewer) return viewer.close();
+      const step = t.closest<HTMLElement>('[data-step]')?.dataset.step;
+      if (step) show(at + Number(step));
+    });
+    viewer.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') show(at + 1);
+      if (e.key === 'ArrowLeft') show(at - 1);
+    });
+    let x0: number | null = null;
+    viewer.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+    viewer.addEventListener('touchend', (e) => {
+      if (x0 === null) return;
+      const dx = e.changedTouches[0].clientX - x0;
+      if (Math.abs(dx) > 40) show(at + (dx < 0 ? 1 : -1));
+      x0 = null;
+    });
+  }
+
+  // Video: load YouTube only when someone presses play.
+  document.querySelectorAll<HTMLButtonElement>('[data-yt]').forEach((b) => {
+    b.addEventListener('click', () => {
+      const f = document.createElement('iframe');
+      f.src = `https://www.youtube-nocookie.com/embed/${b.dataset.yt}?autoplay=1&rel=0${b.dataset.start ? `&start=${b.dataset.start}` : ''}`;
+      f.title = b.getAttribute('aria-label') ?? 'Video';
+      f.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen';
+      f.allowFullscreen = true;
+      f.className = 'vid__iframe';
+      b.replaceWith(f);
+    }, { once: true });
+  });
+</script>
 
 <style>
   /* Section frame and background tones ---------------------------- */
@@ -355,6 +504,60 @@ const fmtNews = (d: Date) => d.toLocaleDateString('en-US', { month: 'long', day:
   .post:first-of-type { border-top: 0; padding-top: 0; }
   .post h2 { font-size: var(--step-2); line-height: 1.2; margin-bottom: .4rem; }
   .post__meta { color: var(--ink-soft); font-size: .9rem; margin-bottom: 1.25rem; }
+
+  /* Gallery ------------------------------------------------------- */
+  .gal__md { color: var(--ink-soft); max-width: var(--measure); margin-bottom: 1.5rem; }
+  .gal { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: .5rem; }
+  .gal a { display: block; overflow: hidden; border-radius: 4px; background: var(--paper-alt); }
+  .gal img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; transition: transform .35s var(--ease); }
+  @media (hover: hover) { .gal a:hover img { transform: scale(1.04); } }
+  .viewer { border: 0; padding: 0; background: transparent; max-width: 100vw; max-height: 100vh; width: 100vw; height: 100vh; }
+  .viewer::backdrop { background: rgb(10 12 14 / .92); }
+  .viewer[open] { display: grid; place-items: center; }
+  .viewer img { max-width: min(94vw, 1600px); max-height: 86vh; object-fit: contain; border-radius: 4px; }
+  .viewer__btn, .viewer__close {
+    position: fixed; background: rgb(255 255 255 / .12); color: #fff; border: 0; cursor: pointer;
+    font: inherit; border-radius: 999px; transition: background-color .15s ease;
+  }
+  .viewer__btn:hover, .viewer__close:hover { background: rgb(255 255 255 / .25); }
+  .viewer__btn { top: 50%; transform: translateY(-50%); width: 48px; height: 48px; font-size: 2rem; line-height: 1; }
+  .viewer__prev { left: 1rem; }
+  .viewer__next { right: 1rem; }
+  .viewer__close { top: 1rem; right: 1rem; padding: .5rem 1rem; font-size: .9rem; }
+  .viewer__count { position: fixed; bottom: 1rem; left: 0; right: 0; text-align: center; color: rgb(255 255 255 / .75); font-size: .85rem; margin: 0; }
+
+  /* Video --------------------------------------------------------- */
+  .vid { max-width: 960px; }
+  .vid__md { color: var(--ink-soft); max-width: var(--measure); margin-bottom: 1.25rem; }
+  .vid__frame, :global(.vid__iframe) { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 6px; overflow: hidden; }
+  .vid__frame { position: relative; padding: 0; cursor: pointer; background: #000; }
+  .vid__frame img { width: 100%; height: 100%; object-fit: cover; opacity: .88; transition: opacity .2s ease; }
+  .vid__frame:hover img { opacity: 1; }
+  .vid__play {
+    position: absolute; left: 50%; top: 50%; width: 72px; height: 50px; transform: translate(-50%, -50%);
+    background: var(--maroon); border-radius: 12px; box-shadow: 0 8px 24px rgb(0 0 0 / .35);
+  }
+  .vid__play::after {
+    content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-35%, -50%);
+    border-style: solid; border-width: 11px 0 11px 18px; border-color: transparent transparent transparent #fff;
+  }
+
+  /* Questions & answers ------------------------------------------ */
+  .faq { border-top: 1px solid var(--rule); }
+  .faq details { border-bottom: 1px solid var(--rule); }
+  .faq summary {
+    cursor: pointer; list-style: none; padding: 1.1rem 2rem 1.1rem 0; position: relative;
+    font-weight: 500; font-size: 1.05rem;
+  }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: '+'; position: absolute; right: .25rem; top: 50%; transform: translateY(-50%); font-size: 1.4rem; color: var(--maroon); transition: transform .2s var(--ease); }
+  .faq details[open] summary::after { transform: translateY(-50%) rotate(45deg); }
+  .faq__a { color: var(--ink-soft); padding: 0 0 1.2rem; max-width: var(--measure); }
+  .faq__a :global(p) { margin: 0 0 .75rem; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gal img, .faq summary::after { transition: none; }
+  }
 
   @media (max-width: 900px) {
     .blk-hero { height: 300px; }

@@ -103,6 +103,13 @@ import { BLOCK_TYPES } from '../../lib/blocks';
   .rep__bar button { font: inherit; font-size: .76rem; padding: .2rem .5rem; border: 1px solid #D8DDE0; background: #fff; border-radius: 5px; cursor: pointer; }
   .rep__bar button[disabled] { opacity: .4; cursor: default; }
   .add-sec { width: 100%; justify-content: center; border-style: dashed; }
+  .thumbs { list-style: none; margin: 0 0 .6rem; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: .5rem; max-height: 420px; overflow-y: auto; }
+  .thumbs li { display: grid; gap: .25rem; }
+  .thumbs img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 5px; background: #EEF0F2; }
+  .thumbs__ctl { display: flex; gap: .2rem; }
+  .thumbs__ctl button { flex: 1; font: inherit; font-size: .7rem; padding: .15rem; border: 1px solid #D8DDE0; background: #fff; border-radius: 4px; cursor: pointer; }
+  .thumbs__ctl button[disabled] { opacity: .35; cursor: default; }
+  .thumbs__ctl .danger { color: #8A2B29; }
   .savebar {
     position: sticky; bottom: 0; z-index: 5; margin-top: 1.25rem;
     display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
@@ -230,6 +237,8 @@ import { BLOCK_TYPES } from '../../lib/blocks';
     const s = (b as any).heading ?? (b as any).title ?? (b as any).text ?? (b as any).md ?? (b as any).caption ?? '';
     if (s) return String(s).replace(/[#*_\[\]()>]/g, '').slice(0, 90);
     if ('items' in b) return `${b.items.length} ${b.items.length === 1 ? 'item' : 'items'}`;
+    if (b.type === 'gallery') return `${b.images.length} photos`;
+    if (b.type === 'video') return b.url || 'No video yet';
     return BLOCK_FIELDS[b.type].note ?? '';
   }
 
@@ -255,6 +264,10 @@ import { BLOCK_TYPES } from '../../lib/blocks';
       </li>`;
     }).join('') || '<li><p class="empty">No sections yet. Add the first one below.</p></li>';
     // Image previews
+    secs.querySelectorAll<HTMLImageElement>('img[data-ref]').forEach((img) => {
+      const src = imageUrl(img.dataset.ref);
+      if (src) img.src = src;
+    });
     secs.querySelectorAll<HTMLElement>('[data-image]').forEach((el) => {
       const src = imageUrl(getPath(page, el.dataset.image!));
       const img = el.querySelector('img')!;
@@ -293,6 +306,16 @@ import { BLOCK_TYPES } from '../../lib/blocks';
       insertAt = b.dataset.at === 'end' ? blocks.length : Number(b.dataset.at);
       byId<HTMLDialogElement>('types').showModal();
       return;
+    } else if (act === 'img-add') {
+      const ref = await pickImage(db);
+      if (!ref) return;
+      const arr: string[] = getPath(page, b.dataset.path!) ?? [];
+      setPath(page, b.dataset.path!, [...arr, ref]);
+    } else if (act === 'img-rm' || act === 'img-move') {
+      const arr: string[] = [...(getPath(page, b.dataset.path!) ?? [])];
+      if (act === 'img-rm') arr.splice(i, 1);
+      else { const j = i + Number(b.dataset.step); [arr[i], arr[j]] = [arr[j], arr[i]]; }
+      setPath(page, b.dataset.path!, arr);
     } else if (act === 'pick-image') {
       const ref = await pickImage(db);
       if (!ref) return;

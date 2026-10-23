@@ -1,7 +1,7 @@
 {
   "slug": "home",
   "title": "Home",
-  "description": "The Alpharetta High School Orchestras — approximately 130 students in six levels of daily string instruction in Alpharetta, Georgia.",
+  "description": "The Alpharetta High School Orchestras: about 150 students in five levels of daily string instruction in Alpharetta, Georgia.",
   "system": true,
   "blocks": [
     {
@@ -14,7 +14,7 @@
       "type": "split",
       "image": "asset:intro",
       "tone": "white",
-      "md": "The Alpharetta High School Orchestra, located in Alpharetta, Georgia has approximately 130 students participating in 6 distinct levels of daily string/orchestra instruction. The program focuses on improving string technique, musicianship, ear training, and both solo and ensemble playing to prepare students to be thriving, independent musicians. The orchestra program has students who are extremely enthusiastic and dedicated to their craft.\n\nThe orchestra is fortunate to have incredible facilities and equipment, a supportive administrative team, and an amazing parent booster organization."
+      "md": "The Alpharetta High School Orchestra, located in Alpharetta, Georgia has approximately 130 students participating in 5 distinct levels of daily string/orchestra instruction. The program focuses on improving string technique, musicianship, ear training, and both solo and ensemble playing to prepare students to be thriving, independent musicians. The orchestra program has students who are extremely enthusiastic and dedicated to their craft.\n\nThe orchestra is fortunate to have incredible facilities and equipment, a supportive administrative team, and an amazing parent booster organization."
     },
     {
       "id": "b003",
@@ -22,7 +22,7 @@
       "tone": "silver",
       "image": "asset:program",
       "heading": "About the Program",
-      "md": "The nationally recognized Alpharetta High School orchestra program was established in the fall of 2004 and is comprised of six orchestras and about 130 members. Alpharetta High School Orchestras strive for excellence in music education at the high school level.",
+      "md": "The nationally recognized Alpharetta High School orchestra program was established in the fall of 2004 and is comprised of five orchestras and about 150 members. Alpharetta High School Orchestras strive for excellence in music education at the high school level.",
       "button": {
         "label": "Learn More",
         "url": "/about"
@@ -35,7 +35,7 @@
       "image": "asset:orchestras",
       "heading": "The Orchestras",
       "flip": true,
-      "md": "The Alpharetta High School Orchestra program is made up of six ensembles: the Concert, Silver, Philharmonia, Sinfonia, Symphony, and Chamber orchestras. The orchestras have consistently achieved Superior ratings at adjudications and have travelled to perform locally, statewide, and nationally.",
+      "md": "The Alpharetta High School Orchestra program is made up of five ensembles: the Concert, Silver, Philharmonia, Sinfonia, and Symphony orchestras. The orchestras have consistently achieved Superior ratings at adjudications and have travelled to perform locally, statewide, and nationally.",
       "button": {
         "label": "Learn More",
         "url": "/orchestras"
@@ -65,6 +65,17 @@
       "type": "ring",
       "heading": "Orchestra Memories",
       "tone": "light"
+    },
+    {
+      "id": "memories-link",
+      "type": "buttons",
+      "tone": "light",
+      "items": [
+        {
+          "label": "See all our photos",
+          "url": "/orchestra-memories"
+        }
+      ]
     },
     {
       "id": "b008",

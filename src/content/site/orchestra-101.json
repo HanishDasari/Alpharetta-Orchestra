@@ -1,0 +1,99 @@
+{
+  "slug": "orchestra-101",
+  "title": "Orchestra 101",
+  "system": true,
+  "description": "Why join orchestra at Alpharetta High School: our mission, the course offerings, audition materials, and common questions.",
+  "blocks": [
+    {
+      "id": "o-head",
+      "type": "heading",
+      "title": "Orchestra 101"
+    },
+    {
+      "id": "o-video",
+      "type": "video",
+      "url": "https://www.youtube.com/watch?v=QHiO9HxFRcw"
+    },
+    {
+      "id": "o-why",
+      "type": "split",
+      "tone": "light",
+      "image": "asset:o101-a",
+      "heading": "Why Orchestra",
+      "md": "At Alpharetta High School, our mission is to inspire and empower students through the art of orchestral music. We are committed to fostering musical excellence, personal growth, and a lifelong appreciation for the performing arts. Our vision is for all students to develop their full potential as musicians and individuals, guided by the values of artistic excellence, dedication, discipline, collaboration, and community. We strive to build a supportive and inclusive environment where all voices contribute, encouraging curiosity, creativity, and a passion for continuous improvement. With integrity and leadership at our core, we aim to enrich our school and community while shaping students into well-rounded, responsible citizens."
+    },
+    {
+      "id": "o-join",
+      "type": "quote",
+      "tone": "light",
+      "by": "Jacob Hood, Director of the Alpharetta High School Orchestra",
+      "text": "Joining the orchestra offers students a unique opportunity to develop musicianship, teamwork, and discipline while forming lifelong friendships. Whether pursuing music professionally or as a personal passion, students gain skills that extend beyond the stage, preparing them for success in any field."
+    },
+    {
+      "id": "courses",
+      "type": "list",
+      "columns": 1,
+      "heading": "Course Offerings and Audition Materials",
+      "items": [
+        {
+          "title": "Concert Orchestra",
+          "detail": "Designed for 9th-grade students, this ensemble serves as an introduction to high school orchestra. Students focus on foundational techniques, ensemble skills, and musical expression while building confidence in performance."
+        },
+        {
+          "title": "Silver Orchestra",
+          "detail": "An entry-level orchestra for 10th, 11th, and 12th-grade students, this ensemble provides fundamental training in string techniques, ensemble playing, and music literacy, offering a supportive environment for students continuing their orchestral journey."
+        },
+        {
+          "title": "Philharmonia Orchestra",
+          "detail": "Performing repertoire at the LGPE Level 3-4, this ensemble challenges students with more complex musical works while refining their technical skills, sight-reading, and ensemble coordination."
+        },
+        {
+          "title": "Sinfonia Orchestra",
+          "detail": "An advanced ensemble for dedicated musicians working to develop higher-level techniques, musical interpretation, and ensemble precision. Students explore more demanding repertoire, preparing for advanced performance opportunities."
+        },
+        {
+          "title": "Symphony Orchestra",
+          "detail": "The most advanced ensemble, dedicated to refining mastery in orchestral performance. Students tackle professional-level repertoire, enhance their musical artistry, and develop leadership skills in preparation for collegiate and professional music experiences."
+        }
+      ]
+    },
+    {
+      "id": "auditions",
+      "type": "buttons",
+      "items": [
+        {
+          "label": "2025-2026 Audition Materials",
+          "url": "https://classroom.google.com/w/NzU0NTA5NzU3Mzgy/t/all"
+        },
+        {
+          "label": "Meet the orchestras",
+          "url": "/orchestras"
+        }
+      ]
+    },
+    {
+      "id": "faq",
+      "type": "faq",
+      "tone": "light",
+      "heading": "Orchestra Misconceptions",
+      "items": [
+        {
+          "q": "What if I have scheduling conflicts with other extracurricular activities or high-level courses?",
+          "a": "Many orchestra students successfully balance their involvement in sports, clubs, and challenging academic courses like AP or Georgia Tech Dual Enrollment classes. The orchestra program helps students develop strong time-management and organizational skills, which are essential for managing multiple commitments. In the past, students have found success in balancing both orchestra and other extracurriculars, using the discipline learned in orchestra to stay organized and focused."
+        },
+        {
+          "q": "Can I participate in orchestra if I am involved in sports or other activities?",
+          "a": "Yes! Orchestra rehearsals are scheduled during the school day, so there’s minimal overlap with after-school activities. Many students have participated in both sports and orchestra, with the skills they develop in orchestra, such as teamwork, discipline, and time management, helping them excel in other areas as well."
+        },
+        {
+          "q": "How does orchestra help with my academic performance, especially in advanced courses?",
+          "a": "Orchestra encourages skills like focus, perseverance, and problem-solving, which directly contribute to academic success. Students who participate in orchestra have consistently demonstrated strong academic performance, with many balancing challenging courses while continuing to excel in music. The structured environment of orchestra helps students develop the discipline to manage their academic workload and extracurricular activities effectively."
+        },
+        {
+          "q": "How can orchestra benefit me in the future?",
+          "a": "Beyond musical skills, orchestra fosters teamwork, leadership, time management, and creative thinking, skills that are valuable in any future career. Whether you pursue a career in music or another field, the skills you develop in orchestra will support your academic and personal growth, preparing you for success in college and beyond."
+        }
+      ]
+    }
+  ]
+}

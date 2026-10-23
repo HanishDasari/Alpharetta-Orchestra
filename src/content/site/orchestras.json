@@ -1,15 +1,65 @@
 {
   "slug": "orchestras",
   "title": "Our Orchestras",
-  "description": "Six leveled ensembles at Alpharetta High School — Concert, Silver, Philharmonia, Sinfonia, Symphony, and Chamber — with placement requirements for each.",
+  "description": "The Alpharetta High School orchestras, from entry level to elite: Concert, Silver, Philharmonia, Sinfonia, Symphony and Chamber.",
   "system": true,
   "blocks": [
     {
       "id": "b011",
       "type": "heading",
       "eyebrow": "The orchestras",
-      "title": "Six ensembles",
-      "lede": "Every student is placed by audition into the group that fits where they are now, and moves up as they grow. All six rehearse during the school day, so orchestra fits alongside sports and clubs."
+      "title": "About the Orchestras",
+      "lede": "The Alpharetta High School Orchestra program is home to around 130 students across five distinct performance levels, offering daily string instruction that builds technique, musicianship, ear training, and both solo and ensemble skills."
+    },
+    {
+      "id": "orch-intro",
+      "type": "split",
+      "image": "asset:orchestras-group",
+      "md": "Our goal is to develop thriving, independent musicians who carry a lifelong love of music beyond the classroom.\n\nUnder the direction of Jake Hood, the program continues Alpharetta’s long-standing reputation for excellence in music-making, with an emphasis on individual student growth, community outreach, and chamber music. Students benefit from outstanding facilities, a supportive administration, and a dedicated parent booster organization."
+    },
+    {
+      "id": "orch-list",
+      "type": "list",
+      "tone": "light",
+      "columns": 2,
+      "heading": "Our ensembles, from entry to elite level",
+      "items": [
+        {
+          "title": "Concert Orchestra",
+          "detail": "Our entry-level ensemble for freshmen, developing performers building toward third-position playing",
+          "url": "#concert"
+        },
+        {
+          "title": "Silver Orchestra",
+          "detail": "The same entry level as Concert, for sophomores through seniors",
+          "url": "#silver"
+        },
+        {
+          "title": "Philharmonia",
+          "detail": "Intermediate-level performers expanding technique through shifting and vibrato",
+          "url": "#philharmonia"
+        },
+        {
+          "title": "Sinfonia",
+          "detail": "Advanced-level performers working through fifth position and more demanding repertoire",
+          "url": "#sinfonia"
+        },
+        {
+          "title": "Symphony",
+          "detail": "Our premier full symphony orchestra for mastery-level performers, including winds, brass, and percussion",
+          "url": "#symphony"
+        },
+        {
+          "title": "Chamber Orchestra",
+          "detail": "Our elite ensemble, performing the most challenging string repertoire",
+          "url": "#chamber"
+        }
+      ]
+    },
+    {
+      "id": "b012-h",
+      "type": "heading",
+      "title": "The Orchestras in Detail"
     },
     {
       "id": "b012",

@@ -1,5 +1,6 @@
 import type { SupabaseClient, User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
+import { demoRole, demoClient, exitDemo, DEMO_PEOPLE } from './demo';
 
 /* ---------------------------------------------------------------
    Browser side of the portal. Every portal page is static HTML; this
@@ -9,6 +10,9 @@ import { supabase } from '../lib/supabase';
    can actually read or change is enforced by Row Level Security in
    the database, so a user who edits this code still gets nothing
    their role doesn't allow.
+
+   Demo mode (the test buttons on Sign in) swaps in a stand-in database
+   that lives in this browser; see ./demo.ts.
    --------------------------------------------------------------- */
 
 export type Role = 'admin' | 'treasurer' | 'webmaster' | 'student' | 'family';
@@ -52,6 +56,19 @@ export function whenReady(): Promise<Session> {
 
 /** Called once by the portal layout. Redirects away if not allowed. */
 export async function boot(allowed: Role[]): Promise<void> {
+  const demo = demoRole();
+  if (demo) {
+    const profile = DEMO_PEOPLE[demo];
+    // Director can view the student and family screens, same as for real.
+    if (!allowed.includes(demo)) {
+      location.replace(HOME[demo]);
+      return;
+    }
+    document.body.dataset.demo = '';
+    resolveReady({ db: demoClient(profile), user: { id: profile.id } as User, profile });
+    return;
+  }
+
   const db = supabase();
   if (!db) {
     document.body.dataset.state = 'offline';
@@ -80,7 +97,8 @@ export async function boot(allowed: Role[]): Promise<void> {
 }
 
 export async function signOut(): Promise<void> {
-  await supabase()?.auth.signOut();
+  if (demoRole()) exitDemo();
+  else await supabase()?.auth.signOut();
   location.assign('/portal');
 }
 

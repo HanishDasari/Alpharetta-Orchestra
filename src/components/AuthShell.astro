@@ -68,4 +68,16 @@ const { title } = Astro.props;
   .auth .forgot p { color: var(--ink-soft); margin: 0 0 .9rem; }
   .auth .fine { font-size: .82rem; color: var(--ink-soft); margin: 1.5rem 0 0; padding-top: 1rem; border-top: 1px solid #EDEFF1; }
   .auth__back { text-align: center; font-size: .88rem; margin: 1.5rem 0 3rem; }
+  .auth .demo { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid #EDEFF1; }
+  .auth .demo h2 { font-size: 1rem; margin: 0 0 .25rem; }
+  .auth .demo p { color: var(--ink-soft); font-size: .86rem; margin: 0 0 .9rem; }
+  .auth .demo__grid { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+  .auth .demo__grid button {
+    text-align: left; padding: .6rem .7rem; border: 1px solid #D8DDE0; border-radius: 8px; background: #fff;
+    font: inherit; cursor: pointer; transition: border-color .15s ease, background-color .15s ease, transform .12s ease;
+  }
+  .auth .demo__grid button:hover { border-color: var(--maroon); background: #FBF6F6; }
+  .auth .demo__grid button:active { transform: scale(0.98); }
+  .auth .demo__grid b { display: block; font-size: .9rem; }
+  .auth .demo__grid small { display: block; color: var(--ink-soft); font-size: .76rem; line-height: 1.35; }
 </style>

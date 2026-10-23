@@ -28,12 +28,19 @@ export const photos = {
    src/assets/ring/. To change what's in the ring, add or remove files
    there; nothing else needs editing. Order is by file name, so prefix
    with 01-, 02-… to control it. Until that folder has photos, the ring
-   falls back to the five above. */
+   uses the newest Orchestra Memories albums (photos uploaded under
+   Photos in the portal replace both). */
 const ringFiles = import.meta.glob<{ default: ImageMetadata }>(
   '../assets/ring/*.{jpg,jpeg,png,webp,avif}',
   { eager: true },
 );
+const recent = import.meta.glob<{ default: ImageMetadata }>(
+  ['../assets/memories/high-museum/*', '../assets/memories/fine-arts-2025/00[1-4].*'],
+  { eager: true },
+);
 
-export const ringPhotos: ImageMetadata[] = Object.keys(ringFiles).length
-  ? Object.keys(ringFiles).sort().map((k) => ringFiles[k].default)
-  : Object.values(photos);
+const ringSource = Object.keys(ringFiles).length ? ringFiles : recent;
+
+export const ringPhotos: ImageMetadata[] = Object.entries(ringSource)
+  .sort(([a], [b]) => a.localeCompare(b))
+  .map(([, m]) => m.default);

@@ -21,6 +21,8 @@ Five roles: **admin** (director), **webmaster** (student), **treasurer**
 | Design & Appearance: colours, fonts, header size, homepage sections (admin) | **Live** |
 | Roster, linking student and parent logins (admin) | **Live** |
 | Daily board, with Present mode (admin) and catch-up for students | **Live** |
+| **Presentations**: slide decks built and presented in the browser, like Google Slides; shared decks open in student and family portals | **Live** |
+| **Demo mode**: test buttons on Sign in open any portal with sample data, kept only in that browser | **Live** |
 | Forms with QR codes, answers, "hasn't answered" list and CSV export | **Live** |
 | Fees, charges, online payment (treasurer + family) | **Demo only.** Sample data, clearly labelled |
 
@@ -59,6 +61,15 @@ or change anything their role doesn't allow.
 
 ---
 
+## Demo mode
+
+The Sign in page has a button per role (Director, Webmaster, Student,
+Family, Treasurer). Each opens that portal with sample data so anyone
+can try it without an account. Demo mode runs against a stand-in
+database inside the browser (`src/portal/demo.ts`): nothing reaches
+Supabase, so it can't be used to get around real sign-in. Photo uploads
+are switched off in demo mode. **Exit demo** in the yellow bar resets it.
+
 ## How it fits together
 
 - **Public site**: static pages built by Astro. At build time it reads
@@ -68,7 +79,8 @@ or change anything their role doesn't allow.
 - **Pages are sections, like Squarespace.** Each page is an ordered list
   of sections (`src/lib/blocks.ts`): banner photo, heading, text, photo
   and text, image, quote, buttons, cards, list, upcoming concerts, full
-  calendar, photo ring, orchestras, news. Each type has one fixed layout
+  calendar, photo ring, orchestras, news, photo gallery, video, and
+  questions & answers. Each type has one fixed layout
   (`src/components/Blocks.astro`), so editors can't break a page on
   phones. The built-in pages ship as JSON in `src/content/site/`; the
   first time someone saves one in the portal, the database copy takes
@@ -178,7 +190,7 @@ handing the site on.
 
 ## Verify before launch, and after any policy change
 
-Paste `supabase/tests/rls_check.sql`, then `supabase/tests/rls_check_pages.sql`, into SQL Editor and run them. It
+Paste `supabase/tests/rls_check.sql`, `rls_check_pages.sql` and `rls_check_presentations.sql` (all in `supabase/tests/`) into SQL Editor and run them. It
 creates pretend users and rows, checks what each role can see and do,
 then rolls everything back. Every row should say **PASS**. Among other
 things it confirms:

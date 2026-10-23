@@ -11,6 +11,7 @@ export type Field =
   | { key: string; label: string; kind: 'text' | 'url'; hint?: string; placeholder?: string }
   | { key: string; label: string; kind: 'textarea' | 'md'; hint?: string; rows?: number }
   | { key: string; label: string; kind: 'image'; hint?: string }
+  | { key: string; label: string; kind: 'images'; hint?: string }
   | { key: string; label: string; kind: 'check'; hint?: string }
   | { key: string; label: string; kind: 'number'; min: number; max: number; hint?: string }
   | { key: string; label: string; kind: 'select'; options: { value: string; name: string }[]; hint?: string }
@@ -106,6 +107,32 @@ export const BLOCK_FIELDS: Record<BlockType, { note?: string; fields: Field[] }>
   ring: { note: 'The photos come from Photos in the portal.', fields: [{ key: 'heading', label: 'Heading (optional)', kind: 'text' }, tone] },
   ensembles: { note: 'All six ensembles. Edit them under Orchestras.', fields: [] },
   news: { note: 'Posts from Announcements, newest first.', fields: [{ key: 'count', label: 'How many to show (blank for all)', kind: 'number', min: 1, max: 50 }] },
+  gallery: {
+    fields: [
+      { key: 'heading', label: 'Heading (optional)', kind: 'text' },
+      { key: 'md', label: 'Text above the photos (optional)', kind: 'md', rows: 3 },
+      { key: 'images', label: 'Photos', kind: 'images', hint: 'Shown in this order. Visitors click a photo to see it full size.' },
+      tone,
+    ],
+  },
+  video: {
+    fields: [
+      { key: 'heading', label: 'Heading (optional)', kind: 'text' },
+      { key: 'md', label: 'Text above the video (optional)', kind: 'md', rows: 3 },
+      { key: 'url', label: 'YouTube link', kind: 'url', hint: 'Paste the link from YouTube’s Share button.' },
+      tone,
+    ],
+  },
+  faq: {
+    fields: [
+      { key: 'heading', label: 'Heading (optional)', kind: 'text' },
+      { key: 'items', label: 'Questions', kind: 'repeat', item: 'question', fields: [
+        { key: 'q', label: 'Question', kind: 'text' },
+        { key: 'a', label: 'Answer', kind: 'md', rows: 4 },
+      ] },
+      tone,
+    ],
+  },
 };
 
 // Rendering ---------------------------------------------------------
@@ -148,6 +175,17 @@ export function renderFields(fields: Field[], obj: any, prefix: string): string 
         return `<div class="fld"><span class="lbl">${escAttr(f.label)}</span>
           <div class="imgfld" data-image="${path}"><img alt="" data-preview /><span class="imgfld__empty">No photo yet</span>
           <button type="button" class="pbtn pbtn--ghost" data-act="pick-image" data-path="${path}">Choose photo</button></div>${hint}</div>`;
+      case 'images': {
+        const refs: string[] = Array.isArray(v) ? v : [];
+        return `<fieldset class="fld"><legend>${escAttr(f.label)} (${refs.length})</legend>${hint}
+          <ul class="thumbs">${refs.map((r, i) => `<li><img alt="" data-ref="${escAttr(r)}" loading="lazy" />
+            <span class="thumbs__ctl">
+              <button type="button" data-act="img-move" data-path="${path}" data-i="${i}" data-step="-1" ${i === 0 ? 'disabled' : ''} aria-label="Move earlier">&lt;</button>
+              <button type="button" data-act="img-move" data-path="${path}" data-i="${i}" data-step="1" ${i === refs.length - 1 ? 'disabled' : ''} aria-label="Move later">&gt;</button>
+              <button type="button" data-act="img-rm" data-path="${path}" data-i="${i}" class="danger" aria-label="Remove photo">Remove</button>
+            </span></li>`).join('')}</ul>
+          <button type="button" class="pbtn pbtn--ghost" data-act="img-add" data-path="${path}">Add a photo</button></fieldset>`;
+      }
       case 'repeat': {
         const items: any[] = Array.isArray(v) ? v : [];
         return `<fieldset class="fld rep"><legend>${escAttr(f.label)}</legend>${hint}

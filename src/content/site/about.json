@@ -1,26 +1,37 @@
 {
   "slug": "about",
   "title": "About",
-  "description": "The Alpharetta High School Orchestra program — founded in 2004, six ensembles, and a history that includes Carnegie Hall and the Midwest Clinic.",
   "system": true,
+  "description": "The history of the Alpharetta High School Orchestra program, from its founding in 2004, and its director, Jake Hood.",
   "blocks": [
     {
       "id": "b009",
       "type": "heading",
       "eyebrow": "About",
-      "title": "About the Program"
+      "title": "History of the Program"
     },
     {
       "id": "b010",
       "type": "text",
-      "md": "The Alpharetta High School Orchestra program was founded in 2004, when the\nschool first opened its doors. Today roughly 130 students play in six\nleveled ensembles, each meeting daily as a regular class.\n\n## A short history\n\n**Sheldon Fisher** founded the program in 2004 and led it for twelve years,\nretiring in 2016 after a forty-year career in music education. Under his\ndirection the orchestras performed at the Midwest International Band &\nOrchestra Clinic in Chicago in 2006 and again in 2012 — the second time as\nthe only high school full symphony selected that year — as well as at the\nAmerican String Teachers Association national conference in 2008 and\nseveral times at Carnegie Hall.\n\n**Dr. Charles Laux** directed the program from 2016 to 2022.\n\n**Jake Hood** became the third director of orchestras in 2022. The\norchestras have earned Superior ratings at adjudication throughout his\ntenure, and performed at Chicago Symphony Hall as part of the Festival of\nGold in 2023.\n\n## Support\n\nThe Alpharetta High School Orchestra Association is a 501(c)(3) non-profit\nrun by parent volunteers. It funds the program's needs beyond what the\nschool provides — music, clinicians, instrument maintenance, and travel."
+      "md": "Alpharetta High School opened its doors for the first time in 2004 with the orchestra under the direction of founding conductor, Sheldon Fisher. While he was director of the AHS orchestras, the program would grow in size, scope, and quality. The Orchestra performed at the 2006 Midwest International Band & Orchestra Clinic in Chicago and the Symphony Orchestra performed at the same venue in 2012. The orchestra has performed several times in New York’s Carnegie Hall, and has performed both internationally and at other prestigious events such as the American String Teachers Association Conference in 2008. After a 40 year career in music education and 12 years as the director of the Alpharetta Orchestra program, Mr. Fisher retired at the conclusion of the 2015-2016 school year.\n\nIn 2016, Dr. Charles Laux was named director of the Alpharetta High School Orchestra program and continued to support the traditions founded by Mr. Fisher and further develop the program. In 2018, Dr. Laux founded the AHS Chamber Orchestra, an 18-piece ensemble made up of the school’s elite string players. The Chamber Orchestra is the 5th string ensemble at AHS. Also in 2018, the AHS Symphony Strings were invited to perform at the 72nd Annual Midwest Clinic in Chicago.\n\nIn 2022, Mr. Jacob Hood became the third director of the Alpharetta High School Orchestra program. Under his direction, the AHS orchestras have continued their musical growth and have earned superior ratings in adjudications in each of his first two years as director. In 2023, The Alpharetta High School Symphony Orchestra was again invited to Chicago, this time to perform in the Chicago Festival of Gold in the historic Chicago Symphony Hall."
     },
     {
       "id": "director",
+      "type": "split",
+      "tone": "light",
+      "image": "asset:director-portrait",
+      "heading": "About the Director",
+      "md": "**Jake Hood**\n\nMusic educator and conductor Jake Hood is the Director of Orchestras at Alpharetta High School in Fulton County, Georgia. Since joining the performing arts department at Alpharetta four years ago, Mr. Hood was named as the 2026-2027 Alpharetta High School Teacher of the Year and has been commended for his work building a culture of camaraderie and community within the orchestra program.\n\nFrom 2017 to 2022, Mr. Hood was Co-Director of Orchestras at Collins Hill High School in Suwanee, GA. The CHHS orchestras consistently received superior ratings at adjudications, performed at the Georgia Music Educators Association conference, and their public performances have become a staple of the Lawrenceville and Suwanee communities.",
+      "button": {
+        "label": "Contact Mr. Hood",
+        "url": "/contact"
+      }
+    },
+    {
+      "id": "director-more",
       "type": "text",
       "tone": "light",
-      "heading": "About the Director",
-      "md": "**Jake Hood** became the third Director of Orchestras at Alpharetta High\nSchool in 2022, and was named the school's 2026–2027 Teacher of the Year.\n\nHe earned a Bachelor of Music Education from the University of Georgia in\n2016, where he studied cello with David Starkweather, and a Master of Music\nin orchestral conducting from Messiah University in 2022, studying with\nTimothy Dixon.\n\nBefore coming to Alpharetta, Mr. Hood was Co-Director of Orchestras at\nCollins Hill High School in Suwanee from 2017 to 2022, where the orchestras\nconsistently earned Superior ratings and performed at the Georgia Music\nEducators Association conference.\n\nOutside of school he performs as a cellist with the Georgia Philharmonic\nand serves on its Board of Directors, maintains a private cello studio, and\nworks as a guest conductor and large-ensemble adjudicator across the\neastern United States."
+      "md": "While an undergraduate student at the University of Georgia, Mr. Hood was a cellist in the University Symphony Orchestra. He performed dozens of concerts and recitals as a soloist and chamber musician, including more than 50 premiere performances in UGA's Dancz Center for New Music. In addition to his instrumental performance, he sang as a member of three different choral organizations at UGA and taught for four years in the UGA String Project in the Athens-Clarke County school system.\n\nHe performs in the cello section and is on the Board of Directors of the Georgia Philharmonic, and teaches a small private studio of young cellists in his home studio. He is sought after as a large ensemble adjudicator, and has guest conducted ensembles throughout the east coast.\n\nMr. Hood earned a Bachelor of Music Education degree in 2016 from the University of Georgia, where he studied cello with David Starkweather. In 2022 he completed his Master of Music degree in orchestral conducting at Messiah University, where he studied conducting with Timothy Dixon.\n\nMr. Hood is married and lives with his family in Suwanee, GA. He believes garlic bread should be a food group, adores/requires cold brew coffee, and loves attempting long walks on the beach with his fourteen-pound cat, Lord Tubbington, and his Australian Shepherd puppy, Sir Otis, simultaneously."
     }
   ]
 }

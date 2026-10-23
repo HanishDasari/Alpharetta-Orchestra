@@ -1,0 +1,57 @@
+---
+import Portal from '../../layouts/Portal.astro';
+import { SLIDE_CSS } from '../../portal/slides';
+---
+
+<Portal title="Presentation" roles={['student', 'family', 'admin']}>
+  <div class="head">
+    <div>
+      <h1 id="title">Presentation</h1>
+      <p class="sub" id="meta"></p>
+    </div>
+    <button class="pbtn pbtn--primary" type="button" id="present" hidden>Present</button>
+  </div>
+  <p class="empty" id="msg" hidden></p>
+  <ol class="slides" id="slides"></ol>
+</Portal>
+
+<style is:global set:html={SLIDE_CSS}></style>
+
+<style is:global>
+  .slides { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.25rem; max-width: 900px; }
+  .slides li { display: grid; gap: .35rem; }
+  .slides small { color: var(--ink-soft); font-size: .8rem; }
+  .slides .thumb { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 8px; box-shadow: 0 0 0 1px #E3E6E8; background: #fff; cursor: pointer; border: 0; padding: 0; }
+</style>
+
+<script>
+  import { whenReady, esc, fmtDate, HOME } from '../../portal/client';
+  import { slideHtml, fitStages, present } from '../../portal/slides';
+
+  const { db, profile } = await whenReady();
+  const id = new URLSearchParams(location.search).get('id') ?? '';
+  const byId = (x: string) => document.getElementById(x)!;
+
+  const { data: deck } = await db.from('presentations').select('*').eq('id', id).maybeSingle();
+  if (!deck) {
+    byId('title').textContent = 'Presentation not found';
+    const msg = byId('msg');
+    msg.hidden = false;
+    msg.innerHTML = `It may have been removed, or it isn’t shared. <a href="${HOME[profile.role]}">Back to your portal</a>`;
+  } else {
+    byId('title').textContent = deck.title;
+    byId('meta').textContent = `${deck.slides.length} slides · updated ${fmtDate(deck.updated_at)}`;
+    byId('slides').innerHTML = deck.slides.map((s: any, i: number) => `<li>
+      <button type="button" class="thumb" data-i="${i}" aria-label="Present from slide ${i + 1}"><span class="stage">${slideHtml(s)}</span></button>
+      <small>Slide ${i + 1}${s.title ? ` · ${esc(s.title)}` : ''}</small></li>`).join('');
+    fitStages();
+    window.addEventListener('resize', () => fitStages());
+    const btn = byId('present');
+    btn.hidden = !deck.slides.length;
+    btn.addEventListener('click', () => present(deck.slides, 0, deck.title));
+    byId('slides').addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLElement>('[data-i]');
+      if (b) present(deck.slides, Number(b.dataset.i), deck.title);
+    });
+  }
+</script>

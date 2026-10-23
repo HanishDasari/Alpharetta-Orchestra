@@ -4,14 +4,16 @@
    works on phones; editors fill in the words, links and images.
 
    Images are strings:
-     "asset:hero"          one of the photos built into the site
-     "site:1729…-ab12.webp" a photo uploaded in the portal
+     "asset:hero"                     a photo built into the site
+     "asset:memories/chicago-2024/001" (any file under src/assets)
+     "site:1729…-ab12.webp"           a photo uploaded in the portal
    --------------------------------------------------------------- */
 
 export type Tone = 'white' | 'light' | 'silver';
 export interface Link { label: string; url: string }
 export interface Card { kicker?: string; title: string; body?: string; url?: string; cta?: string }
 export interface Item { title: string; detail?: string; url?: string }
+export interface Qa { q: string; a: string }
 
 export type Block =
   | { id: string; type: 'hero'; image: string }
@@ -27,7 +29,10 @@ export type Block =
   | { id: string; type: 'calendar' }
   | { id: string; type: 'ring'; heading?: string; tone?: Tone }
   | { id: string; type: 'ensembles' }
-  | { id: string; type: 'news'; count?: number };
+  | { id: string; type: 'news'; count?: number }
+  | { id: string; type: 'gallery'; heading?: string; md?: string; images: string[]; tone?: Tone }
+  | { id: string; type: 'video'; heading?: string; md?: string; url: string; tone?: Tone }
+  | { id: string; type: 'faq'; heading?: string; items: Qa[]; tone?: Tone };
 
 export type BlockType = Block['type'];
 
@@ -37,6 +42,9 @@ export const BLOCK_TYPES: { type: BlockType; name: string; hint: string }[] = [
   { type: 'text', name: 'Text', hint: 'Paragraphs, headings, bullet lists, links' },
   { type: 'split', name: 'Photo and text', hint: 'A photo beside text, with an optional button' },
   { type: 'image', name: 'Image', hint: 'One wide photo with an optional caption' },
+  { type: 'gallery', name: 'Photo gallery', hint: 'A grid of photos that open full size when clicked' },
+  { type: 'video', name: 'Video', hint: 'A YouTube video, with an optional heading and text' },
+  { type: 'faq', name: 'Questions & answers', hint: 'Questions that open to show their answer' },
   { type: 'hero', name: 'Banner photo', hint: 'Full-width photo across the top of a page' },
   { type: 'quote', name: 'Quote', hint: 'A large quotation' },
   { type: 'buttons', name: 'Buttons', hint: 'One or more buttons in a row' },
@@ -45,7 +53,7 @@ export const BLOCK_TYPES: { type: BlockType; name: string; hint: string }[] = [
   { type: 'events', name: 'Upcoming concerts', hint: 'The next few events, always current' },
   { type: 'calendar', name: 'Full calendar', hint: 'Upcoming and past events with the subscribe button' },
   { type: 'ring', name: 'Photo ring', hint: 'The spinning ring of photos (Photos in the portal)' },
-  { type: 'ensembles', name: 'Orchestras', hint: 'All six ensembles (edited under Orchestras)' },
+  { type: 'ensembles', name: 'Orchestras', hint: 'Every ensemble (edited under Orchestras)' },
   { type: 'news', name: 'Announcements', hint: 'Posts from Announcements, newest first' },
 ];
 
@@ -73,6 +81,9 @@ export function blankBlock(type: BlockType): Block {
     case 'ring': return { id, type, heading: 'Orchestra Memories' };
     case 'ensembles': return { id, type };
     case 'news': return { id, type };
+    case 'gallery': return { id, type, images: [] };
+    case 'video': return { id, type, url: '' };
+    case 'faq': return { id, type, items: [{ q: 'Question', a: '' }] };
   }
 }
 
@@ -80,6 +91,12 @@ export function blankBlock(type: BlockType): Block {
 export interface NavConfig {
   header: Link[];
   footer: { name: string; address: string; email: string; about: Link[]; support: Link[] };
+}
+
+/** The YouTube video id in a watch, share, embed or Shorts link, or null. */
+export function youtubeId(url: string | undefined): string | null {
+  const m = (url ?? '').match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([\w-]{11})/);
+  return m ? m[1] : null;
 }
 
 /** Pages whose address is fixed in the code. Custom pages can't use these. */

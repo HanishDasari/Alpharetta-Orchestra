@@ -28,6 +28,7 @@ const NAV: Record<Role, { label: string; href: string }[]> = {
     { label: 'Photos', href: '/portal/photos' },
     { label: 'Roster', href: '/portal/roster' },
     { label: 'Daily Board', href: '/portal/admin/board' },
+    { label: 'Presentations', href: '/portal/admin/slides' },
     { label: 'Forms', href: '/portal/admin/forms' },
     { label: 'Design & Appearance', href: '/portal/admin/design' },
     { label: 'View as student', href: '/portal/student' },
@@ -48,12 +49,14 @@ const NAV: Record<Role, { label: string; href: string }[]> = {
   student: [
     { label: 'Today', href: '/portal/student' },
     { label: 'Past boards', href: '/portal/student#past' },
+    { label: 'Presentations', href: '/portal/student#slides' },
     { label: 'Forms', href: '/portal/student#forms' },
     { label: 'Calendar', href: '/calendar' },
   ],
   family: [
     { label: 'Overview', href: '/portal/family' },
     { label: 'Forms', href: '/portal/family#forms' },
+    { label: 'Presentations', href: '/portal/family#slides' },
     { label: 'Fees', href: '/portal/family#fees' },
     { label: 'Calendar', href: '/calendar' },
   ],
@@ -76,6 +79,11 @@ const path = Astro.url.pathname.replace(/\/$/, '');
   </head>
 
   <body class="pbody" data-state="loading" data-roles={roles.join(',')}>
+    <p class="demo-bar">
+      <strong>Demo mode.</strong> Sample data, saved only in this browser. Nothing here reaches the real database.
+      <a href="/portal">Switch role</a>
+      <button type="button" data-signout>Exit demo</button>
+    </p>
     <div class="shell">
       <aside class="side">
         <a class="side__brand" href="/">
@@ -149,6 +157,14 @@ const path = Astro.url.pathname.replace(/\/$/, '');
   }
 
   .shell { display: grid; grid-template-columns: 248px 1fr; min-height: 100vh; }
+
+  .demo-bar {
+    display: none; margin: 0; padding: .55rem 1rem; text-align: center;
+    background: #FFF1D6; color: #5C3D00; font-size: .85rem; border-bottom: 1px solid #F0DDB4;
+  }
+  [data-demo] .demo-bar { display: block; }
+  .demo-bar a, .demo-bar button { margin-left: .75rem; color: #5C3D00; font: inherit; font-weight: 500; }
+  .demo-bar button { background: none; border: 1px solid #D9B970; border-radius: 5px; padding: .15rem .55rem; cursor: pointer; }
 
   /* Signed-in states. Nothing from the page shows until the layout has
      confirmed who you are. */

@@ -36,6 +36,18 @@ import AuthShell from '../../components/AuthShell.astro';
     </form>
   </details>
 
+  <section class="demo" aria-labelledby="demo-h">
+    <h2 id="demo-h">Try it without an account</h2>
+    <p>Open any portal in demo mode, with sample data. Nothing you do there reaches the real site or database.</p>
+    <div class="demo__grid">
+      <button type="button" data-demo-role="admin"><b>Director</b><small>Website, roster, board, forms, slides</small></button>
+      <button type="button" data-demo-role="webmaster"><b>Webmaster</b><small>Edit the website</small></button>
+      <button type="button" data-demo-role="student"><b>Student</b><small>Today&rsquo;s board, forms</small></button>
+      <button type="button" data-demo-role="family"><b>Family</b><small>Your student, forms, fees</small></button>
+      <button type="button" data-demo-role="treasurer"><b>Treasurer</b><small>Fees and payments (sample)</small></button>
+    </div>
+  </section>
+
   <p class="fine">
     No account? Accounts are set up by the program, not self-service.
     Students and families: ask <a href="/contact">Mr. Hood</a>.
@@ -45,6 +57,15 @@ import AuthShell from '../../components/AuthShell.astro';
 <script>
   import { supabase } from '../../lib/supabase';
   import { HOME, type Role } from '../../portal/client';
+  import { startDemo } from '../../portal/demo';
+
+  document.querySelectorAll<HTMLButtonElement>('[data-demo-role]').forEach((b) => {
+    b.addEventListener('click', () => {
+      const role = b.dataset.demoRole as Role;
+      startDemo(role);
+      location.assign(HOME[role]);
+    });
+  });
 
   const db = supabase();
   const form = document.getElementById('signin') as HTMLFormElement;

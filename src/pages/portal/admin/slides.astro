@@ -1,0 +1,331 @@
+---
+import Portal from '../../../layouts/Portal.astro';
+import { LAYOUTS, SLIDE_CSS } from '../../../portal/slides';
+---
+
+<Portal title="Presentations" roles={['admin']}>
+  <div class="head">
+    <div>
+      <h1>Presentations</h1>
+      <p class="sub">Slides you build and present right here, like Google Slides. Share a deck and students and families can open it from their portal.</p>
+    </div>
+    <button class="pbtn pbtn--primary" type="button" id="new">New presentation</button>
+  </div>
+
+  <section class="card decks-card" id="decks-card">
+    <h2>Your presentations</h2>
+    <ul class="decks" id="decks"><li><p class="empty">Loading&hellip;</p></li></ul>
+  </section>
+
+  <div id="editor" hidden>
+    <div class="deckbar card">
+      <div class="fld deckbar__title">
+        <label for="d-title">Title</label>
+        <input class="inp" id="d-title" maxlength="120" />
+      </div>
+      <label class="check"><input type="checkbox" id="d-shared" /> Shared with students &amp; families</label>
+      <span class="spacer"></span>
+      <button class="pbtn pbtn--ghost" type="button" id="back">All presentations</button>
+      <button class="pbtn pbtn--primary" type="button" id="present">Present</button>
+    </div>
+
+    <div class="studio">
+      <section class="strip" aria-label="Slides">
+        <ol class="strip__list" id="strip"></ol>
+        <button class="pbtn pbtn--ghost strip__add" type="button" id="add-slide">Add slide</button>
+      </section>
+
+      <section class="canvas" aria-label="Slide preview">
+        <div class="canvas__box"><div class="stage" id="preview"></div></div>
+        <p class="hint" id="pos"></p>
+      </section>
+
+      <section class="card props" aria-labelledby="props-h">
+        <h2 id="props-h">This slide</h2>
+        <div class="fld">
+          <label for="s-layout">Layout</label>
+          <select class="inp" id="s-layout">{LAYOUTS.map((l) => <option value={l.value}>{l.name}</option>)}</select>
+        </div>
+        <div class="fld">
+          <label for="s-title">Title</label>
+          <input class="inp" id="s-title" />
+        </div>
+        <div class="fld">
+          <label for="s-md">Text</label>
+          <textarea class="inp inp--area" id="s-md" rows="8"></textarea>
+          <p class="hint">- for bullets, **bold**, ## for a heading.</p>
+        </div>
+        <div class="fld" id="s-image-wrap">
+          <span class="lbl">Photo</span>
+          <div class="imgfld"><img alt="" id="s-image-prev" /><span class="imgfld__empty">No photo yet</span>
+            <button type="button" class="pbtn pbtn--ghost" id="s-image">Choose photo</button></div>
+        </div>
+        <div class="actions">
+          <button class="pbtn pbtn--ghost" type="button" id="dup">Duplicate</button>
+          <button class="pbtn pbtn--danger" type="button" id="del-slide">Delete slide</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="savebar" id="savebar">
+      <span id="dirty">All changes saved.</span>
+      <span class="spacer"></span>
+      <button class="pbtn pbtn--danger" type="button" id="del-deck">Delete presentation</button>
+      <button class="pbtn pbtn--primary" type="button" id="save">Save</button>
+    </div>
+  </div>
+</Portal>
+
+<style is:global set:html={SLIDE_CSS}></style>
+
+<style is:global>
+  .decks { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1rem; }
+  .decks button { display: grid; gap: .5rem; width: 100%; text-align: left; padding: 0; border: 0; background: none; cursor: pointer; font: inherit; color: var(--ink); }
+  .decks .thumb { border-radius: 8px; box-shadow: 0 0 0 1px #E3E6E8; transition: box-shadow .15s ease, transform .15s ease; }
+  .decks button:hover .thumb { box-shadow: 0 0 0 2px var(--maroon); transform: translateY(-2px); }
+  .decks b { font-size: .92rem; }
+  .decks small { color: var(--ink-soft); font-size: .8rem; }
+
+  .thumb { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; background: #fff; }
+  .thumb .stage { pointer-events: none; }
+
+  .deckbar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: .9rem; padding: 1rem 1.2rem; }
+  .deckbar .fld { margin: 0; }
+  .deckbar__title { flex: 1 1 280px; }
+  .deckbar .spacer { flex: 1; }
+  .deckbar .check { padding-bottom: .55rem; }
+
+  .studio { display: grid; grid-template-columns: 170px minmax(0, 1fr) 300px; gap: 1rem; align-items: start; }
+  .strip { max-height: calc(100vh - 220px); overflow-y: auto; padding-right: .25rem; }
+  .strip__list { list-style: none; margin: 0 0 .6rem; padding: 0; display: grid; gap: .6rem; counter-reset: s; }
+  .strip__list li { display: grid; grid-template-columns: 1.2rem 1fr; gap: .35rem; align-items: start; }
+  .strip__list li::before { counter-increment: s; content: counter(s); font-size: .75rem; color: var(--ink-soft); padding-top: .2rem; text-align: right; }
+  .strip__list button.thumb { border: 0; padding: 0; border-radius: 5px; cursor: pointer; box-shadow: 0 0 0 1px #DADFE2; }
+  .strip__list button.thumb[aria-current="true"] { box-shadow: 0 0 0 3px var(--maroon); }
+  .strip__moves { grid-column: 2; display: flex; gap: .25rem; }
+  .strip__moves button { flex: 1; font: inherit; font-size: .7rem; padding: .1rem; border: 1px solid #D8DDE0; background: #fff; border-radius: 4px; cursor: pointer; }
+  .strip__moves button[disabled] { opacity: .35; cursor: default; }
+  .strip__add { width: 100%; justify-content: center; border-style: dashed; }
+
+  .canvas__box { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 8px; box-shadow: 0 10px 30px -18px rgb(16 24 32 / .45), 0 0 0 1px #E3E6E8; background: #fff; }
+  .canvas .hint { text-align: center; }
+  .props { position: sticky; top: 1rem; }
+  .lbl { display: block; font-size: .72rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: .35rem; }
+  .imgfld { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+  .imgfld img { width: 110px; height: 70px; object-fit: cover; border-radius: 6px; }
+  .imgfld img:not([src]) { display: none; }
+  .imgfld__empty { width: 110px; height: 70px; display: grid; place-items: center; border-radius: 6px; border: 1px dashed #CFD5D9; font-size: .75rem; color: var(--ink-soft); }
+  .imgfld img[src] + .imgfld__empty { display: none; }
+
+  .savebar {
+    position: sticky; bottom: 0; z-index: 5; margin-top: 1.25rem; display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
+    background: #fff; border: 1px solid #E3E6E8; border-radius: 10px; padding: .75rem 1rem; box-shadow: 0 -8px 24px -16px rgb(16 24 32 / .35);
+  }
+  .savebar .spacer { flex: 1; }
+  .savebar.is-dirty #dirty { color: #8A2B29; font-weight: 500; }
+  #dirty { font-size: .88rem; color: var(--ink-soft); }
+
+  @media (max-width: 1100px) {
+    .studio { grid-template-columns: 1fr; }
+    .strip { max-height: none; }
+    .strip__list { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+    .props { position: static; }
+  }
+</style>
+
+<script>
+  import { whenReady, esc, toast, explain, fmtDate } from '../../../portal/client';
+  import { pickImage, imageUrl } from '../../../portal/imagePicker';
+  import { slideHtml, fitStages, present, newSlide, type Slide, type Layout } from '../../../portal/slides';
+
+  const { db, profile } = await whenReady();
+  const byId = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
+  const decksEl = byId('decks'), strip = byId('strip'), preview = byId('preview');
+
+  let decks: any[] = [];
+  let deck: any = null;         // working copy
+  let saved = '';
+  let cur = 0;
+
+  const dirty = () => deck && JSON.stringify(deck) !== saved;
+  function markDirty() {
+    byId('savebar').classList.toggle('is-dirty', !!dirty());
+    byId('dirty').textContent = dirty() ? 'Unsaved changes' : 'All changes saved.';
+  }
+  window.addEventListener('beforeunload', (e) => { if (dirty()) e.preventDefault(); });
+  window.addEventListener('resize', () => fitStages());
+
+  // Deck list --------------------------------------------------------
+  async function loadDecks() {
+    const { data, error } = await db.from('presentations').select('*').order('updated_at', { ascending: false });
+    if (error) return toast(explain(error), 'error');
+    decks = data;
+    decksEl.innerHTML = decks.length
+      ? decks.map((d) => `<li><button type="button" data-id="${d.id}">
+          <span class="thumb"><span class="stage">${d.slides[0] ? slideHtml(d.slides[0]) : ''}</span></span>
+          <b>${esc(d.title)}</b>
+          <small>${d.slides.length} slide${d.slides.length === 1 ? '' : 's'} · ${d.shared ? 'Shared' : 'Only you'} · ${fmtDate(d.updated_at)}</small>
+        </button></li>`).join('')
+      : '<li><p class="empty">No presentations yet. Make your first with New presentation.</p></li>';
+    fitStages(decksEl);
+  }
+
+  function open(d: any) {
+    if (dirty() && !confirm('You have unsaved changes. Discard them?')) return;
+    deck = structuredClone(d);
+    saved = d.id ? JSON.stringify(deck) : '';
+    cur = 0;
+    byId('decks-card').hidden = true;
+    byId('editor').hidden = false;
+    byId<HTMLInputElement>('d-title').value = deck.title;
+    byId<HTMLInputElement>('d-shared').checked = deck.shared;
+    byId('del-deck').hidden = !deck.id;
+    renderAll();
+    markDirty();
+  }
+
+  function close() {
+    if (dirty() && !confirm('You have unsaved changes. Discard them?')) return;
+    deck = null;
+    saved = '';
+    byId('editor').hidden = true;
+    byId('decks-card').hidden = false;
+    loadDecks();
+  }
+
+  // Editor -------------------------------------------------------------
+  const slide = (): Slide => deck.slides[cur];
+
+  function renderStrip() {
+    const n = deck.slides.length;
+    strip.innerHTML = deck.slides.map((s: Slide, i: number) => `<li>
+      <button type="button" class="thumb" data-i="${i}" aria-current="${i === cur}" aria-label="Slide ${i + 1}"><span class="stage">${slideHtml(s)}</span></button>
+      <span class="strip__moves">
+        <button type="button" data-move="-1" data-i="${i}" ${i === 0 ? 'disabled' : ''} aria-label="Move slide up">Up</button>
+        <button type="button" data-move="1" data-i="${i}" ${i === n - 1 ? 'disabled' : ''} aria-label="Move slide down">Down</button>
+      </span></li>`).join('');
+    fitStages(strip);
+  }
+
+  function renderPreview() {
+    preview.innerHTML = deck.slides.length ? slideHtml(slide()) : '';
+    byId('pos').textContent = deck.slides.length ? `Slide ${cur + 1} of ${deck.slides.length}` : 'No slides yet';
+    fitStages(byId('editor'));
+  }
+
+  function renderProps() {
+    const s = slide();
+    const has = !!s;
+    byId('s-layout').closest('.props')!.toggleAttribute('hidden', !has);
+    if (!has) return;
+    byId<HTMLSelectElement>('s-layout').value = s.layout;
+    byId<HTMLInputElement>('s-title').value = s.title ?? '';
+    byId<HTMLTextAreaElement>('s-md').value = s.md ?? '';
+    byId('s-image-wrap').hidden = !(s.layout === 'image' || s.layout === 'split');
+    const src = imageUrl(s.image);
+    const img = byId<HTMLImageElement>('s-image-prev');
+    if (src) img.src = src; else img.removeAttribute('src');
+    byId<HTMLButtonElement>('del-slide').disabled = deck.slides.length <= 1;
+  }
+
+  function renderAll() { renderStrip(); renderPreview(); renderProps(); }
+
+  // Live edits update the preview and the thumbnail as you type.
+  function edited() {
+    renderPreview();
+    const thumb = strip.querySelector(`button.thumb[data-i="${cur}"] .stage`);
+    if (thumb) { thumb.innerHTML = slideHtml(slide()); fitStages(strip); }
+    markDirty();
+  }
+
+  byId<HTMLInputElement>('d-title').addEventListener('input', (e) => { deck.title = (e.target as HTMLInputElement).value; markDirty(); });
+  byId<HTMLInputElement>('d-shared').addEventListener('change', (e) => { deck.shared = (e.target as HTMLInputElement).checked; markDirty(); });
+  byId<HTMLSelectElement>('s-layout').addEventListener('change', (e) => { slide().layout = (e.target as HTMLSelectElement).value as Layout; renderProps(); edited(); });
+  byId<HTMLInputElement>('s-title').addEventListener('input', (e) => { slide().title = (e.target as HTMLInputElement).value; edited(); });
+  byId<HTMLTextAreaElement>('s-md').addEventListener('input', (e) => { slide().md = (e.target as HTMLTextAreaElement).value; edited(); });
+  byId('s-image').addEventListener('click', async () => {
+    const ref = await pickImage(db);
+    if (!ref) return;
+    slide().image = ref;
+    renderProps();
+    edited();
+  });
+
+  strip.addEventListener('click', (e) => {
+    const t = e.target as HTMLElement;
+    const move = t.closest<HTMLButtonElement>('[data-move]');
+    if (move) {
+      const i = Number(move.dataset.i), j = i + Number(move.dataset.move);
+      [deck.slides[i], deck.slides[j]] = [deck.slides[j], deck.slides[i]];
+      cur = j;
+      renderAll();
+      return markDirty();
+    }
+    const th = t.closest<HTMLButtonElement>('button.thumb');
+    if (th) { cur = Number(th.dataset.i); renderAll(); }
+  });
+
+  byId('add-slide').addEventListener('click', () => {
+    deck.slides.splice(cur + 1, 0, newSlide(deck.slides.length ? 'text' : 'title'));
+    cur = Math.min(cur + 1, deck.slides.length - 1);
+    renderAll();
+    markDirty();
+    byId<HTMLInputElement>('s-title').focus();
+  });
+  byId('dup').addEventListener('click', () => {
+    deck.slides.splice(cur + 1, 0, { ...structuredClone(slide()), id: Math.random().toString(36).slice(2, 10) });
+    cur++;
+    renderAll();
+    markDirty();
+  });
+  byId('del-slide').addEventListener('click', () => {
+    if (deck.slides.length <= 1) return;
+    deck.slides.splice(cur, 1);
+    cur = Math.max(0, cur - 1);
+    renderAll();
+    markDirty();
+  });
+
+  byId('present').addEventListener('click', () => present(deck.slides, cur, deck.title));
+  byId('back').addEventListener('click', close);
+
+  byId('save').addEventListener('click', async () => {
+    if (!deck.title.trim()) return toast('Give the presentation a title.', 'error');
+    const row = { title: deck.title.trim(), slides: deck.slides, shared: deck.shared, updated_by: profile.id };
+    const btn = byId<HTMLButtonElement>('save');
+    btn.disabled = true;
+    const res = deck.id
+      ? await db.from('presentations').update(row).eq('id', deck.id).select().single()
+      : await db.from('presentations').insert(row).select().single();
+    btn.disabled = false;
+    if (res.error) return toast(explain(res.error), 'error');
+    deck = structuredClone(res.data);
+    saved = JSON.stringify(deck);
+    byId('del-deck').hidden = false;
+    markDirty();
+    toast(deck.shared ? 'Saved. Students and families can open it from their portal.' : 'Saved.');
+  });
+
+  byId('del-deck').addEventListener('click', async () => {
+    if (!deck?.id || !confirm(`Delete “${deck.title}”? This can’t be undone.`)) return;
+    const { error } = await db.from('presentations').delete().eq('id', deck.id);
+    if (error) return toast(explain(error), 'error');
+    toast('Deleted.');
+    saved = JSON.stringify(deck);
+    close();
+  });
+
+  decksEl.addEventListener('click', (e) => {
+    const id = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-id]')?.dataset.id;
+    const d = decks.find((x) => x.id === id);
+    if (d) open(d);
+  });
+  byId('new').addEventListener('click', () => {
+    open({ title: 'Untitled presentation', shared: false, slides: [newSlide('title'), newSlide('text')] });
+    byId<HTMLInputElement>('d-title').select();
+  });
+
+  await loadDecks();
+  const want = new URLSearchParams(location.search).get('id');
+  if (want) { const d = decks.find((x) => x.id === want); if (d) open(d); }
+</script>

@@ -13,6 +13,11 @@ import Portal from '../../layouts/Portal.astro';
     <div id="board"><p class="empty">Loading&hellip;</p></div>
   </section>
 
+  <section class="card" id="slides" aria-labelledby="slides-h">
+    <h2 id="slides-h">Presentations</h2>
+    <ul class="list" id="deck-list"><li><p class="empty">Loading&hellip;</p></li></ul>
+  </section>
+
   <section class="card" id="forms" aria-labelledby="forms-h">
     <h2 id="forms-h">Forms to fill</h2>
     <ul class="list" id="formlist"><li><p class="empty">Loading&hellip;</p></li></ul>
@@ -91,4 +96,11 @@ import Portal from '../../layouts/Portal.astro';
     ? news.data!.map((n) => `<article class="news"><b>${esc(n.title)}</b> <small>${fmtDay(n.date, { month: 'short', day: 'numeric' })}</small>
         <div class="md">${renderMarkdown(n.body)}</div></article>`).join('')
     : '<p class="empty">No announcements.</p>';
+
+  // Shared presentations (RLS returns only decks marked shared).
+  const decks = await db.from('presentations').select('id, title, slides, updated_at, shared').eq('shared', true).order('updated_at', { ascending: false });
+  byId('deck-list').innerHTML = (decks.data ?? []).length
+    ? decks.data!.map((d: any) => `<li><a class="row" href="/portal/slides?id=${d.id}"><b>${esc(d.title)}</b>
+        <small>${d.slides.length} slides</small></a></li>`).join('')
+    : '<li><p class="empty">No presentations shared yet.</p></li>';
 </script>

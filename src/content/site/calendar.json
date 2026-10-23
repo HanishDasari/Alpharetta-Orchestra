@@ -14,6 +14,48 @@
     {
       "id": "b014",
       "type": "calendar"
+    },
+    {
+      "id": "rec-head",
+      "type": "heading",
+      "tone": "white",
+      "title": "Concert recordings",
+      "lede": "Missed a concert? Watch the full performances."
+    },
+    {
+      "id": "rec-0",
+      "type": "video",
+      "heading": "Fine Arts Festival 2026",
+      "md": "Did you know that Alpharetta High School is one among the few Orchestra programs in the entire state to have a Full Orchestra, a combination of the highest-level performing arts? We are proud to present the 2026 Fine Arts Festival, with a wide variety of music including a solo performed by our very own Sophie Li, the winner of the AHS Concerto Competition. Thank you Mr. Hood and Mr. Manson for an amazing performance!",
+      "url": "https://www.youtube.com/watch?v=dvfkU7o6Kak"
+    },
+    {
+      "id": "rec-1",
+      "type": "video",
+      "heading": "Winter Concert 2025",
+      "md": "Welcome to our 2025 Annual Winter Concert! We are thrilled to share music that captures the joy of the holiday season. Our students present a selection of festive and winter-themed pieces that showcase their hard work. Thank you to the AHS Wind Ensemble for performing at our concert, and to Mr. Hood, Mr. Manson, and Mr. Kaufman for making this possible!",
+      "url": "https://www.youtube.com/watch?v=lW2KgrBJVPE&t=2076"
+    },
+    {
+      "id": "rec-2",
+      "type": "video",
+      "heading": "Fall Concert 2025",
+      "md": "Welcome to our Alpharetta Orchestra's first concert of 2025, the Fall Concert! We begin with the dedicated musicians of the 8th grade Webb Bridge Middle School and Hopewell Middle School Orchestras. Next, our very own Concert, Silver, Philharmonia, Sinfonia, and Symphony Orchestras take the stage. Thank you Dr. Barket, Ms. Hoebeke, and Mr. Hood for making this concert possible!",
+      "url": "https://www.youtube.com/watch?v=tsuspbCGFtA"
+    },
+    {
+      "id": "rec-3",
+      "type": "video",
+      "heading": "Spring Concert 2025",
+      "md": "The last orchestra concert of the 2024-2025 academic year: almost all pieces conducted by students, all your favorite Disney tunes, senior spotlights, and a magical night of music and memories.",
+      "url": "https://www.youtube.com/watch?v=-fvmkviuqOk&t=2122"
+    },
+    {
+      "id": "rec-4",
+      "type": "video",
+      "heading": "Fall Concert 2024",
+      "md": "The Alpharetta Orchestra's first concert of 2024, with the dedicated musicians of the 8th Grade Hopewell Middle School Orchestra and our very own Concert, Silver, Philharmonia, Sinfonia, and Symphony Orchestras. Thank you for watching and for your support.",
+      "url": "https://www.youtube.com/watch?v=gDKFFfLmNeE"
     }
   ]
 }
